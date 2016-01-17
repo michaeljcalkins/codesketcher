@@ -5,7 +5,7 @@ angular
             .state('drawing', {
                 url: '/drawing',
                 template: require('./modules/drawing/views/drawing.html'),
-                controller: require('./modules/drawing/controllers/drawing.js'),
+                controller: require('./modules/drawing/controllers/drawing.ctrl.js'),
                 controllerAs: 'ctrl'
             })
     }

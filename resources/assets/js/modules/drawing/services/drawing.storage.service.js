@@ -1,4 +1,4 @@
-module.exports = function($rootScope) {
+module.exports = function($rootScope, $timeout) {
     return function() {
         this.pages = []
         this.currentHtmlObject = null
@@ -27,6 +27,23 @@ module.exports = function($rootScope) {
             })
         }
 
+        this.createPageAndSetAsCurrent = () => {
+            let id = guid()
+            this.pages.push({
+                id: id,
+                name: "",
+                htmlObjects: [],
+                styles: {
+                    height: '900px',
+                    width: '1200px',
+                    backgroundColor: 'white'
+                }
+            })
+
+            let page = _.find(this.pages, { id })
+            this.setCurrentPage(page)
+        }
+
         this.removePage = (page) => {
             _.remove(this.pages, { id: page.id })
         }
@@ -39,6 +56,7 @@ module.exports = function($rootScope) {
 
         this.setCurrentHtmlObject = (htmlObject) => {
             this.currentHtmlObject = htmlObject
+            if (!$rootScope.$$phase) $rootScope.$apply()
         }
 
         this.removeHtmlObject = (htmlObject) => {
@@ -48,11 +66,16 @@ module.exports = function($rootScope) {
             this.pages[pageIndex].htmlObjects = htmlObjectsCopy
         }
 
-        this.addHtmlObject = (newHtmlObject) => {
+        this.createHtmlObject = (newHtmlObject) => {
             let pageIndex = _.findIndex(this.pages, { id: this.currentPage.id })
             this.pages[pageIndex].htmlObjects.push(newHtmlObject)
             this.setCurrentPage(this.pages[pageIndex])
             $rootScope.$apply()
+        }
+
+        this.createHtmlObjectAndSetAsCurrent = (newHtmlObject) => {
+            this.createHtmlObject(newHtmlObject)
+            this.setCurrentHtmlObject(newHtmlObject)
         }
 
         this.updateHtmlObject = (htmlObject) => {

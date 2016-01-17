@@ -7,13 +7,14 @@
     <meta name="description" content="Simple tools for design, development, and communication.">
     <meta name="author" content="">
 
-    <title>simple.team - A Web Developer's Best Friend</title>
+    <title>Code Sketcher</title>
 
     <link rel="shortcut icon" type="image/png" href="/img/SimpleTeam01-favicon.png"/>
 
     <!-- Bootstrap Core CSS -->
     <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
 	<link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet">
 
     <!-- Angular CSS -->
     <link href='//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.7.1/loading-bar.min.css' rel='stylesheet' type='text/css'>

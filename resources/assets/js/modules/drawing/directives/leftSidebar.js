@@ -1,4 +1,4 @@
-module.exports = function() {
+module.exports = function LeftSidebarDirective() {
     return {
         scope: {
             drawingStorage: '='
@@ -9,11 +9,14 @@ module.exports = function() {
                 <div class="panel-heading">
                     Pages
                     <button
-                        ng-click="drawingStorage.createPage()"
+                        ng-click="drawingStorage.createPageAndSetAsCurrent()"
                         class="btn btn-link">+</button>
                 </div>
                 <div class="panel-body">
-                    <ul class="nav nav-sidebar">
+                    <ul
+                        class="nav nav-sidebar"
+                        ng-model="drawingStorage.pages"
+                        ui-sortable>
                          <li
                             ng-repeat="page in drawingStorage.pages"
                             ng-class="{
@@ -32,7 +35,11 @@ module.exports = function() {
                 style="border-top: 1px solid #b8b8b8;">
                 <div class="panel-heading">{{ drawingStorage.currentPage.name }}</div>
                 <div class="panel-body">
-                    <ul class="nav nav-sidebar" ng-if="drawingStorage.currentPage">
+                    <ul
+                        class="nav nav-sidebar"
+                        ng-model="drawingStorage.currentPage.htmlObjects"
+                        ui-sortable
+                        ng-if="drawingStorage.currentPage">
                          <li
                             ng-class="{ active: drawingStorage.currentHtmlObject && drawingStorage.currentHtmlObject.id == htmlObject.id }"
                             ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects"

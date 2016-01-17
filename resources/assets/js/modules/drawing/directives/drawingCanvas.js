@@ -1,4 +1,4 @@
-module.exports = function drawingCanvas(DrawingStorage) {
+module.exports = function DrawingCanvasDirective(DrawingStorage) {
     return {
         scope: {
             drawingStorage: '='
@@ -17,6 +17,10 @@ module.exports = function drawingCanvas(DrawingStorage) {
                         ng-mousedown="drawingStorage.setCurrentHtmlObject(htmlObject)"
                         ng-click="drawingStorage.setCurrentHtmlObject(htmlObject)"
                         ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects"
+                        ng-class="{
+                            'current-html-object': htmlObject.id == drawingStorage.currentHtmlObject.id,
+                            'unfocused-html-object': htmlObject.id != drawingStorage.currentHtmlObject.id
+                        }"
                         ng-style="htmlObject.styles">
                         {{ htmlObject.styles.body }}
                     </div>
@@ -94,12 +98,14 @@ module.exports = function drawingCanvas(DrawingStorage) {
 
                 if (!createSquareByDragging) return
 
+                $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
+
                 var newDiv = $('<div class="html-object-placeholder" />')
                     .css({
                         height: 0,
                         width: 0,
                         position: 'absolute',
-                        zIndex: 100000,
+                        zIndex: 999999,
                         left: startingPosition.x,
                         top: startingPosition.y - $('.navbar').outerHeight()
                     })
@@ -123,6 +129,8 @@ module.exports = function drawingCanvas(DrawingStorage) {
 
                 let newWidth = evt.offsetX - startingPosition.x
                 let newHeight = evt.offsetY + $('.navbar').outerHeight() - startingPosition.y
+
+                $('.drawing-canvas-screen').remove()
 
                 let newHtmlObject = {
                     id: Math.floor(Math.random() * 10000),
@@ -148,7 +156,7 @@ module.exports = function drawingCanvas(DrawingStorage) {
                 $('.main').css('cursor', 'auto')
                 $('.html-object-placeholder').remove()
 
-                $scope.drawingStorage.addHtmlObject(newHtmlObject)
+                $scope.drawingStorage.createHtmlObject(newHtmlObject)
                 $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject)
 
                 setTimeout(() => {

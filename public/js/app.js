@@ -11649,6 +11649,358 @@ angular.module('ui.router.state')
   .filter('includedByState', $IncludedByStateFilter);
 })(window, window.angular);
 },{}],5:[function(require,module,exports){
+/*
+ jQuery UI Sortable plugin wrapper
+
+ @param [ui-sortable] {object} Options to pass to $.fn.sortable() merged onto ui.config
+ */
+angular.module('ui.sortable', [])
+  .value('uiSortableConfig',{})
+  .directive('uiSortable', [
+    'uiSortableConfig', '$timeout', '$log',
+    function(uiSortableConfig, $timeout, $log) {
+      return {
+        require: '?ngModel',
+        scope: {
+          ngModel: '=',
+          uiSortable: '='
+        },
+        link: function(scope, element, attrs, ngModel) {
+          var savedNodes;
+
+          function combineCallbacks(first,second){
+            if(second && (typeof second === 'function')) {
+              return function() {
+                first.apply(this, arguments);
+                second.apply(this, arguments);
+              };
+            }
+            return first;
+          }
+
+          function getSortableWidgetInstance(element) {
+            // this is a fix to support jquery-ui prior to v1.11.x
+            // otherwise we should be using `element.sortable('instance')`
+            var data = element.data('ui-sortable');
+            if (data && typeof data === 'object' && data.widgetFullName === 'ui-sortable') {
+              return data;
+            }
+            return null;
+          }
+
+          function hasSortingHelper (element, ui) {
+            var helperOption = element.sortable('option','helper');
+            return helperOption === 'clone' || (typeof helperOption === 'function' && ui.item.sortable.isCustomHelperUsed());
+          }
+
+          // thanks jquery-ui
+          function isFloating (item) {
+            return (/left|right/).test(item.css('float')) || (/inline|table-cell/).test(item.css('display'));
+          }
+
+          function getElementScope(elementScopes, element) {
+            var result = null;
+            for (var i = 0; i < elementScopes.length; i++) {
+              var x = elementScopes[i];
+              if (x.element[0] === element[0]) {
+                result = x.scope;
+                break;
+              }
+            }
+            return result;
+          }
+
+          function afterStop(e, ui) {
+            ui.item.sortable._destroy();
+          }
+
+          var opts = {};
+
+          // directive specific options
+          var directiveOpts = {
+            'ui-floating': undefined
+          };
+
+          var callbacks = {
+            receive: null,
+            remove:null,
+            start:null,
+            stop:null,
+            update:null
+          };
+
+          var wrappers = {
+            helper: null
+          };
+
+          angular.extend(opts, directiveOpts, uiSortableConfig, scope.uiSortable);
+
+          if (!angular.element.fn || !angular.element.fn.jquery) {
+            $log.error('ui.sortable: jQuery should be included before AngularJS!');
+            return;
+          }
+
+          if (ngModel) {
+
+            // When we add or remove elements, we need the sortable to 'refresh'
+            // so it can find the new/removed elements.
+            scope.$watch('ngModel.length', function() {
+              // Timeout to let ng-repeat modify the DOM
+              $timeout(function() {
+                // ensure that the jquery-ui-sortable widget instance
+                // is still bound to the directive's element
+                if (!!getSortableWidgetInstance(element)) {
+                  element.sortable('refresh');
+                }
+              }, 0, false);
+            });
+
+            callbacks.start = function(e, ui) {
+              if (opts['ui-floating'] === 'auto') {
+                // since the drag has started, the element will be
+                // absolutely positioned, so we check its siblings
+                var siblings = ui.item.siblings();
+                var sortableWidgetInstance = getSortableWidgetInstance(angular.element(e.target));
+                sortableWidgetInstance.floating = isFloating(siblings);
+              }
+
+              // Save the starting position of dragged item
+              ui.item.sortable = {
+                model: ngModel.$modelValue[ui.item.index()],
+                index: ui.item.index(),
+                source: ui.item.parent(),
+                sourceModel: ngModel.$modelValue,
+                cancel: function () {
+                  ui.item.sortable._isCanceled = true;
+                },
+                isCanceled: function () {
+                  return ui.item.sortable._isCanceled;
+                },
+                isCustomHelperUsed: function () {
+                  return !!ui.item.sortable._isCustomHelperUsed;
+                },
+                _isCanceled: false,
+                _isCustomHelperUsed: ui.item.sortable._isCustomHelperUsed,
+                _destroy: function () {
+                  angular.forEach(ui.item.sortable, function(value, key) {
+                    ui.item.sortable[key] = undefined;
+                  });
+                }
+              };
+            };
+
+            callbacks.activate = function(e, ui) {
+              // We need to make a copy of the current element's contents so
+              // we can restore it after sortable has messed it up.
+              // This is inside activate (instead of start) in order to save
+              // both lists when dragging between connected lists.
+              savedNodes = element.contents();
+
+              // If this list has a placeholder (the connected lists won't),
+              // don't inlcude it in saved nodes.
+              var placeholder = element.sortable('option','placeholder');
+
+              // placeholder.element will be a function if the placeholder, has
+              // been created (placeholder will be an object).  If it hasn't
+              // been created, either placeholder will be false if no
+              // placeholder class was given or placeholder.element will be
+              // undefined if a class was given (placeholder will be a string)
+              if (placeholder && placeholder.element && typeof placeholder.element === 'function') {
+                var phElement = placeholder.element();
+                // workaround for jquery ui 1.9.x,
+                // not returning jquery collection
+                phElement = angular.element(phElement);
+
+                // exact match with the placeholder's class attribute to handle
+                // the case that multiple connected sortables exist and
+                // the placehoilder option equals the class of sortable items
+                var excludes = element.find('[class="' + phElement.attr('class') + '"]:not([ng-repeat], [data-ng-repeat])');
+
+                savedNodes = savedNodes.not(excludes);
+              }
+
+              // save the directive's scope so that it is accessible from ui.item.sortable
+              var connectedSortables = ui.item.sortable._connectedSortables || [];
+
+              connectedSortables.push({
+                element: element,
+                scope: scope
+              });
+
+              ui.item.sortable._connectedSortables = connectedSortables;
+            };
+
+            callbacks.update = function(e, ui) {
+              // Save current drop position but only if this is not a second
+              // update that happens when moving between lists because then
+              // the value will be overwritten with the old value
+              if(!ui.item.sortable.received) {
+                ui.item.sortable.dropindex = ui.item.index();
+                var droptarget = ui.item.parent();
+                ui.item.sortable.droptarget = droptarget;
+
+                var droptargetScope = getElementScope(ui.item.sortable._connectedSortables, droptarget);
+                ui.item.sortable.droptargetModel = droptargetScope.ngModel;
+
+                // Cancel the sort (let ng-repeat do the sort for us)
+                // Don't cancel if this is the received list because it has
+                // already been canceled in the other list, and trying to cancel
+                // here will mess up the DOM.
+                element.sortable('cancel');
+              }
+
+              // Put the nodes back exactly the way they started (this is very
+              // important because ng-repeat uses comment elements to delineate
+              // the start and stop of repeat sections and sortable doesn't
+              // respect their order (even if we cancel, the order of the
+              // comments are still messed up).
+              if (hasSortingHelper(element, ui) && !ui.item.sortable.received &&
+                  element.sortable( 'option', 'appendTo' ) === 'parent') {
+                // restore all the savedNodes except .ui-sortable-helper element
+                // (which is placed last). That way it will be garbage collected.
+                savedNodes = savedNodes.not(savedNodes.last());
+              }
+              savedNodes.appendTo(element);
+
+              // If this is the target connected list then
+              // it's safe to clear the restored nodes since:
+              // update is currently running and
+              // stop is not called for the target list.
+              if(ui.item.sortable.received) {
+                savedNodes = null;
+              }
+
+              // If received is true (an item was dropped in from another list)
+              // then we add the new item to this list otherwise wait until the
+              // stop event where we will know if it was a sort or item was
+              // moved here from another list
+              if(ui.item.sortable.received && !ui.item.sortable.isCanceled()) {
+                scope.$apply(function () {
+                  ngModel.$modelValue.splice(ui.item.sortable.dropindex, 0,
+                                             ui.item.sortable.moved);
+                });
+              }
+            };
+
+            callbacks.stop = function(e, ui) {
+              // If the received flag hasn't be set on the item, this is a
+              // normal sort, if dropindex is set, the item was moved, so move
+              // the items in the list.
+              if(!ui.item.sortable.received &&
+                 ('dropindex' in ui.item.sortable) &&
+                 !ui.item.sortable.isCanceled()) {
+
+                scope.$apply(function () {
+                  ngModel.$modelValue.splice(
+                    ui.item.sortable.dropindex, 0,
+                    ngModel.$modelValue.splice(ui.item.sortable.index, 1)[0]);
+                });
+              } else {
+                // if the item was not moved, then restore the elements
+                // so that the ngRepeat's comment are correct.
+                if ((!('dropindex' in ui.item.sortable) || ui.item.sortable.isCanceled()) &&
+                    !hasSortingHelper(element, ui)) {
+                  savedNodes.appendTo(element);
+                }
+              }
+
+              // It's now safe to clear the savedNodes
+              // since stop is the last callback.
+              savedNodes = null;
+            };
+
+            callbacks.receive = function(e, ui) {
+              // An item was dropped here from another list, set a flag on the
+              // item.
+              ui.item.sortable.received = true;
+            };
+
+            callbacks.remove = function(e, ui) {
+              // Workaround for a problem observed in nested connected lists.
+              // There should be an 'update' event before 'remove' when moving
+              // elements. If the event did not fire, cancel sorting.
+              if (!('dropindex' in ui.item.sortable)) {
+                element.sortable('cancel');
+                ui.item.sortable.cancel();
+              }
+
+              // Remove the item from this list's model and copy data into item,
+              // so the next list can retrive it
+              if (!ui.item.sortable.isCanceled()) {
+                scope.$apply(function () {
+                  ui.item.sortable.moved = ngModel.$modelValue.splice(
+                    ui.item.sortable.index, 1)[0];
+                });
+              }
+            };
+
+            wrappers.helper = function (inner) {
+              if (inner && typeof inner === 'function') {
+                return function (e, item) {
+                  var innerResult = inner.apply(this, arguments);
+                  item.sortable._isCustomHelperUsed = item !== innerResult;
+                  return innerResult;
+                };
+              }
+              return inner;
+            };
+
+            scope.$watch('uiSortable', function(newVal /*, oldVal*/) {
+              // ensure that the jquery-ui-sortable widget instance
+              // is still bound to the directive's element
+              var sortableWidgetInstance = getSortableWidgetInstance(element);
+              if (!!sortableWidgetInstance) {
+                angular.forEach(newVal, function(value, key) {
+                  // if it's a custom option of the directive,
+                  // handle it approprietly
+                  if (key in directiveOpts) {
+                    if (key === 'ui-floating' && (value === false || value === true)) {
+                      sortableWidgetInstance.floating = value;
+                    }
+
+                    opts[key] = value;
+                    return;
+                  }
+
+                  if (callbacks[key]) {
+                    if( key === 'stop' ){
+                      // call apply after stop
+                      value = combineCallbacks(
+                        value, function() { scope.$apply(); });
+
+                      value = combineCallbacks(value, afterStop);
+                    }
+                    // wrap the callback
+                    value = combineCallbacks(callbacks[key], value);
+                  } else if (wrappers[key]) {
+                    value = wrappers[key](value);
+                  }
+
+                  opts[key] = value;
+                  element.sortable('option', key, value);
+                });
+              }
+            }, true);
+
+            angular.forEach(callbacks, function(value, key) {
+              opts[key] = combineCallbacks(value, opts[key]);
+              if( key === 'stop' ){
+                opts[key] = combineCallbacks(opts[key], afterStop);
+              }
+            });
+
+          } else {
+            $log.info('ui.sortable: ngModel not provided!', element);
+          }
+
+          // Create sortable
+          element.sortable(opts);
+        }
+      };
+    }
+  ]);
+
+},{}],6:[function(require,module,exports){
 //! moment.js
 //! version : 2.10.6
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -14844,37 +15196,38 @@ angular.module('ui.router.state')
     return _moment;
 
 }));
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 
 require('moment');
 require('angular-ui-bootstrap');
 require('angular-ui-router');
+require('angular-ui-sortable');
 require('angular-local-storage');
 
 require('./routes.js');
 require('./modules/drawing');
 
-angular.module('codesketcher', ['ui.router', 'ui.bootstrap', 'angular-loading-bar', 'LocalStorageModule', 'codesketcher.routes', 'codesketcher.drawing']).config(function ($urlRouterProvider, cfpLoadingBarProvider) {
+angular.module('codesketcher', ['ui.router', 'ui.bootstrap', 'ui.sortable', 'angular-loading-bar', 'LocalStorageModule', 'codesketcher.routes', 'codesketcher.drawing']).config(function ($urlRouterProvider, cfpLoadingBarProvider) {
     $urlRouterProvider.otherwise('/drawing');
 }).controller('AppCtrl', function () {});
 
-},{"./modules/drawing":12,"./routes.js":15,"angular-local-storage":1,"angular-ui-bootstrap":3,"angular-ui-router":4,"moment":5}],7:[function(require,module,exports){
+},{"./modules/drawing":13,"./routes.js":16,"angular-local-storage":1,"angular-ui-bootstrap":3,"angular-ui-router":4,"angular-ui-sortable":5,"moment":6}],8:[function(require,module,exports){
 "use strict";
 
-module.exports = function DrawingCtrl(DrawingStorage) {
+module.exports = function DrawingCtrl(DrawingStorage, $scope) {
     this.drawingStorage = new DrawingStorage();
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
-module.exports = function drawingCanvas(DrawingStorage) {
+module.exports = function DrawingCanvasDirective(DrawingStorage) {
     return {
         scope: {
             drawingStorage: '='
         },
-        template: '\n        <div class="main">\n            <div\n                class="drawing-container"\n                ng-if="drawingStorage.currentPage"\n                ng-style="{ width: (parseInt(drawingStorage.currentPage.styles.width.slice(0, -2)) + 100) + \'px\' }">\n                <div\n                    class="drawing-canvas"\n                    ng-style="drawingStorage.currentPage.styles">\n                    <div\n                        class="html-object"\n                        ng-mousedown="drawingStorage.setCurrentHtmlObject(htmlObject)"\n                        ng-click="drawingStorage.setCurrentHtmlObject(htmlObject)"\n                        ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects"\n                        ng-style="htmlObject.styles">\n                        {{ htmlObject.styles.body }}\n                    </div>\n                </div>\n            </div>\n        </div>\n        ',
+        template: '\n        <div class="main">\n            <div\n                class="drawing-container"\n                ng-if="drawingStorage.currentPage"\n                ng-style="{ width: (parseInt(drawingStorage.currentPage.styles.width.slice(0, -2)) + 100) + \'px\' }">\n                <div\n                    class="drawing-canvas"\n                    ng-style="drawingStorage.currentPage.styles">\n                    <div\n                        class="html-object"\n                        ng-mousedown="drawingStorage.setCurrentHtmlObject(htmlObject)"\n                        ng-click="drawingStorage.setCurrentHtmlObject(htmlObject)"\n                        ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects"\n                        ng-class="{\n                            \'current-html-object\': htmlObject.id == drawingStorage.currentHtmlObject.id,\n                            \'unfocused-html-object\': htmlObject.id != drawingStorage.currentHtmlObject.id\n                        }"\n                        ng-style="htmlObject.styles">\n                        {{ htmlObject.styles.body }}\n                    </div>\n                </div>\n            </div>\n        </div>\n        ',
         controllerAs: 'ctrl',
         controller: function controller($scope) {
             console.log('Drawing Canvas Ready');
@@ -14945,11 +15298,13 @@ module.exports = function drawingCanvas(DrawingStorage) {
 
                 if (!createSquareByDragging) return;
 
+                $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>");
+
                 var newDiv = $('<div class="html-object-placeholder" />').css({
                     height: 0,
                     width: 0,
                     position: 'absolute',
-                    zIndex: 100000,
+                    zIndex: 999999,
                     left: startingPosition.x,
                     top: startingPosition.y - $('.navbar').outerHeight()
                 });
@@ -14972,6 +15327,8 @@ module.exports = function drawingCanvas(DrawingStorage) {
 
                 var newWidth = evt.offsetX - startingPosition.x;
                 var newHeight = evt.offsetY + $('.navbar').outerHeight() - startingPosition.y;
+
+                $('.drawing-canvas-screen').remove();
 
                 var newHtmlObject = {
                     id: Math.floor(Math.random() * 10000),
@@ -14997,7 +15354,7 @@ module.exports = function drawingCanvas(DrawingStorage) {
                 $('.main').css('cursor', 'auto');
                 $('.html-object-placeholder').remove();
 
-                $scope.drawingStorage.addHtmlObject(newHtmlObject);
+                $scope.drawingStorage.createHtmlObject(newHtmlObject);
                 $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject);
 
                 setTimeout(function () {
@@ -15036,43 +15393,43 @@ module.exports = function drawingCanvas(DrawingStorage) {
     };
 };
 
-},{}],9:[function(require,module,exports){
-'use strict';
-
-module.exports = function headerBar() {
-    return {
-        scope: {
-            drawingStorage: '='
-        },
-        template: '\n        <nav class="navbar navbar-default navbar-fixed-top">\n            <div class="container-fluid">\n                <div id="navbar" class="navbar-collapse collapse">\n                    <ul class="nav navbar-nav navbar-right">\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Export <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Single Preview File (HTML)</a></li>\n                                <li><a href="#">Image (.png)</a></li>\n                                <li><a href="#">HTML Files</a></li>\n                                <li><a href="#">AngularJS (v1) Directive</a></li>\n                                <li><a href="#">AngularJS (v1) Component</a></li>\n                                <li><a href="#">ReactJS Dumb Component</a></li>\n                                <li><a href="#">ReactJS Component</a></li>\n                                <li><a href="#">VueJS Component</a></li>\n                            </ul>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n        </nav>\n        '
-    };
-};
-
 },{}],10:[function(require,module,exports){
 'use strict';
 
-module.exports = function () {
+module.exports = function HeaderBarDirective() {
     return {
         scope: {
             drawingStorage: '='
         },
-        template: '\n        <div class="left-sidebar">\n            <div class="panel panel-left-sidebar">\n                <div class="panel-heading">\n                    Pages\n                    <button\n                        ng-click="drawingStorage.createPage()"\n                        class="btn btn-link">+</button>\n                </div>\n                <div class="panel-body">\n                    <ul class="nav nav-sidebar">\n                         <li\n                            ng-repeat="page in drawingStorage.pages"\n                            ng-class="{\n                                active: drawingStorage.currentPage && drawingStorage.currentPage.id == page.id\n                            }"\n                            ng-click="drawingStorage.setCurrentPage(page)">\n                            <a>{{ page.name || "Unamed page" }}</a>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n\n            <div\n                class="panel panel-left-sidebar"\n                ng-if="drawingStorage.currentPage"\n                style="border-top: 1px solid #b8b8b8;">\n                <div class="panel-heading">{{ drawingStorage.currentPage.name }}</div>\n                <div class="panel-body">\n                    <ul class="nav nav-sidebar" ng-if="drawingStorage.currentPage">\n                         <li\n                            ng-class="{ active: drawingStorage.currentHtmlObject && drawingStorage.currentHtmlObject.id == htmlObject.id }"\n                            ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects"\n                            ng-click="drawingStorage.setCurrentHtmlObject(htmlObject)">\n                            <a>{{ htmlObject.name ? htmlObject.name : \'Unnamed object\' }}</a>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n        </div>\n        '
+        template: '\n        <nav class="navbar navbar-default navbar-fixed-top">\n            <div class="container-fluid">\n                <div id="navbar" class="navbar-collapse collapse">\n                    <ul class="nav navbar-nav">\n                        <li>\n                            <a href="#">New</a>\n                        </li>\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Open <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Rectangle</a></li>\n                                <li><a href="#">Oval</a></li>\n                                <li><a href="#">Text</a></li>\n                                <li><a href="#">Image</a></li>\n                                <li><a href="#">Show Layout</a></li>\n                                <li class="divider"></li>\n                                <li><a href="#">Styled Text</a></li>\n                            </ul>\n                        </li>\n                    </ul>\n                    <ul class="nav navbar-nav navbar-right">\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Insert <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Rectangle</a></li>\n                                <li><a href="#">Oval</a></li>\n                                <li><a href="#">Text</a></li>\n                                <li><a href="#">Image</a></li>\n                                <li><a href="#">Show Layout</a></li>\n                                <li class="divider"></li>\n                                <li><a href="#">Styled Text</a></li>\n                            </ul>\n                        </li>\n                        <li>\n                            <a href="#">Group</a>\n                        </li>\n                        <li>\n                            <a href="#">Ungroup</a>\n                        </li>\n                        <li>\n                            <a href="#">Zoom In</a>\n                        </li>\n                        <li>\n                            <a href="#">Zoom Out</a>\n                        </li>\n                        <li>\n                            <a href="#">Rotate</a>\n                        </li>\n                        <li>\n                            <a href="#">Scale</a>\n                        </li>\n                        <li>\n                            <a href="#">Forward</a>\n                        </li>\n                        <li>\n                            <a href="#">Backward</a>\n                        </li>\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">View <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Show Pixels</a></li>\n                                <li><a href="#">Show Rulers</a></li>\n                                <li><a href="#">Show Grid</a></li>\n                                <li><a href="#">Show Layout</a></li>\n                                <li class="divider"></li>\n                                <li><a href="#">Grid Settings</a></li>\n                                <li><a href="#">Layout Settings</a></li>\n                            </ul>\n                        </li>\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Export <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Single Preview File (HTML)</a></li>\n                                <li><a href="#">Image (.png)</a></li>\n                                <li><a href="#">HTML Files</a></li>\n                                <li><a href="#">AngularJS (v1) Directive</a></li>\n                                <li><a href="#">AngularJS (v1) Component</a></li>\n                                <li><a href="#">ReactJS Dumb Component</a></li>\n                                <li><a href="#">ReactJS Component</a></li>\n                                <li><a href="#">VueJS Component</a></li>\n                            </ul>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n        </nav>\n        '
     };
 };
 
 },{}],11:[function(require,module,exports){
 'use strict';
 
-module.exports = function rightSidebar() {
+module.exports = function LeftSidebarDirective() {
     return {
         scope: {
             drawingStorage: '='
         },
-        template: '\n        <div class="right-sidebar">\n            <div ng-if="!drawingStorage.currentHtmlObject && drawingStorage.currentPage && drawingStorage.currentPage.styles">\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Name\n                    </div>\n                    <div class="form-column text-center two-thirds">\n                        <input\n                            type="text"\n                            ng-model="drawingStorage.currentPage.name">\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Size\n                    </div>\n                    <div class="form-column text-center">\n                        <input\n                            type="text"\n                            ng-model="drawingStorage.currentPage.styles.width">\n                        Width\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentPage.styles.height">\n                        Height\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fills\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentPage.styles.background">\n                            Fill\n                        </div>\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentPage.styles.backgroundSize">\n                            Size\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div ng-if="drawingStorage.currentHtmlObject && drawingStorage.currentHtmlObject.styles">\n                <div class="sidebar-row">\n                    <i class="glyphicon glyphicon-object-align-left"></i>\n                    <i class="glyphicon glyphicon-object-align-vertical"></i>\n                    <i class="glyphicon glyphicon-object-align-right"></i>\n\n                    <i class="glyphicon glyphicon-object-align-top"></i>\n                    <i class="glyphicon glyphicon-object-align-horizontal"></i>\n                    <i class="glyphicon glyphicon-object-align-bottom"></i>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Name\n                    </div>\n                    <div class="form-column text-center two-thirds">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.name">\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Position\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.left">\n                        X\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.top">\n                        Y\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Size\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.width">\n                        Width\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.height">\n                        Height\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Opacity\n                    </div>\n                    <div class="form-column text-center" style="width: 45%">\n                        <input type="range" ng-model="drawingStorage.currentHtmlObject.styles.opacity" max="1" min="0" step=".01">\n                    </div>\n                    <div class="form-column text-center" style="width: 22%">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.opacity">\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fills\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.background">\n                            Fill\n                        </div>\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.backgroundSize">\n                            Size\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Borders\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.borderColor">\n                            Color\n                        </div>\n                        <div class="form-column text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.borderStyle">\n                            Style\n                        </div>\n                        <div class="form-column text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.borderWidth">\n                            Thickness\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Shadows\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column full-width text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.boxShadow">\n                            Shadow\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fonts\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.color">\n                            Color\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.fontFamily">\n                            Font\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.fontSize">\n                            Size\n                        </div>\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.fontWeight">\n                            Weight\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.textAlign">\n                            Align\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="number" ng-model="drawingStorage.currentHtmlObject.styles.zIndex">\n                            Z Index\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Content\n                    </div>\n                    <div class="form-column full-width text-center">\n                        <textarea ng-model="drawingStorage.currentHtmlObject.styles.body" rows="6"></textarea>\n                    </div>\n                </div>\n            </div>\n        </div>\n        '
+        template: '\n        <div class="left-sidebar">\n            <div class="panel panel-left-sidebar">\n                <div class="panel-heading">\n                    Pages\n                    <button\n                        ng-click="drawingStorage.createPageAndSetAsCurrent()"\n                        class="btn btn-link">+</button>\n                </div>\n                <div class="panel-body">\n                    <ul\n                        class="nav nav-sidebar"\n                        ng-model="drawingStorage.pages"\n                        ui-sortable>\n                         <li\n                            ng-repeat="page in drawingStorage.pages"\n                            ng-class="{\n                                active: drawingStorage.currentPage && drawingStorage.currentPage.id == page.id\n                            }"\n                            ng-click="drawingStorage.setCurrentPage(page)">\n                            <a>{{ page.name || "Unamed page" }}</a>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n\n            <div\n                class="panel panel-left-sidebar"\n                ng-if="drawingStorage.currentPage"\n                style="border-top: 1px solid #b8b8b8;">\n                <div class="panel-heading">{{ drawingStorage.currentPage.name }}</div>\n                <div class="panel-body">\n                    <ul\n                        class="nav nav-sidebar"\n                        ng-model="drawingStorage.currentPage.htmlObjects"\n                        ui-sortable\n                        ng-if="drawingStorage.currentPage">\n                         <li\n                            ng-class="{ active: drawingStorage.currentHtmlObject && drawingStorage.currentHtmlObject.id == htmlObject.id }"\n                            ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects"\n                            ng-click="drawingStorage.setCurrentHtmlObject(htmlObject)">\n                            <a>{{ htmlObject.name ? htmlObject.name : \'Unnamed object\' }}</a>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n        </div>\n        '
     };
 };
 
 },{}],12:[function(require,module,exports){
+'use strict';
+
+module.exports = function RightSidebarDirective() {
+    return {
+        scope: {
+            drawingStorage: '='
+        },
+        template: '\n        <div class="right-sidebar">\n            <div ng-if="!drawingStorage.currentHtmlObject && drawingStorage.currentPage && drawingStorage.currentPage.styles">\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Name\n                    </div>\n                    <div class="form-column text-center two-thirds">\n                        <input\n                            type="text"\n                            ng-model="drawingStorage.currentPage.name">\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Size\n                    </div>\n                    <div class="form-column text-center">\n                        <input\n                            type="text"\n                            ng-model="drawingStorage.currentPage.styles.width">\n                        Width\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentPage.styles.height">\n                        Height\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fills\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentPage.styles.background">\n                            Fill\n                        </div>\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentPage.styles.backgroundSize">\n                            Size\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div ng-if="drawingStorage.currentHtmlObject && drawingStorage.currentHtmlObject.styles">\n                <div class="sidebar-row">\n                    <div class="btn-group align-object-btns">\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-left"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-vertical"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-right"></i></button>\n\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-top"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-horizontal"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-bottom"></i></button>\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Name\n                    </div>\n                    <div class="form-column text-center two-thirds">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.name">\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Position\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.left">\n                        X\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.top">\n                        Y\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Size\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.width">\n                        Width\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.height">\n                        Height\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Opacity\n                    </div>\n                    <div class="form-column text-center" style="width: 45%">\n                        <input type="range" ng-model="drawingStorage.currentHtmlObject.styles.opacity" max="1" min="0" step=".01">\n                    </div>\n                    <div class="form-column text-center" style="width: 22%">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.opacity">\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fills\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.background">\n                            Fill\n                        </div>\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.backgroundSize">\n                            Size\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Borders\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.borderColor">\n                            Color\n                        </div>\n                        <div class="form-column text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.borderStyle">\n                            Style\n                        </div>\n                        <div class="form-column text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.borderWidth">\n                            Thickness\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Shadows\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column full-width text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.boxShadow">\n                            Shadow\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fonts\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.color">\n                            Color\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.fontFamily">\n                            Font\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.fontSize">\n                            Size\n                        </div>\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.fontWeight">\n                            Weight\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.textAlign">\n                            Align\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="number" ng-model="drawingStorage.currentHtmlObject.styles.zIndex">\n                            Z Index\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Content\n                    </div>\n                    <div class="form-column full-width text-center">\n                        <textarea ng-model="drawingStorage.currentHtmlObject.styles.body" rows="6"></textarea>\n                    </div>\n                </div>\n            </div>\n        </div>\n        '
+    };
+};
+
+},{}],13:[function(require,module,exports){
 'use strict';
 
 angular.module('codesketcher.drawing', [])
@@ -15083,10 +15440,10 @@ angular.module('codesketcher.drawing', [])
 // Services
 .service('DrawingStorage', require('./services/drawing.storage.service.js'));
 
-},{"./directives/drawingCanvas.js":8,"./directives/headerBar.js":9,"./directives/leftSidebar.js":10,"./directives/rightSidebar.js":11,"./services/drawing.storage.service.js":13}],13:[function(require,module,exports){
+},{"./directives/drawingCanvas.js":9,"./directives/headerBar.js":10,"./directives/leftSidebar.js":11,"./directives/rightSidebar.js":12,"./services/drawing.storage.service.js":14}],14:[function(require,module,exports){
 'use strict';
 
-module.exports = function ($rootScope) {
+module.exports = function ($rootScope, $timeout) {
     return function () {
         var _this = this;
 
@@ -15114,6 +15471,23 @@ module.exports = function ($rootScope) {
             });
         };
 
+        this.createPageAndSetAsCurrent = function () {
+            var id = guid();
+            _this.pages.push({
+                id: id,
+                name: "",
+                htmlObjects: [],
+                styles: {
+                    height: '900px',
+                    width: '1200px',
+                    backgroundColor: 'white'
+                }
+            });
+
+            var page = _.find(_this.pages, { id: id });
+            _this.setCurrentPage(page);
+        };
+
         this.removePage = function (page) {
             _.remove(_this.pages, { id: page.id });
         };
@@ -15126,6 +15500,7 @@ module.exports = function ($rootScope) {
 
         this.setCurrentHtmlObject = function (htmlObject) {
             _this.currentHtmlObject = htmlObject;
+            if (!$rootScope.$$phase) $rootScope.$apply();
         };
 
         this.removeHtmlObject = function (htmlObject) {
@@ -15135,11 +15510,16 @@ module.exports = function ($rootScope) {
             _this.pages[pageIndex].htmlObjects = htmlObjectsCopy;
         };
 
-        this.addHtmlObject = function (newHtmlObject) {
+        this.createHtmlObject = function (newHtmlObject) {
             var pageIndex = _.findIndex(_this.pages, { id: _this.currentPage.id });
             _this.pages[pageIndex].htmlObjects.push(newHtmlObject);
             _this.setCurrentPage(_this.pages[pageIndex]);
             $rootScope.$apply();
+        };
+
+        this.createHtmlObjectAndSetAsCurrent = function (newHtmlObject) {
+            _this.createHtmlObject(newHtmlObject);
+            _this.setCurrentHtmlObject(newHtmlObject);
         };
 
         this.updateHtmlObject = function (htmlObject) {
@@ -15149,20 +15529,20 @@ module.exports = function ($rootScope) {
     };
 };
 
-},{}],14:[function(require,module,exports){
-module.exports = '<header-bar drawing-storage="ctrl.drawingStorage"></header-bar>\n<left-sidebar drawing-storage="ctrl.drawingStorage"></left-sidebar>\n<drawing-canvas drawing-storage="ctrl.drawingStorage"></drawing-canvas>\n<right-sidebar drawing-storage="ctrl.drawingStorage"></right-sidebar>\n';
 },{}],15:[function(require,module,exports){
+module.exports = '<header-bar drawing-storage="ctrl.drawingStorage"></header-bar>\n<left-sidebar drawing-storage="ctrl.drawingStorage"></left-sidebar>\n<drawing-canvas drawing-storage="ctrl.drawingStorage"></drawing-canvas>\n<right-sidebar drawing-storage="ctrl.drawingStorage"></right-sidebar>\n';
+},{}],16:[function(require,module,exports){
 'use strict';
 
 angular.module('codesketcher.routes', []).config(function ($stateProvider) {
     $stateProvider.state('drawing', {
         url: '/drawing',
         template: require('./modules/drawing/views/drawing.html'),
-        controller: require('./modules/drawing/controllers/drawing.js'),
+        controller: require('./modules/drawing/controllers/drawing.ctrl.js'),
         controllerAs: 'ctrl'
     });
 });
 
-},{"./modules/drawing/controllers/drawing.js":7,"./modules/drawing/views/drawing.html":14}]},{},[6]);
+},{"./modules/drawing/controllers/drawing.ctrl.js":8,"./modules/drawing/views/drawing.html":15}]},{},[7]);
 
 //# sourceMappingURL=app.js.map

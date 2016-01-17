@@ -1,6 +1,6 @@
 /*
-  * Base structure
-  */
+* Base structure
+*/
 
 /* Move down content because we have a fixed navbar that is 50px tall */
 
@@ -10,8 +10,8 @@ body {
 }
 
 /*
-  * Global add-ons
-  */
+* Global add-ons
+*/
 
 .sub-header {
   padding-bottom: 10px;
@@ -19,16 +19,15 @@ body {
 }
 
 /*
-  * Top navigation
-  * Hide default border to remove 1px line.
-  */
+* Top navigation
+* Hide default border to remove 1px line.
+*/
 
 .navbar-fixed-top {
   border: 0;
 }
 
-.navbar-default {
-  opacity: 0.9;
+nav.navbar-default {
   padding: 10px;
   border-radius: 0;
   height: 60px;
@@ -48,67 +47,8 @@ body {
 }
 
 /*
-  * Sidebar
-  */
-
-.left-sidebar {
-  position: fixed;
-  top: 60px;
-  bottom: 0;
-  left: 0;
-  z-index: 1000;
-  display: block;
-  padding: 0 20px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  /* Scrollable contents if viewport is shorter than content. */
-  background-color: #E7E7E7;
-  border-right: 1px solid #B8B8B8;
-  width: 160px;
-}
-
-.right-sidebar {
-  position: fixed;
-  top: 60px;
-  bottom: 0;
-  right: 0;
-  z-index: 1000;
-  display: block;
-  overflow-x: hidden;
-  overflow-y: auto;
-  /* Scrollable contents if viewport is shorter than content. */
-  background-color: #DFDFDF;
-  border-left: 1px solid #B8B8B8;
-  width: 215px;
-}
-
-/* Sidebar navigation */
-
-.nav-sidebar {
-  margin-right: -21px;
-  /* 20px padding + 1px border */
-  margin-bottom: 20px;
-  margin-top: 0;
-  margin-left: -20px;
-  padding: 0;
-}
-
-.nav-sidebar > li > a {
-  color: #333;
-  padding-right: 10px;
-  padding-left: 10px;
-}
-
-.nav-sidebar > .active > a,
-.nav-sidebar > .active > a:hover,
-.nav-sidebar > .active > a:focus {
-  color: #fff;
-  background-color: #428bca;
-}
-
-/*
-  * Main content
-  */
+* Main content
+*/
 
 .main {
   background: #efefef;
@@ -119,13 +59,23 @@ body {
   bottom: 0;
   left: 160px;
   right: 215px;
-  z-index: 2000;
+  z-index: 1;
 }
 
 .drawing-canvas {
   position: relative;
   background: white;
   box-shadow: 0 0 7px -1px rgba(0, 0, 0, 0.2);
+}
+
+.drawing-canvas-screen {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  top: 0;
+  background: transparent;
+  z-index: 99999;
 }
 
 .html-object-container {
@@ -144,9 +94,17 @@ body {
   border: 1px solid #979797;
 }
 
+.html-object {
+  z-index: 1;
+}
+
+.unfocused-html-object:hover {
+  border: 2px solid #3cb8fe !important;
+}
+
 /**
-   * jQuery Resizable Handles
-   */
+* jQuery Resizable Handles
+*/
 
 .ui-resizable-handle.ui-resizable-se.ui-icon.ui-icon-gripsmall-diagonal-se {
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,e5e5e5+100;White+3D */
@@ -196,6 +154,7 @@ body {
 
 .form-column input,
 .form-column textarea {
+  border: 1px solid #b6b6b6;
   font-size: 11px;
   padding: 1px 3px;
   margin-bottom: 2px;
@@ -228,6 +187,53 @@ body {
 
 .one-third {
   width: 33.33%;
+}
+
+/*
+* Right Sidebar
+*/
+
+.right-sidebar {
+  position: fixed;
+  top: 60px;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+  display: block;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Scrollable contents if viewport is shorter than content. */
+  background-color: #DFDFDF;
+  border-left: 1px solid #B8B8B8;
+  width: 215px;
+}
+
+.align-object-btns button.btn-default {
+  background: #f3f3f3;
+  border: 0;
+  border-bottom: 1px solid #B8B8B8;
+  border-radius: 0;
+  width: 17%;
+}
+
+/**
+* Left Sidebar
+*/
+
+.left-sidebar {
+  position: fixed;
+  top: 60px;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  display: block;
+  padding: 0 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Scrollable contents if viewport is shorter than content. */
+  background-color: #E7E7E7;
+  border-right: 1px solid #B8B8B8;
+  width: 160px;
 }
 
 .left-sidebar .panel-left-sidebar {
@@ -277,4 +283,28 @@ body {
   margin: 0;
   border-bottom: 1px solid #ddd;
   padding: 0;
+}
+
+/* Sidebar navigation */
+
+.nav-sidebar {
+  margin-right: -21px;
+  /* 20px padding + 1px border */
+  margin-bottom: 20px;
+  margin-top: 0;
+  margin-left: -20px;
+  padding: 0;
+}
+
+.nav-sidebar > li > a {
+  color: #333;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+  color: #fff;
+  background-color: #428bca;
 }

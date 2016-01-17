@@ -1,4 +1,4 @@
-module.exports = function rightSidebar() {
+module.exports = function RightSidebarDirective() {
     return {
         scope: {
             drawingStorage: '='
@@ -51,13 +51,15 @@ module.exports = function rightSidebar() {
             </div>
             <div ng-if="drawingStorage.currentHtmlObject && drawingStorage.currentHtmlObject.styles">
                 <div class="sidebar-row">
-                    <i class="glyphicon glyphicon-object-align-left"></i>
-                    <i class="glyphicon glyphicon-object-align-vertical"></i>
-                    <i class="glyphicon glyphicon-object-align-right"></i>
+                    <div class="btn-group align-object-btns">
+                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-left"></i></button>
+                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-vertical"></i></button>
+                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-right"></i></button>
 
-                    <i class="glyphicon glyphicon-object-align-top"></i>
-                    <i class="glyphicon glyphicon-object-align-horizontal"></i>
-                    <i class="glyphicon glyphicon-object-align-bottom"></i>
+                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-top"></i></button>
+                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-horizontal"></i></button>
+                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-bottom"></i></button>
+                    </div>
                 </div>
 
                 <div class="sidebar-row">

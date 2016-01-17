@@ -3,6 +3,7 @@
 require('moment')
 require('angular-ui-bootstrap')
 require('angular-ui-router')
+require('angular-ui-sortable')
 require('angular-local-storage')
 
 require('./routes.js')
@@ -12,6 +13,7 @@ angular
     .module('codesketcher', [
         'ui.router',
         'ui.bootstrap',
+        'ui.sortable',
         'angular-loading-bar',
         'LocalStorageModule',
         'codesketcher.routes',
@@ -21,5 +23,5 @@ angular
         $urlRouterProvider.otherwise('/drawing')
     })
     .controller('AppCtrl', function() {
-        
+
     })
