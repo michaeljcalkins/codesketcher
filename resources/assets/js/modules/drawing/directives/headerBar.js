@@ -18,8 +18,6 @@ module.exports = function HeaderBarDirective() {
                                 <li><a href="#">Oval</a></li>
                                 <li><a href="#">Text</a></li>
                                 <li><a href="#">Image</a></li>
-                                <li><a href="#">Show Layout</a></li>
-                                <li class="divider"></li>
                                 <li><a href="#">Styled Text</a></li>
                             </ul>
                         </li>

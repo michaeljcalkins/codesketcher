@@ -1,47 +1,72 @@
-<!DOCTYPE html>
-<html lang="en" ng-app="codesketcher" ng-controller="AppCtrl as appCtrl">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Simple tools for design, development, and communication.">
-    <meta name="author" content="">
+@extends('layouts.public')
 
-    <title>Code Sketcher</title>
+@section('content')
+<div class="home-page">
+    @include('partials.publicHeader')
 
-    <link rel="shortcut icon" type="image/png" href="/img/SimpleTeam01-favicon.png"/>
+    <section class="section-home">
+        <h1>A Web Developer's Best Friend.</h1>
+        <p>Simple tools for design, development, and communication.</p>
+        <a href="/auth/register" class="btn btn-primary btn-lg">Create My Free Account</a>
+        <div class="site-preview"></div>
+    </section>
 
-    <!-- Bootstrap Core CSS -->
-    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
-	<link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet">
+    <section class="section-features">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-sm-12">
+                    <h2>Bring your team to one platform.</h2>
+                    <h3>Simple tools optimized for making progress in one place.</h3>
+                </div>
+            </div>
 
-    <!-- Angular CSS -->
-    <link href='//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.7.1/loading-bar.min.css' rel='stylesheet' type='text/css'>
+            <div class="row">
+                <div class="col-sm-10 col-sm-offset-1">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="preview-descriptions">
+                                        <h4>Projects, expressive progress.</h4>
+                                        <p>
+                                            Clearly communicate project progress by quickly glancing over your projects. Prioritize what is most important to your team and give them the info to get it done.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 text-center">
+                                    <div class="image-preview" style="background-image: url(/img/feature-projects.png)"></div>
+                                </div>
+                            </div>
+                        </div>
 
-    <!-- Custom CSS -->
-	<link href="/css/app.css" rel="stylesheet" type="text/css">
+                        <hr>
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-</head>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-6 text-center">
+                                    <div class="image-preview image-preview-left" style="background-image: url(/img/feature-tasklist.png)"></div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="preview-descriptions">
+                                        <h4>Tasklist, tailored goals.</h4>
+                                        <p>
+                                            Turns your cards into a list that allows you to sort and filter by impact or stage.
+                                            You can scan them quickly to see what issues are being issues are being worked on and what might have been missed.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<body>
-    <div ui-view></div>
-
-    <!-- CDN Scripts -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.8.0/loading-bar.min.js"></script>
-
-    <!-- Core Scripts -->
-    <script src="/js/app.js"></script>
-</body>
-</html>
+    <section class="section-highlight text-center">
+        <h2>Easy to learn, and easy to teach.</h2>
+        <h3>Focused on clear communication and empowerment.</h3>
+        <a href="/auth/register" class="btn btn-primary btn-lg">Create My Free Account</a>
+    </section>
+</div>
+@stop
