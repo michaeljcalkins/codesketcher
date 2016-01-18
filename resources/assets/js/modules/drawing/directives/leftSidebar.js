@@ -5,7 +5,9 @@ module.exports = function LeftSidebarDirective() {
         },
         template: `
         <div class="left-sidebar">
-            <div class="panel panel-left-sidebar">
+            <div
+                ng-show="drawingStorage.currentSketch"
+                class="panel panel-left-sidebar">
                 <div class="panel-heading">
                     Pages
                     <button
@@ -18,7 +20,7 @@ module.exports = function LeftSidebarDirective() {
                         ng-model="drawingStorage.pages"
                         ui-sortable>
                          <li
-                            ng-repeat="page in drawingStorage.pages"
+                            ng-repeat="page in drawingStorage.pages track by $index"
                             ng-class="{
                                 active: drawingStorage.currentPage && drawingStorage.currentPage.id == page.id
                             }"

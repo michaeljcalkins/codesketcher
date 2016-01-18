@@ -16,4 +16,5 @@ Route::group(['middleware' => 'web'], function () {
     Route::auth();
 
     Route::get('/home', 'AppController@index');
+    Route::resource('/api/sketches', 'ApiSketchController');
 });

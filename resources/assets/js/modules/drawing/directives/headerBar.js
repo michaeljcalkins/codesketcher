@@ -14,11 +14,9 @@ module.exports = function HeaderBarDirective() {
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Open <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="#">Rectangle</a></li>
-                                <li><a href="#">Oval</a></li>
-                                <li><a href="#">Text</a></li>
-                                <li><a href="#">Image</a></li>
-                                <li><a href="#">Styled Text</a></li>
+                                <li
+                                    ng-repeat="sketch in drawingStorage.sketches track by $index"
+                                    ng-click="drawingStorage.selectCurrentSketch(sketch)"><a href="#">{{ sketch.name }}</a></li>
                             </ul>
                         </li>
                     </ul>

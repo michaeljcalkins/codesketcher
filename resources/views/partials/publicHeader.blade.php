@@ -18,12 +18,12 @@
             <ul class="nav navbar-nav navbar-right">
                 <li>
                     <p class="navbar-btn">
-                        <a class="btn btn-success" href="/auth/register">Create Account</a>
+                        <a class="btn btn-success" href="/register">Create Account</a>
                     </p>
                 </li>
                 <li>
                     <p class="navbar-btn">
-                        <a class="btn btn-link" href="/auth/login">Sign In</a>
+                        <a class="btn btn-link" href="/login">Sign In</a>
                     </p>
                 </li>
             </ul>

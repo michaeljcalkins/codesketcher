@@ -14,6 +14,7 @@ angular
         'ui.router',
         'ui.bootstrap',
         'ui.sortable',
+        'colorpicker.module',
         'angular-loading-bar',
         'LocalStorageModule',
         'codesketcher.routes',

@@ -15208,7 +15208,7 @@ require('angular-local-storage');
 require('./routes.js');
 require('./modules/drawing');
 
-angular.module('codesketcher', ['ui.router', 'ui.bootstrap', 'ui.sortable', 'angular-loading-bar', 'LocalStorageModule', 'codesketcher.routes', 'codesketcher.drawing']).config(function ($urlRouterProvider, cfpLoadingBarProvider) {
+angular.module('codesketcher', ['ui.router', 'ui.bootstrap', 'ui.sortable', 'colorpicker.module', 'angular-loading-bar', 'LocalStorageModule', 'codesketcher.routes', 'codesketcher.drawing']).config(function ($urlRouterProvider, cfpLoadingBarProvider) {
     $urlRouterProvider.otherwise('/drawing');
 }).controller('AppCtrl', function () {});
 
@@ -15217,19 +15217,22 @@ angular.module('codesketcher', ['ui.router', 'ui.bootstrap', 'ui.sortable', 'ang
 
 module.exports = function DrawingCtrl(DrawingStorage, $scope) {
     this.drawingStorage = new DrawingStorage();
+    this.drawingStorage.fetch();
 };
 
 },{}],9:[function(require,module,exports){
 'use strict';
 
-module.exports = function DrawingCanvasDirective(DrawingStorage) {
+module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
     return {
         scope: {
             drawingStorage: '='
         },
-        template: '\n        <div class="main">\n            <div\n                class="drawing-container"\n                ng-if="drawingStorage.currentPage"\n                ng-style="{ width: (parseInt(drawingStorage.currentPage.styles.width.slice(0, -2)) + 100) + \'px\' }">\n                <div\n                    class="drawing-canvas"\n                    ng-style="drawingStorage.currentPage.styles">\n                    <div\n                        class="html-object"\n                        ng-mousedown="drawingStorage.setCurrentHtmlObject(htmlObject)"\n                        ng-click="drawingStorage.setCurrentHtmlObject(htmlObject)"\n                        ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects"\n                        ng-class="{\n                            \'current-html-object\': htmlObject.id == drawingStorage.currentHtmlObject.id,\n                            \'unfocused-html-object\': htmlObject.id != drawingStorage.currentHtmlObject.id\n                        }"\n                        ng-style="htmlObject.styles">\n                        {{ htmlObject.styles.body }}\n                    </div>\n                </div>\n            </div>\n        </div>\n        ',
+        template: '\n        <div class="main">\n            <div\n                class="drawing-container"\n                ng-if="drawingStorage.currentPage"\n                ng-style="{ width: (parseInt(drawingStorage.currentPage.styles.width.slice(0, -2)) + 100) + \'px\' }">\n                <div\n                    class="drawing-canvas"\n                    ng-style="drawingStorage.currentPage.styles">\n                    <div\n                        class="html-object"\n                        ng-mousedown="drawingStorage.setCurrentHtmlObject(htmlObject)"\n                        ng-click="drawingStorage.setCurrentHtmlObject(htmlObject)"\n                        ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects"\n                        ng-class="{\n                            \'current-html-object\': htmlObject.id == drawingStorage.currentHtmlObject.id,\n                            \'unfocused-html-object\': htmlObject.id != drawingStorage.currentHtmlObject.id\n                        }"\n                        ng-style="htmlObject.styles">\n                        <div class="html-object-border"></div>\n                        {{ htmlObject.styles.body }}\n                    </div>\n                </div>\n            </div>\n        </div>\n        ',
         controllerAs: 'ctrl',
         controller: function controller($scope) {
+            var _this = this;
+
             console.log('Drawing Canvas Ready');
 
             var deep = function deep(a, b) {
@@ -15240,155 +15243,194 @@ module.exports = function DrawingCanvasDirective(DrawingStorage) {
             var squareCreated = false;
             var startingPosition = null;
 
-            $('.html-object').resizable({
-                stop: function stop(evt, ui) {
-                    var newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
-                        styles: {
-                            height: ui.size.height + 'px',
-                            width: ui.size.width + 'px'
-                        }
-                    }, deep);
+            $rootScope.$on('htmlObject:unlocked', function () {
+                _this.startResizable();
+                _this.startDraggable();
+            });
 
-                    $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject);
-                    $scope.drawingStorage.updateHtmlObject(newHtmlObject);
+            $rootScope.$on('htmlObject:locked', function () {
+                _this.disableResizable();
+                _this.disableDraggable();
+            });
+
+            $rootScope.$on('htmlObject:selected', function () {
+                _this.startResizable();
+                _this.startDraggable();
+
+                if ($scope.drawingStorage.currentHtmlObject.isLocked) {
+                    _this.disableResizable();
+                    _this.disableDraggable();
                 }
             });
 
-            $('.html-object').draggable({
-                distance: 3,
-                scroll: true,
-                stop: function stop(evt, ui) {
-                    var newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
-                        styles: {
-                            left: ui.position.left + 'px',
-                            top: ui.position.top + 'px'
-                        }
-                    }, deep);
+            this.disableResizable = function () {
+                $('.current-html-object').resizable('destroy');
+            };
 
-                    $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject);
-                    $scope.drawingStorage.updateHtmlObject(newHtmlObject);
-                }
-            });
+            this.disableDraggable = function () {
+                $('.current-html-object').draggable('destroy');
+            };
 
-            $(document).on('keydown', function (evt) {
-                if ((evt.keyCode === 8 || evt.keyCode === 46) && !$(evt.target).is('input, textarea')) {
-                    evt.stopPropagation();
-                    evt.preventDefault();
-                    $scope.drawingStorage.removeHtmlObject($scope.drawingStorage.currentHtmlObject);
-                }
-            });
+            this.startResizable = function () {
+                $('.current-html-object').resizable({
+                    stop: function stop(evt, ui) {
+                        var newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
+                            styles: {
+                                height: ui.size.height + 'px',
+                                width: ui.size.width + 'px'
+                            }
+                        }, deep);
 
-            /**
-             * Create a rectangle shape
-             */
-            $(document).on('keypress', function (evt) {
-                if (evt.keyCode === 114 && !$(evt.target).is('input, textarea')) {
-                    createSquareByDragging = true;
-                    $('.main').css('cursor', 'crosshair');
-                    $('.html-object').resizable('destroy');
-                    $('.html-object').draggable('destroy');
-                }
-            });
-
-            $('.main').on('mousedown', function (evt) {
-                startingPosition = {
-                    x: evt.offsetX,
-                    y: evt.offsetY + $('.navbar').outerHeight()
-                };
-
-                if (!createSquareByDragging) return;
-
-                $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>");
-
-                var newDiv = $('<div class="html-object-placeholder" />').css({
-                    height: 0,
-                    width: 0,
-                    position: 'absolute',
-                    zIndex: 999999,
-                    left: startingPosition.x,
-                    top: startingPosition.y - $('.navbar').outerHeight()
-                });
-                $('.drawing-canvas').append(newDiv);
-
-                squareCreated = true;
-            });
-
-            $('.main').on('mousemove', function (evt) {
-                if (!createSquareByDragging || !squareCreated) return;
-
-                $('.html-object-placeholder').css({
-                    width: evt.offsetX - startingPosition.x,
-                    height: evt.offsetY + $('.navbar').outerHeight() - startingPosition.y
-                });
-            });
-
-            $('.main').on('mouseup', function (evt) {
-                if (!createSquareByDragging) return;
-
-                var newWidth = evt.offsetX - startingPosition.x;
-                var newHeight = evt.offsetY + $('.navbar').outerHeight() - startingPosition.y;
-
-                $('.drawing-canvas-screen').remove();
-
-                var newHtmlObject = {
-                    id: Math.floor(Math.random() * 10000),
-                    styles: {
-                        height: newHeight + 'px',
-                        width: newWidth + 'px',
-                        position: 'absolute',
-                        left: startingPosition.x + 'px',
-                        top: startingPosition.y - $('.navbar').outerHeight() + 'px',
-                        backgroundColor: '#D8D8D8',
-                        borderWidth: '1px',
-                        borderStyle: 'solid',
-                        borderColor: '#979797',
-                        backgroundImage: '',
-                        transform: '',
-                        color: '#444',
-                        fontFamily: 'Arial',
-                        fontSize: '18px'
+                        $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject);
+                        $scope.drawingStorage.updateHtmlObject(newHtmlObject);
                     }
-                };
-                squareCreated = false;
-                createSquareByDragging = false;
-                $('.main').css('cursor', 'auto');
-                $('.html-object-placeholder').remove();
+                });
+            };
 
-                $scope.drawingStorage.createHtmlObject(newHtmlObject);
-                $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject);
+            this.startDraggable = function () {
+                $('.current-html-object').draggable({
+                    distance: 3,
+                    scroll: true,
+                    stop: function stop(evt, ui) {
+                        var newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
+                            styles: {
+                                left: ui.position.left + 'px',
+                                top: ui.position.top + 'px'
+                            }
+                        }, deep);
 
-                setTimeout(function () {
-                    $('.html-object').resizable({
-                        stop: function stop(evt, ui) {
-                            var newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
-                                styles: {
-                                    height: ui.size.height + 'px',
-                                    width: ui.size.width + 'px'
-                                }
-                            }, deep);
+                        $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject);
+                        $scope.drawingStorage.updateHtmlObject(newHtmlObject);
+                    }
+                });
+            };
 
-                            $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject);
-                            $scope.drawingStorage.updateHtmlObject(newHtmlObject);
-                        }
+            this.startKeyBindings = function () {
+                $(document).on('keydown', function (evt) {
+                    if ((evt.keyCode === 8 || evt.keyCode === 46) && !$(evt.target).is('input, textarea')) {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        $scope.drawingStorage.removeHtmlObject($scope.drawingStorage.currentHtmlObject);
+                    }
+                });
+
+                /**
+                 * Create a rectangle shape
+                 */
+                $(document).on('keypress', function (evt) {
+                    if (evt.keyCode === 114 && !$(evt.target).is('input, textarea')) {
+                        createSquareByDragging = true;
+                        $('.main').css('cursor', 'crosshair');
+                        $('.html-object').resizable('destroy');
+                        $('.html-object').draggable('destroy');
+                    }
+                });
+            };
+
+            this.startCreateHtmlObjectBindings = function () {
+                $('.main').on('mousedown', function (evt) {
+                    startingPosition = {
+                        x: evt.offsetX,
+                        y: evt.offsetY + $('.navbar').outerHeight()
+                    };
+
+                    if (!createSquareByDragging) return;
+
+                    $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>");
+
+                    var newDiv = $('<div class="html-object-placeholder" />').css({
+                        height: 0,
+                        width: 0,
+                        position: 'absolute',
+                        zIndex: 999999,
+                        left: startingPosition.x,
+                        top: startingPosition.y - $('.navbar').outerHeight()
                     });
+                    $('.drawing-canvas').append(newDiv);
 
-                    $('.html-object').draggable({
-                        distance: 3,
-                        scroll: true,
-                        stop: function stop(evt, ui) {
-                            var newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
-                                styles: {
-                                    left: ui.position.left + 'px',
-                                    top: ui.position.top + 'px'
-                                }
-                            }, deep);
+                    squareCreated = true;
+                });
 
-                            $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject);
-                            $scope.drawingStorage.updateHtmlObject(newHtmlObject);
-                        }
+                $('.main').on('mousemove', function (evt) {
+                    if (!createSquareByDragging || !squareCreated) return;
+
+                    $('.html-object-placeholder').css({
+                        width: evt.offsetX - startingPosition.x,
+                        height: evt.offsetY + $('.navbar').outerHeight() - startingPosition.y
                     });
                 });
-            });
+
+                $('.main').on('mouseup', function (evt) {
+                    if (!createSquareByDragging) return;
+
+                    var newWidth = evt.offsetX - startingPosition.x;
+                    var newHeight = evt.offsetY + $('.navbar').outerHeight() - startingPosition.y;
+
+                    $('.drawing-canvas-screen').remove();
+
+                    var newHtmlObject = {
+                        id: Math.floor(Math.random() * 10000),
+                        styles: {
+                            height: newHeight + 'px',
+                            width: newWidth + 'px',
+                            position: 'absolute',
+                            left: startingPosition.x + 'px',
+                            top: startingPosition.y - $('.navbar').outerHeight() + 'px',
+                            backgroundColor: '#D8D8D8',
+                            borderWidth: '1px',
+                            borderStyle: 'solid',
+                            borderColor: '#979797',
+                            backgroundImage: '',
+                            transform: '',
+                            color: '#444',
+                            fontFamily: 'Arial',
+                            fontSize: '18px'
+                        }
+                    };
+                    squareCreated = false;
+                    createSquareByDragging = false;
+                    $('.main').css('cursor', 'auto');
+                    $('.html-object-placeholder').remove();
+
+                    $scope.drawingStorage.createHtmlObject(newHtmlObject);
+                    $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject);
+
+                    setTimeout(function () {
+                        $('.html-object').resizable({
+                            stop: function stop(evt, ui) {
+                                var newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
+                                    styles: {
+                                        height: ui.size.height + 'px',
+                                        width: ui.size.width + 'px'
+                                    }
+                                }, deep);
+
+                                $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject);
+                                $scope.drawingStorage.updateHtmlObject(newHtmlObject);
+                            }
+                        });
+
+                        $('.html-object').draggable({
+                            distance: 3,
+                            scroll: true,
+                            stop: function stop(evt, ui) {
+                                var newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
+                                    styles: {
+                                        left: ui.position.left + 'px',
+                                        top: ui.position.top + 'px'
+                                    }
+                                }, deep);
+
+                                $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject);
+                                $scope.drawingStorage.updateHtmlObject(newHtmlObject);
+                            }
+                        });
+                    });
+                });
+
+                _this.startKeyBindings();
+                _this.startCreateHtmlObjectBindings();
+            };
         }
     };
 };
@@ -15401,7 +15443,7 @@ module.exports = function HeaderBarDirective() {
         scope: {
             drawingStorage: '='
         },
-        template: '\n        <nav class="navbar navbar-default navbar-fixed-top">\n            <div class="container-fluid">\n                <div id="navbar" class="navbar-collapse collapse">\n                    <ul class="nav navbar-nav">\n                        <li>\n                            <a href="#">New</a>\n                        </li>\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Open <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Rectangle</a></li>\n                                <li><a href="#">Oval</a></li>\n                                <li><a href="#">Text</a></li>\n                                <li><a href="#">Image</a></li>\n                                <li><a href="#">Styled Text</a></li>\n                            </ul>\n                        </li>\n                    </ul>\n                    <ul class="nav navbar-nav navbar-right">\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Insert <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Rectangle</a></li>\n                                <li><a href="#">Oval</a></li>\n                                <li><a href="#">Text</a></li>\n                                <li><a href="#">Image</a></li>\n                                <li><a href="#">Show Layout</a></li>\n                                <li class="divider"></li>\n                                <li><a href="#">Styled Text</a></li>\n                            </ul>\n                        </li>\n                        <li>\n                            <a href="#">Group</a>\n                        </li>\n                        <li>\n                            <a href="#">Ungroup</a>\n                        </li>\n                        <li>\n                            <a href="#">Zoom In</a>\n                        </li>\n                        <li>\n                            <a href="#">Zoom Out</a>\n                        </li>\n                        <li>\n                            <a href="#">Rotate</a>\n                        </li>\n                        <li>\n                            <a href="#">Scale</a>\n                        </li>\n                        <li>\n                            <a href="#">Forward</a>\n                        </li>\n                        <li>\n                            <a href="#">Backward</a>\n                        </li>\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">View <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Show Pixels</a></li>\n                                <li><a href="#">Show Rulers</a></li>\n                                <li><a href="#">Show Grid</a></li>\n                                <li><a href="#">Show Layout</a></li>\n                                <li class="divider"></li>\n                                <li><a href="#">Grid Settings</a></li>\n                                <li><a href="#">Layout Settings</a></li>\n                            </ul>\n                        </li>\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Export <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Single Preview File (HTML)</a></li>\n                                <li><a href="#">Image (.png)</a></li>\n                                <li><a href="#">HTML Files</a></li>\n                                <li><a href="#">AngularJS (v1) Directive</a></li>\n                                <li><a href="#">AngularJS (v1) Component</a></li>\n                                <li><a href="#">ReactJS Dumb Component</a></li>\n                                <li><a href="#">ReactJS Component</a></li>\n                                <li><a href="#">VueJS Component</a></li>\n                            </ul>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n        </nav>\n        '
+        template: '\n        <nav class="navbar navbar-default navbar-fixed-top">\n            <div class="container-fluid">\n                <div id="navbar" class="navbar-collapse collapse">\n                    <ul class="nav navbar-nav">\n                        <li>\n                            <a href="#">New</a>\n                        </li>\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Open <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li\n                                    ng-repeat="sketch in drawingStorage.sketches track by $index"\n                                    ng-click="drawingStorage.selectCurrentSketch(sketch)"><a href="#">{{ sketch.name }}</a></li>\n                            </ul>\n                        </li>\n                    </ul>\n                    <ul class="nav navbar-nav navbar-right">\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Insert <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Rectangle</a></li>\n                                <li><a href="#">Oval</a></li>\n                                <li><a href="#">Text</a></li>\n                                <li><a href="#">Image</a></li>\n                                <li><a href="#">Show Layout</a></li>\n                                <li class="divider"></li>\n                                <li><a href="#">Styled Text</a></li>\n                            </ul>\n                        </li>\n                        <li>\n                            <a href="#">Group</a>\n                        </li>\n                        <li>\n                            <a href="#">Ungroup</a>\n                        </li>\n                        <li>\n                            <a href="#">Zoom In</a>\n                        </li>\n                        <li>\n                            <a href="#">Zoom Out</a>\n                        </li>\n                        <li>\n                            <a href="#">Rotate</a>\n                        </li>\n                        <li>\n                            <a href="#">Scale</a>\n                        </li>\n                        <li>\n                            <a href="#">Forward</a>\n                        </li>\n                        <li>\n                            <a href="#">Backward</a>\n                        </li>\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">View <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Show Pixels</a></li>\n                                <li><a href="#">Show Rulers</a></li>\n                                <li><a href="#">Show Grid</a></li>\n                                <li><a href="#">Show Layout</a></li>\n                                <li class="divider"></li>\n                                <li><a href="#">Grid Settings</a></li>\n                                <li><a href="#">Layout Settings</a></li>\n                            </ul>\n                        </li>\n                        <li class="dropdown">\n                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Export <span class="caret"></span></a>\n                            <ul class="dropdown-menu">\n                                <li><a href="#">Single Preview File (HTML)</a></li>\n                                <li><a href="#">Image (.png)</a></li>\n                                <li><a href="#">HTML Files</a></li>\n                                <li><a href="#">AngularJS (v1) Directive</a></li>\n                                <li><a href="#">AngularJS (v1) Component</a></li>\n                                <li><a href="#">ReactJS Dumb Component</a></li>\n                                <li><a href="#">ReactJS Component</a></li>\n                                <li><a href="#">VueJS Component</a></li>\n                            </ul>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n        </nav>\n        '
     };
 };
 
@@ -15413,7 +15455,7 @@ module.exports = function LeftSidebarDirective() {
         scope: {
             drawingStorage: '='
         },
-        template: '\n        <div class="left-sidebar">\n            <div class="panel panel-left-sidebar">\n                <div class="panel-heading">\n                    Pages\n                    <button\n                        ng-click="drawingStorage.createPageAndSetAsCurrent()"\n                        class="btn btn-link">+</button>\n                </div>\n                <div class="panel-body">\n                    <ul\n                        class="nav nav-sidebar"\n                        ng-model="drawingStorage.pages"\n                        ui-sortable>\n                         <li\n                            ng-repeat="page in drawingStorage.pages"\n                            ng-class="{\n                                active: drawingStorage.currentPage && drawingStorage.currentPage.id == page.id\n                            }"\n                            ng-click="drawingStorage.setCurrentPage(page)">\n                            <a>{{ page.name || "Unamed page" }}</a>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n\n            <div\n                class="panel panel-left-sidebar"\n                ng-if="drawingStorage.currentPage"\n                style="border-top: 1px solid #b8b8b8;">\n                <div class="panel-heading">{{ drawingStorage.currentPage.name }}</div>\n                <div class="panel-body">\n                    <ul\n                        class="nav nav-sidebar"\n                        ng-model="drawingStorage.currentPage.htmlObjects"\n                        ui-sortable\n                        ng-if="drawingStorage.currentPage">\n                         <li\n                            ng-class="{ active: drawingStorage.currentHtmlObject && drawingStorage.currentHtmlObject.id == htmlObject.id }"\n                            ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects"\n                            ng-click="drawingStorage.setCurrentHtmlObject(htmlObject)">\n                            <a>{{ htmlObject.name ? htmlObject.name : \'Unnamed object\' }}</a>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n        </div>\n        '
+        template: '\n        <div class="left-sidebar">\n            <div\n                ng-show="drawingStorage.currentSketch"\n                class="panel panel-left-sidebar">\n                <div class="panel-heading">\n                    Pages\n                    <button\n                        ng-click="drawingStorage.createPageAndSetAsCurrent()"\n                        class="btn btn-link">+</button>\n                </div>\n                <div class="panel-body">\n                    <ul\n                        class="nav nav-sidebar"\n                        ng-model="drawingStorage.pages"\n                        ui-sortable>\n                         <li\n                            ng-repeat="page in drawingStorage.pages track by $index"\n                            ng-class="{\n                                active: drawingStorage.currentPage && drawingStorage.currentPage.id == page.id\n                            }"\n                            ng-click="drawingStorage.setCurrentPage(page)">\n                            <a>{{ page.name || "Unamed page" }}</a>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n\n            <div\n                class="panel panel-left-sidebar"\n                ng-if="drawingStorage.currentPage"\n                style="border-top: 1px solid #b8b8b8;">\n                <div class="panel-heading">{{ drawingStorage.currentPage.name }}</div>\n                <div class="panel-body">\n                    <ul\n                        class="nav nav-sidebar"\n                        ng-model="drawingStorage.currentPage.htmlObjects"\n                        ui-sortable\n                        ng-if="drawingStorage.currentPage">\n                         <li\n                            ng-class="{ active: drawingStorage.currentHtmlObject && drawingStorage.currentHtmlObject.id == htmlObject.id }"\n                            ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects"\n                            ng-click="drawingStorage.setCurrentHtmlObject(htmlObject)">\n                            <a>{{ htmlObject.name ? htmlObject.name : \'Unnamed object\' }}</a>\n                        </li>\n                    </ul>\n                </div>\n            </div>\n        </div>\n        '
     };
 };
 
@@ -15425,7 +15467,7 @@ module.exports = function RightSidebarDirective() {
         scope: {
             drawingStorage: '='
         },
-        template: '\n        <div class="right-sidebar">\n            <div ng-if="!drawingStorage.currentHtmlObject && drawingStorage.currentPage && drawingStorage.currentPage.styles">\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Name\n                    </div>\n                    <div class="form-column text-center two-thirds">\n                        <input\n                            type="text"\n                            ng-model="drawingStorage.currentPage.name">\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Size\n                    </div>\n                    <div class="form-column text-center">\n                        <input\n                            type="text"\n                            ng-model="drawingStorage.currentPage.styles.width">\n                        Width\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentPage.styles.height">\n                        Height\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fills\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentPage.styles.background">\n                            Fill\n                        </div>\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentPage.styles.backgroundSize">\n                            Size\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div ng-if="drawingStorage.currentHtmlObject && drawingStorage.currentHtmlObject.styles">\n                <div class="sidebar-row">\n                    <div class="btn-group align-object-btns">\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-left"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-vertical"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-right"></i></button>\n\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-top"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-horizontal"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-bottom"></i></button>\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Name\n                    </div>\n                    <div class="form-column text-center two-thirds">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.name">\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Position\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.left">\n                        X\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.top">\n                        Y\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Size\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.width">\n                        Width\n                    </div>\n                    <div class="form-column text-center">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.height">\n                        Height\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Opacity\n                    </div>\n                    <div class="form-column text-center" style="width: 45%">\n                        <input type="range" ng-model="drawingStorage.currentHtmlObject.styles.opacity" max="1" min="0" step=".01">\n                    </div>\n                    <div class="form-column text-center" style="width: 22%">\n                        <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.opacity">\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fills\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.background">\n                            Fill\n                        </div>\n                        <div class="form-column one-half text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.backgroundSize">\n                            Size\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Borders\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.borderColor">\n                            Color\n                        </div>\n                        <div class="form-column text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.borderStyle">\n                            Style\n                        </div>\n                        <div class="form-column text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.borderWidth">\n                            Thickness\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Shadows\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column full-width text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.boxShadow">\n                            Shadow\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fonts\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.color">\n                            Color\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.fontFamily">\n                            Font\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.fontSize">\n                            Size\n                        </div>\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.fontWeight">\n                            Weight\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="text" ng-model="drawingStorage.currentHtmlObject.styles.textAlign">\n                            Align\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input type="number" ng-model="drawingStorage.currentHtmlObject.styles.zIndex">\n                            Z Index\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Content\n                    </div>\n                    <div class="form-column full-width text-center">\n                        <textarea ng-model="drawingStorage.currentHtmlObject.styles.body" rows="6"></textarea>\n                    </div>\n                </div>\n            </div>\n        </div>\n        '
+        template: '\n        <div class="right-sidebar">\n            <div ng-if="!drawingStorage.currentHtmlObject && drawingStorage.currentPage && drawingStorage.currentPage.styles">\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Name\n                    </div>\n                    <div class="form-column text-center two-thirds">\n                        <input\n                            type="text"\n                            ng-change="drawingStorage.saveCurrentSketch()"\n                            ng-model="drawingStorage.currentPage.name">\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Size\n                    </div>\n                    <div class="form-column text-center">\n                        <input\n                            type="text"\n                            ng-change="drawingStorage.saveCurrentSketch()"\n                            ng-model="drawingStorage.currentPage.styles.width">\n                        Width\n                    </div>\n                    <div class="form-column text-center">\n                        <input\n                            type="text"\n                            ng-change="drawingStorage.saveCurrentSketch()"\n                            ng-model="drawingStorage.currentPage.styles.height">\n                        Height\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fills\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-half text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentPage.styles.background">\n                            Fill\n                        </div>\n                        <div class="form-column one-half text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentPage.styles.backgroundSize">\n                            Size\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div ng-if="drawingStorage.currentHtmlObject && drawingStorage.currentHtmlObject.styles">\n                <div class="sidebar-row">\n                    <div class="btn-group align-object-btns">\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-left"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-vertical"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-right"></i></button>\n\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-top"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-horizontal"></i></button>\n                        <button class="btn btn-default"><i class="glyphicon glyphicon-object-align-bottom"></i></button>\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="btn-group align-object-btns">\n                        <button\n                            class="btn btn-default"\n                            ng-class="{ active: drawingStorage.currentHtmlObject.isLocked }"\n                            ng-click="drawingStorage.lockCurrentHtmlObject()"><i class="fa fa-lock"></i></button>\n                        <button\n                            class="btn btn-default"\n                            ng-class="{ active: !drawingStorage.currentHtmlObject.isLocked }"\n                            ng-click="drawingStorage.unlockCurrentHtmlObject()"><i class="fa fa-unlock"></i></button>\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Name\n                    </div>\n                    <div class="form-column text-center two-thirds">\n                        <input\n                            type="text"\n                            ng-change="drawingStorage.saveCurrentSketch()"\n                            ng-model="drawingStorage.currentHtmlObject.name">\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Position\n                    </div>\n                    <div class="form-column text-center">\n                        <input\n                            type="text"\n                            ng-change="drawingStorage.saveCurrentSketch()"\n                            ng-model="drawingStorage.currentHtmlObject.styles.left">\n                        X\n                    </div>\n                    <div class="form-column text-center">\n                        <input\n                            type="text"\n                            ng-change="drawingStorage.saveCurrentSketch()"\n                            ng-model="drawingStorage.currentHtmlObject.styles.top">\n                        Y\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Size\n                    </div>\n                    <div class="form-column text-center">\n                        <input\n                            type="text"\n                            ng-change="drawingStorage.saveCurrentSketch()"\n                            ng-model="drawingStorage.currentHtmlObject.styles.width">\n                        Width\n                    </div>\n                    <div class="form-column text-center">\n                        <input\n                            type="text"\n                            ng-change="drawingStorage.saveCurrentSketch()"\n                            ng-model="drawingStorage.currentHtmlObject.styles.height">\n                        Height\n                    </div>\n                </div>\n\n                <div class="sidebar-row">\n                    <div class="form-column form-label">\n                        Opacity\n                    </div>\n                    <div class="form-column text-center" style="width: 45%">\n                        <input\n                            type="range"\n                            ng-change="drawingStorage.saveCurrentSketch()"\n                            ng-model="drawingStorage.currentHtmlObject.styles.opacity"\n                            max="1"\n                            min="0"\n                            step=".01">\n                    </div>\n                    <div class="form-column text-center" style="width: 22%">\n                        <input\n                            type="text"\n                            ng-change="drawingStorage.saveCurrentSketch()"\n                            ng-model="drawingStorage.currentHtmlObject.styles.opacity">\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fills\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-half text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.background">\n                            Fill\n                        </div>\n                        <div class="form-column one-half text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.backgroundSize">\n                            Size\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Borders\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.borderColor"\n                                colorpicker>\n                            Color\n                        </div>\n                        <div class="form-column text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.borderStyle">\n                            Style\n                        </div>\n                        <div class="form-column text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.borderWidth">\n                            Thickness\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Shadows\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column full-width text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.boxShadow">\n                            Shadow\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Fonts\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-third text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.color"\n                                colorpicker>\n                            Color\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.fontFamily">\n                            Font\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.fontSize">\n                            Size\n                        </div>\n                    </div>\n                    <div class="sidebar-row">\n                        <div class="form-column one-third text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.fontWeight">\n                            Weight\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input\n                                type="text"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.textAlign">\n                            Align\n                        </div>\n                        <div class="form-column one-third text-center">\n                            <input\n                                type="number"\n                                ng-change="drawingStorage.saveCurrentSketch()"\n                                ng-model="drawingStorage.currentHtmlObject.styles.zIndex">\n                            Z Index\n                        </div>\n                    </div>\n                </div>\n\n                <div class="sidebar-group">\n                    <div class="sidebar-header">\n                        Content\n                    </div>\n                    <div class="form-column full-width text-center">\n                        <textarea\n                            ng-model="drawingStorage.currentHtmlObject.styles.body"\n                            ng-change="drawingStorage.saveCurrentSketch()"\n                            rows="6"></textarea>\n                    </div>\n                </div>\n            </div>\n        </div>\n        '
     };
 };
 
@@ -15443,13 +15485,14 @@ angular.module('codesketcher.drawing', [])
 },{"./directives/drawingCanvas.js":9,"./directives/headerBar.js":10,"./directives/leftSidebar.js":11,"./directives/rightSidebar.js":12,"./services/drawing.storage.service.js":14}],14:[function(require,module,exports){
 'use strict';
 
-module.exports = function ($rootScope, $timeout) {
+module.exports = function ($rootScope, $http, $timeout, localStorageService) {
     return function () {
         var _this = this;
 
         this.pages = [];
         this.currentHtmlObject = null;
         this.currentPage = null;
+        this.currentSketch = null;
 
         function guid() {
             function s4() {
@@ -15457,6 +15500,59 @@ module.exports = function ($rootScope, $timeout) {
             }
             return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
         }
+
+        this.fetch = function () {
+            $http.get('/api/sketches').success(function (data) {
+                _this.sketches = data.sketches;
+                _this.setLastObjects();
+                $rootScope.$broadcast('sketches:loaded');
+            });
+        };
+
+        this.setCurrentSketchById = function (sketchId) {
+            var sketch = _.find(_this.sketches, { id: sketchId });
+            if (sketch) _this.setCurrentSketch(sketch);
+        };
+
+        this.setCurrentPageById = function (pageId) {
+            if (!_this.currentSketch) return;
+            var page = _.find(_this.pages, { id: pageId });
+            if (page) _this.setCurrentPage(page);
+        };
+
+        this.setLastObjects = function () {
+            var lastSketchId = localStorageService.get('lastSketchId');
+            var lastPageId = localStorageService.get('lastPageId');
+
+            if (lastSketchId) {
+                _this.setCurrentSketchById(lastSketchId);
+            }
+
+            if (lastPageId) {
+                _this.setCurrentPageById(lastPageId);
+            }
+        };
+
+        this.setCurrentSketch = function (sketch) {
+            _this.currentSketch = sketch;
+            _this.pages = JSON.parse(sketch.json) || [];
+            localStorageService.set('lastSketchId', sketch.id);
+            $rootScope.$broadcast('sketch:selected');
+        };
+
+        var currentSketchHandle = undefined;
+        this.saveCurrentSketch = function () {
+            $timeout.cancel(currentSketchHandle);
+            currentSketchHandle = $timeout(function () {
+                $http.put('/api/sketches/' + _this.currentSketch.id, {
+                    name: _this.currentSketch.name,
+                    json: JSON.stringify(_this.pages)
+                }).success(function () {
+                    console.log('Sketch saved...');
+                    $rootScope.$broadcast('sketch:saved');
+                });
+            }, 300);
+        };
 
         this.createPage = function () {
             _this.pages.push({
@@ -15469,6 +15565,8 @@ module.exports = function ($rootScope, $timeout) {
                     backgroundColor: 'white'
                 }
             });
+            _this.saveCurrentSketch();
+            $rootScope.$broadcast('page:created');
         };
 
         this.createPageAndSetAsCurrent = function () {
@@ -15483,24 +15581,31 @@ module.exports = function ($rootScope, $timeout) {
                     backgroundColor: 'white'
                 }
             });
+            $rootScope.$broadcast('page:created');
 
             var page = _.find(_this.pages, { id: id });
             _this.setCurrentPage(page);
+            _this.saveCurrentSketch();
         };
 
         this.removePage = function (page) {
             _.remove(_this.pages, { id: page.id });
+            $rootScope.$broadcast('page:removed');
+            _this.saveCurrentSketch();
         };
 
         this.setCurrentPage = function (page) {
             _this.currentPage = page;
             _this.currentPage.styles = _this.currentPage.styles || {};
             _this.currentHtmlObject = null;
+            localStorageService.set('lastPageId', page.id);
+            $rootScope.$broadcast('page:selected');
         };
 
         this.setCurrentHtmlObject = function (htmlObject) {
             _this.currentHtmlObject = htmlObject;
             if (!$rootScope.$$phase) $rootScope.$apply();
+            $rootScope.$broadcast('htmlObject:selected');
         };
 
         this.removeHtmlObject = function (htmlObject) {
@@ -15508,6 +15613,8 @@ module.exports = function ($rootScope, $timeout) {
             var htmlObjectsCopy = _.clone(_this.pages[pageIndex].htmlObjects);
             _.remove(htmlObjectsCopy, { id: htmlObject.id });
             _this.pages[pageIndex].htmlObjects = htmlObjectsCopy;
+            _this.saveCurrentSketch();
+            $rootScope.$broadcast('htmlObject:removed');
         };
 
         this.createHtmlObject = function (newHtmlObject) {
@@ -15515,16 +15622,33 @@ module.exports = function ($rootScope, $timeout) {
             _this.pages[pageIndex].htmlObjects.push(newHtmlObject);
             _this.setCurrentPage(_this.pages[pageIndex]);
             $rootScope.$apply();
+            _this.saveCurrentSketch();
+            $rootScope.$broadcast('htmlObject:created');
         };
 
         this.createHtmlObjectAndSetAsCurrent = function (newHtmlObject) {
             _this.createHtmlObject(newHtmlObject);
             _this.setCurrentHtmlObject(newHtmlObject);
+            _this.saveCurrentSketch();
         };
 
         this.updateHtmlObject = function (htmlObject) {
             var index = _.findIndex(_this.currentPage.htmlObjects, { id: htmlObject.id });
             _this.currentPage.htmlObjects.splice(index, 1, htmlObject);
+            _this.saveCurrentSketch();
+            $rootScope.$broadcast('htmlObject:updated');
+        };
+
+        this.unlockCurrentHtmlObject = function () {
+            _this.currentHtmlObject.isLocked = false;
+            _this.saveCurrentSketch();
+            $rootScope.$broadcast('htmlObject:unlocked');
+        };
+
+        this.lockCurrentHtmlObject = function () {
+            _this.currentHtmlObject.isLocked = true;
+            _this.saveCurrentSketch();
+            $rootScope.$broadcast('htmlObject:locked');
         };
     };
 };
