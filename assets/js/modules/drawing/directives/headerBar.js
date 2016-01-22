@@ -58,13 +58,13 @@ module.exports = function HeaderBarDirective() {
                             </a>
                         </li>
                         <li><a>&nbsp;</a></li>
-                        <li class="pointer">
+                        <li class="pointer" ng-click="drawingStorage.zoomIn()">
                             <a>
                                 <i class="fa fa-search-plus"></i>
                                 Zoom In
                             </a>
                         </li>
-                        <li class="pointer">
+                        <li class="pointer" ng-click="drawingStorage.zoomOut()">
                             <a>
                                 <i class="fa fa-search-minus"></i>
                                 Zoom Out
@@ -84,13 +84,13 @@ module.exports = function HeaderBarDirective() {
                             </a>
                         </li>
                         <li><a>&nbsp;</a></li>
-                        <li class="pointer">
+                        <li class="pointer" ng-click="drawingStorage.bringCurrentObjectForward()">
                             <a>
                                 <i class="fa fa-level-up"></i>
                                 Forward
                             </a>
                         </li>
-                        <li class="pointer">
+                        <li class="pointer" ng-click="drawingStorage.sendCurrentObjectBackward()">
                             <a>
                                 <i class="fa fa-level-down"></i>
                                 Backward

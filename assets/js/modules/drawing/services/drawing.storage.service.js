@@ -14,6 +14,7 @@ module.exports = function($rootScope, $http, $timeout, localStorageService) {
         this.currentPage = null
         this.currentSketch = null
         this.currentSketchFilename = false
+        this.currentZoom = 1
 
         function guid() {
             function s4() {
@@ -89,6 +90,16 @@ module.exports = function($rootScope, $http, $timeout, localStorageService) {
             if (!this.currentSketch) return
             let page = _.find(this.currentSketch.pages, { id: pageId })
             if (page) this.setCurrentPage(page)
+        }
+
+        this.zoomIn = () => {
+            this.currentPage.styles.zoom = this.currentPage.styles.zoom || 1
+            this.currentPage.styles.zoom += .2
+        }
+
+        this.zoomOut = () => {
+            this.currentPage.styles.zoom = this.currentPage.styles.zoom || 1
+            this.currentPage.styles.zoom -= .2
         }
 
         this.setLastObjects = () => {
@@ -187,6 +198,18 @@ module.exports = function($rootScope, $http, $timeout, localStorageService) {
             let index = _.findIndex(this.currentPage.htmlObjects, { id: htmlObject.id })
             this.currentPage.htmlObjects.splice(index, 1, htmlObject)
             $rootScope.$broadcast('htmlObject:updated')
+        }
+
+        this.bringCurrentObjectForward = () => {
+            this.currentHtmlObject.styles['z-index'] = this.currentHtmlObject.styles['z-index'] || 1
+            this.currentHtmlObject.styles['z-index']++
+            this.updateHtmlObject(this.currentHtmlObject)
+        }
+
+        this.sendCurrentObjectBackward = () => {
+            this.currentHtmlObject.styles['z-index'] = this.currentHtmlObject.styles['z-index'] || 1
+            this.currentHtmlObject.styles['z-index']--
+            this.updateHtmlObject(this.currentHtmlObject)
         }
 
         this.unlockCurrentHtmlObject = () => {

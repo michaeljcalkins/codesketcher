@@ -1,5 +1,8 @@
 'use strict'
 
+var _ = require('lodash'),
+    $ = require('jquery')
+
 module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
     return {
         scope: {
@@ -33,8 +36,6 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
         `,
         controllerAs: 'ctrl',
         controller: function($scope) {
-            console.log('Drawing Canvas Ready')
-
             let deep = function (a, b) {
                 return _.isObject(a) && _.isObject(b) ? _.extend(a, b, deep) : b
             }
@@ -92,15 +93,17 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                     distance: 3,
                     scroll: true,
                     stop: (evt, ui) => {
-                        let newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
-                            styles: {
-                                left: ui.position.left + 'px',
-                                top: ui.position.top + 'px'
-                            }
-                        }, deep)
+                        $scope.drawingStorage.currentHtmlObject.styles.left = ui.position.left + 'px'
+                        $scope.drawingStorage.currentHtmlObject.styles.top = ui.position.top + 'px'
+                        $scope.drawingStorage.setCurrentHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                    },
+                    drag: function (evt, ui) {
+                        $scope.drawingStorage.currentPage.styles.zoom = $scope.drawingStorage.currentPage.styles.zoom || 1
+                        var factor = (1 / $scope.drawingStorage.currentPage.styles.zoom) - 1
 
-                        $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject)
-                        $scope.drawingStorage.updateHtmlObject(newHtmlObject)
+                        ui.position.top += Math.round((ui.position.top - ui.originalPosition.top) * factor)
+                        ui.position.left += Math.round((ui.position.left - ui.originalPosition.left) * factor)
                     }
                 })
             }
