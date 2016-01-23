@@ -59,15 +59,19 @@ module.exports = function HeaderBarDirective() {
                         </li>
                         <li><a>&nbsp;</a></li>
                         <li class="pointer" ng-click="drawingStorage.zoomIn()">
+                            <a style="margin-top: 14px;">
+                                <i class="fa fa-plus"></i>
+                            </a>
+                        </li>
+                        <li class="pointer" ng-click="drawingStorage.zoomIn()">
                             <a>
-                                <i class="fa fa-search-plus"></i>
-                                Zoom In
+                                <i class="fa fa-search"></i>
+                                {{ (drawingStorage.currentZoom * 100) | number:0 }}%
                             </a>
                         </li>
                         <li class="pointer" ng-click="drawingStorage.zoomOut()">
-                            <a>
-                                <i class="fa fa-search-minus"></i>
-                                Zoom Out
+                            <a style="margin-top: 14px;">
+                                <i class="fa fa-minus"></i>
                             </a>
                         </li>
                         <li><a>&nbsp;</a></li>

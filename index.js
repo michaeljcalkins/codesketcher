@@ -1,5 +1,6 @@
 'use strict';
 
+var angular = require('angular');
 require('angular-ui-router');
 require('angular-local-storage');
 

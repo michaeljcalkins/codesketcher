@@ -8,7 +8,7 @@ var fs = require('fs');
 var BrowserWindow = remote.require('browser-window');
 var dialog = remote.require('dialog');
 
-module.exports = function($rootScope, $http, $timeout, localStorageService) {
+module.exports = function($rootScope, $http, $timeout) {
     return function() {
         this.currentHtmlObject = null
         this.currentPage = null
@@ -40,8 +40,8 @@ module.exports = function($rootScope, $http, $timeout, localStorageService) {
                 this.currentSketch = eval("(" + dataString.toString() + ")")
                 this.currentSketchFilename = data[0]
                 $rootScope.$apply()
-                this.setLastObjects()
                 $rootScope.$broadcast('sketches:loaded')
+                this.setLastObjects()
             })
         }
 
@@ -89,36 +89,35 @@ module.exports = function($rootScope, $http, $timeout, localStorageService) {
         this.setCurrentPageById = (pageId) => {
             if (!this.currentSketch) return
             let page = _.find(this.currentSketch.pages, { id: pageId })
+            this.currentSketch.lastPageId = pageId
             if (page) this.setCurrentPage(page)
         }
 
         this.zoomIn = () => {
-            this.currentPage.styles.zoom = this.currentPage.styles.zoom || 1
-            this.currentPage.styles.zoom += .2
+            this.currentZoom += .2
+            $(".drawing-canvas").animate({
+                zoom: this.currentZoom
+            })
         }
 
         this.zoomOut = () => {
-            this.currentPage.styles.zoom = this.currentPage.styles.zoom || 1
-            this.currentPage.styles.zoom -= .2
+            this.currentZoom -= .2
+            $(".drawing-canvas").animate({
+                zoom: this.currentZoom
+            })
         }
 
         this.setLastObjects = () => {
-            let lastSketchId = localStorageService.get('lastSketchId')
-            let lastPageId = localStorageService.get('lastPageId')
-
-            if (lastSketchId) {
-                this.setCurrentSketchById(lastSketchId)
-            }
-
-            if (lastPageId) {
-                this.setCurrentPageById(lastPageId)
+            console.log('this.currentSketch.lastPageId', this.currentSketch.lastPageId)
+            if (this.currentSketch.lastPageId) {
+                this.setCurrentPageById(this.currentSketch.lastPageId)
+                $rootScope.$apply()
             }
         }
 
         this.setCurrentSketch = (sketch) => {
             this.currentSketch = sketch
             this.currentSketch.pages = JSON.parse(sketch.json) || []
-            localStorageService.set('lastSketchId', sketch.id)
             $rootScope.$broadcast('sketch:selected')
         }
 
@@ -163,7 +162,8 @@ module.exports = function($rootScope, $http, $timeout, localStorageService) {
             this.currentPage = page
             this.currentPage.styles = this.currentPage.styles || {}
             this.currentHtmlObject = null
-            localStorageService.set('lastPageId', page.id)
+            this.currentSketch.lastPageId = page.id
+
             $rootScope.$broadcast('page:selected')
         }
 

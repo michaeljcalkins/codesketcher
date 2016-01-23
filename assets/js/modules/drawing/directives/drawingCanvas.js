@@ -99,8 +99,9 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                         $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
                     },
                     drag: function (evt, ui) {
-                        $scope.drawingStorage.currentPage.styles.zoom = $scope.drawingStorage.currentPage.styles.zoom || 1
-                        var factor = (1 / $scope.drawingStorage.currentPage.styles.zoom) - 1
+                        // http://stackoverflow.com/questions/8605439/jquery-draggable-div-with-zoom
+                        $scope.drawingStorage.currentZoom = $scope.drawingStorage.currentZoom || 1
+                        var factor = (1 / $scope.drawingStorage.currentZoom) - 1
 
                         ui.position.top += Math.round((ui.position.top - ui.originalPosition.top) * factor)
                         ui.position.left += Math.round((ui.position.left - ui.originalPosition.left) * factor)
