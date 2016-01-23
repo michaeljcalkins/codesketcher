@@ -15,6 +15,9 @@ module.exports = function($rootScope, $http, $timeout) {
         this.currentSketch = null
         this.currentSketchFilename = false
         this.currentZoom = 1
+        this.flags = {
+            isDirty: false
+        }
 
         function guid() {
             function s4() {
@@ -40,9 +43,9 @@ module.exports = function($rootScope, $http, $timeout) {
                 var dataString = fs.readFileSync(data[0])
                 this.currentSketch = eval("(" + dataString.toString() + ")")
                 this.currentSketchFilename = data[0]
-                $rootScope.$digest()
                 $rootScope.$broadcast('sketches:loaded')
                 this.setLastObjects()
+                $rootScope.$digest()
             })
         }
 
@@ -64,6 +67,7 @@ module.exports = function($rootScope, $http, $timeout) {
                 ]
             }
             this.setCurrentPage(this.currentSketch.pages[0])
+            this.flags.isDirty = true
         }
 
         this.showSaveDialog = () => {
@@ -81,10 +85,12 @@ module.exports = function($rootScope, $http, $timeout) {
         this.saveCurrentSketch = () => {
             if (!this.currentSketchFilename) return this.showSaveDialog()
 
-            fs.writeFile(this.currentSketchFilename, JSON.stringify(this.currentSketch), function(err) {
+            fs.writeFile(this.currentSketchFilename, JSON.stringify(this.currentSketch), (err) => {
                 if (err) return console.log(err)
                 console.log('Sketch saved...')
+                this.flags.isDirty = false
                 $rootScope.$broadcast('sketch:saved')
+                $rootScope.$digest()
             })
         }
 
@@ -148,6 +154,7 @@ module.exports = function($rootScope, $http, $timeout) {
                 }
             })
             $rootScope.$broadcast('page:created')
+            this.flags.isDirty = true
         }
 
         this.createPageAndSetAsCurrent = () => {
@@ -166,11 +173,13 @@ module.exports = function($rootScope, $http, $timeout) {
 
             let page = _.find(this.currentSketch.pages, { id })
             this.setCurrentPage(page)
+            this.flags.isDirty = true
         }
 
         this.removePage = (page) => {
             _.remove(this.currentSketch.pages, { id: page.id })
             $rootScope.$broadcast('page:removed')
+            this.flags.isDirty = true
         }
 
         this.setCurrentPage = (page) => {
@@ -195,49 +204,56 @@ module.exports = function($rootScope, $http, $timeout) {
             this.currentSketch.pages[pageIndex].htmlObjects = htmlObjectsCopy
             $rootScope.$digest()
             $rootScope.$broadcast('htmlObject:removed')
+            this.flags.isDirty = true
         }
 
         this.createHtmlObject = (newHtmlObject) => {
             newHtmlObject.styles.opacity = 1
-            console.log(this.currentPage.id)
             let pageIndex = _.findIndex(this.currentSketch.pages, { id: this.currentPage.id })
             this.currentSketch.pages[pageIndex].htmlObjects.push(newHtmlObject)
             this.setCurrentPage(this.currentSketch.pages[pageIndex])
             $rootScope.$digest()
             $rootScope.$broadcast('htmlObject:created')
+            this.flags.isDirty = true
         }
 
         this.createHtmlObjectAndSetAsCurrent = (newHtmlObject) => {
             this.createHtmlObject(newHtmlObject)
             this.setCurrentHtmlObject(newHtmlObject)
+            this.flags.isDirty = true
         }
 
         this.updateHtmlObject = (htmlObject) => {
             let index = _.findIndex(this.currentPage.htmlObjects, { id: htmlObject.id })
             this.currentPage.htmlObjects.splice(index, 1, htmlObject)
             $rootScope.$broadcast('htmlObject:updated')
+            this.flags.isDirty = true
         }
 
         this.bringCurrentObjectForward = () => {
             this.currentHtmlObject.styles['z-index'] = this.currentHtmlObject.styles['z-index'] || 1
             this.currentHtmlObject.styles['z-index']++
             this.updateHtmlObject(this.currentHtmlObject)
+            this.flags.isDirty = true
         }
 
         this.sendCurrentObjectBackward = () => {
             this.currentHtmlObject.styles['z-index'] = this.currentHtmlObject.styles['z-index'] || 1
             this.currentHtmlObject.styles['z-index']--
             this.updateHtmlObject(this.currentHtmlObject)
+            this.flags.isDirty = true
         }
 
         this.unlockCurrentHtmlObject = () => {
             this.currentHtmlObject.isLocked = false
             $rootScope.$broadcast('htmlObject:unlocked')
+            this.flags.isDirty = true
         }
 
         this.lockCurrentHtmlObject = () => {
             this.currentHtmlObject.isLocked = true
             $rootScope.$broadcast('htmlObject:locked')
+            this.flags.isDirty = true
         }
     }
 }

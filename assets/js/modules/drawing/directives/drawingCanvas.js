@@ -21,7 +21,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                         class="html-object"
                         ng-mousedown="drawingStorage.setCurrentHtmlObject(htmlObject)"
                         ng-click="drawingStorage.setCurrentHtmlObject(htmlObject)"
-                        ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects"
+                        ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects track by $index"
                         ng-class="{
                             'current-html-object': htmlObject.id == drawingStorage.currentHtmlObject.id,
                             'unfocused-html-object': htmlObject.id != drawingStorage.currentHtmlObject.id
@@ -103,7 +103,6 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                         // http://stackoverflow.com/questions/8605439/jquery-draggable-div-with-zoom
                         $scope.drawingStorage.currentZoom = $scope.drawingStorage.currentZoom || 1
                         var factor = (1 / $scope.drawingStorage.currentZoom) - 1
-
                         ui.position.top += Math.round((ui.position.top - ui.originalPosition.top) * factor)
                         ui.position.left += Math.round((ui.position.left - ui.originalPosition.left) * factor)
                     }
@@ -129,6 +128,65 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                         $('.main').css('cursor', 'crosshair')
                         $('.html-object').resizable('destroy')
                         $('.html-object').draggable('destroy')
+                    }
+                })
+
+                $(document).on('keydown', (evt) => {
+                    if ($(evt.target).is('input, textarea')) return
+
+                    if (evt.metaKey && evt.keyCode === 83) {
+                        $scope.drawingStorage.saveCurrentSketch()
+                        $rootScope.$digest()
+                        evt.preventDefault()
+                    }
+
+                    if (evt.metaKey && evt.keyCode === 79) {
+                        $scope.drawingStorage.openFileDialog()
+                        $rootScope.$digest()
+                        evt.preventDefault()
+                    }
+
+                    if (evt.metaKey && evt.keyCode === 78) {
+                        $scope.drawingStorage.newCurrentSketch()
+                        $rootScope.$digest()
+                        evt.preventDefault()
+                    }
+
+                    if ([37,38,39,40].indexOf(evt.keyCode) > -1) {
+                        let numberOfPixelsToMove = evt.shiftKey ? 10 : 1
+                        switch(evt.keyCode) {
+                            case 37: // left
+                            var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
+                            $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft - numberOfPixelsToMove) + 'px'
+                            $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                            $rootScope.$digest()
+                            evt.preventDefault()
+                            break
+
+                            case 38: // up
+                            var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
+                            $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop - numberOfPixelsToMove) + 'px'
+                            $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                            $rootScope.$digest()
+                            evt.preventDefault()
+                            break
+
+                            case 39: // right
+                            var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
+                            $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft + numberOfPixelsToMove) + 'px'
+                            $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                            $rootScope.$digest()
+                            evt.preventDefault()
+                            break
+
+                            case 40: // down
+                            var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
+                            $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop +  numberOfPixelsToMove) + 'px'
+                            $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                            $rootScope.$digest()
+                            evt.preventDefault()
+                            break
+                        }
                     }
                 })
             }

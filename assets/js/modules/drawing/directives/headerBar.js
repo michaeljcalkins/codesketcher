@@ -22,7 +22,10 @@ module.exports = function HeaderBarDirective() {
                                 Open
                             </a>
                         </li>
-                        <li class="dropdown pointer" ng-click="drawingStorage.saveCurrentSketch()">
+                        <li
+                            class="dropdown pointer"
+                            ng-class="{ disabled: !drawingStorage.flags.isDirty }"
+                            ng-click="drawingStorage.saveCurrentSketch()">
                             <a class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-floppy-o"></i>
                                 Save
@@ -39,7 +42,6 @@ module.exports = function HeaderBarDirective() {
                                 <li><a>Oval</a></li>
                                 <li><a>Text</a></li>
                                 <li><a>Image</a></li>
-                                <li><a>Show Layout</a></li>
                                 <li class="divider"></li>
                                 <li><a>Styled Text</a></li>
                             </ul>
@@ -129,14 +131,13 @@ module.exports = function HeaderBarDirective() {
                                 Export <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-right">
-                                <li><a>Single Preview File (HTML)</a></li>
-                                <li><a>Image (.png)</a></li>
+                                <li><a>Images (.png)</a></li>
                                 <li><a>HTML Files</a></li>
-                                <li><a>AngularJS (v1) Directive</a></li>
-                                <li><a>AngularJS (v1) Component</a></li>
-                                <li><a>ReactJS Dumb Component</a></li>
-                                <li><a>ReactJS Component</a></li>
-                                <li><a>VueJS Component</a></li>
+                                <li><a>PDF</a></li>
+                                <li><a>AngularJS v1</a></li>
+                                <li><a>AngularJS v2</a></li>
+                                <li><a>ReactJS</a></li>
+                                <li><a>VueJS</a></li>
                             </ul>
                         </li>
                     </ul>
