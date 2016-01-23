@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = function LeftSidebarDirective() {
+module.exports = function LeftSidebarDirective($rootScope) {
     return {
         scope: {
             drawingStorage: '='
@@ -9,7 +9,7 @@ module.exports = function LeftSidebarDirective() {
             $scope.sortableOptions = {
                 distance: 3,
                 update: function() {
-                    $scope.drawingStorage.saveCurrentSketch()
+                    $scope.drawingStorage.flags.dirty = true
                 }
             }
         },

@@ -156,36 +156,36 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                         let numberOfPixelsToMove = evt.shiftKey ? 10 : 1
                         switch(evt.keyCode) {
                             case 37: // left
-                            var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
-                            $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft - numberOfPixelsToMove) + 'px'
-                            $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                            $rootScope.$digest()
-                            evt.preventDefault()
-                            break
+                                var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
+                                $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft - numberOfPixelsToMove) + 'px'
+                                $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                                $rootScope.$digest()
+                                evt.preventDefault()
+                                break
 
                             case 38: // up
-                            var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
-                            $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop - numberOfPixelsToMove) + 'px'
-                            $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                            $rootScope.$digest()
-                            evt.preventDefault()
-                            break
+                                var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
+                                $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop - numberOfPixelsToMove) + 'px'
+                                $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                                $rootScope.$digest()
+                                evt.preventDefault()
+                                break
 
                             case 39: // right
-                            var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
-                            $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft + numberOfPixelsToMove) + 'px'
-                            $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                            $rootScope.$digest()
-                            evt.preventDefault()
-                            break
+                                var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
+                                $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft + numberOfPixelsToMove) + 'px'
+                                $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                                $rootScope.$digest()
+                                evt.preventDefault()
+                                break
 
                             case 40: // down
-                            var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
-                            $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop +  numberOfPixelsToMove) + 'px'
-                            $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                            $rootScope.$digest()
-                            evt.preventDefault()
-                            break
+                                var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
+                                $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop +  numberOfPixelsToMove) + 'px'
+                                $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                                $rootScope.$digest()
+                                evt.preventDefault()
+                                break
                         }
                     }
                 })
@@ -193,14 +193,15 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
 
             this.startCreateHtmlObjectBindings = () => {
                 $('.main').on('mousedown', (evt) => {
-                    startingPosition = {
-                        x: evt.offsetX,
-                        y: evt.offsetY + $('.navbar').outerHeight()
-                    }
-
                     if (!createSquareByDragging) return
 
                     $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
+                    var factor = (1 / $scope.drawingStorage.currentZoom)
+
+                    startingPosition = {
+                        x: evt.offsetX,
+                        y: evt.offsetY
+                    }
 
                     var newDiv = $('<div class="html-object-placeholder" />')
                         .css({
@@ -208,8 +209,8 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                             width: 0,
                             position: 'absolute',
                             zIndex: 999999,
-                            left: startingPosition.x,
-                            top: startingPosition.y - $('.navbar').outerHeight()
+                            left: factor * startingPosition.x,
+                            top: factor * startingPosition.y
                         })
                     $('.drawing-canvas').append(newDiv)
 
@@ -219,29 +220,34 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                 $('.main').on('mousemove', (evt) => {
                     if (!createSquareByDragging || !squareCreated) return
 
+                    let factor = (1 / $scope.drawingStorage.currentZoom)
+                    let newWidth = evt.offsetX - startingPosition.x
+                    let newHeight = evt.offsetY - startingPosition.y
+
                     $('.html-object-placeholder')
                         .css({
-                            width: evt.offsetX - startingPosition.x,
-                            height: evt.offsetY + $('.navbar').outerHeight() - startingPosition.y
+                            width: factor * newWidth,
+                            height: factor * newHeight
                         })
                 })
 
                 $('.main').on('mouseup', (evt) => {
                     if (!createSquareByDragging) return
 
+                    let factor = (1 / $scope.drawingStorage.currentZoom)
                     let newWidth = evt.offsetX - startingPosition.x
-                    let newHeight = evt.offsetY + $('.navbar').outerHeight() - startingPosition.y
+                    let newHeight = evt.offsetY - startingPosition.y
 
                     $('.drawing-canvas-screen').remove()
 
                     let newHtmlObject = {
                         id: Math.floor(Math.random() * 10000),
                         styles: {
-                            height: newHeight + 'px',
-                            width: newWidth + 'px',
+                            height: (factor * newHeight) + 'px',
+                            width: (factor * newWidth) + 'px',
                             position: 'absolute',
-                            left: `${startingPosition.x}px`,
-                            top: `${startingPosition.y - $('.navbar').outerHeight()}px`,
+                            left: (factor * startingPosition.x) + 'px',
+                            top: (factor * startingPosition.y) + 'px',
                             backgroundColor: '#D8D8D8',
                             borderWidth: '1px',
                             borderStyle: 'solid',

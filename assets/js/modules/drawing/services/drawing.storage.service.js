@@ -114,7 +114,7 @@ module.exports = function($rootScope, $http, $timeout) {
         this.zoomIn = () => {
             if (this.currentZoom >= 4 || !this.currentSketch) return
 
-            this.currentZoom += .2
+            this.currentZoom = (parseFloat(this.currentZoom) + .2).toFixed(1)
             $(".drawing-canvas").animate({
                 zoom: this.currentZoom
             })
@@ -123,7 +123,7 @@ module.exports = function($rootScope, $http, $timeout) {
         this.zoomOut = () => {
             if (this.currentZoom <= .2 || !this.currentSketch) return
 
-            this.currentZoom -= .2
+            this.currentZoom = (parseFloat(this.currentZoom) - .2).toFixed(1)
             $(".drawing-canvas").animate({
                 zoom: this.currentZoom
             })
@@ -226,8 +226,9 @@ module.exports = function($rootScope, $http, $timeout) {
         this.updateHtmlObject = (htmlObject) => {
             let index = _.findIndex(this.currentPage.htmlObjects, { id: htmlObject.id })
             this.currentPage.htmlObjects.splice(index, 1, htmlObject)
-            $rootScope.$broadcast('htmlObject:updated')
             this.flags.isDirty = true
+            $rootScope.$broadcast('htmlObject:updated')
+            if (!$rootScope.$$phase) $rootScope.$digest()
         }
 
         this.bringCurrentObjectForward = () => {
@@ -235,6 +236,7 @@ module.exports = function($rootScope, $http, $timeout) {
             this.currentHtmlObject.styles['z-index']++
             this.updateHtmlObject(this.currentHtmlObject)
             this.flags.isDirty = true
+            $rootScope.$digest()
         }
 
         this.sendCurrentObjectBackward = () => {
@@ -242,6 +244,7 @@ module.exports = function($rootScope, $http, $timeout) {
             this.currentHtmlObject.styles['z-index']--
             this.updateHtmlObject(this.currentHtmlObject)
             this.flags.isDirty = true
+            $rootScope.$digest()
         }
 
         this.unlockCurrentHtmlObject = () => {
