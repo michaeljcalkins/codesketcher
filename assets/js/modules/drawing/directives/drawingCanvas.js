@@ -75,15 +75,16 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
             this.startResizable = () => {
                 $('.current-html-object').resizable({
                     stop: (evt, ui) => {
-                        let newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
-                            styles: {
-                                height: ui.size.height + 'px',
-                                width: ui.size.width + 'px'
-                            }
-                        }, deep)
-
-                        $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject)
-                        $scope.drawingStorage.updateHtmlObject(newHtmlObject)
+                        $scope.drawingStorage.currentHtmlObject.styles.height = ui.size.height + 'px'
+                        $scope.drawingStorage.currentHtmlObject.styles.width = ui.size.width + 'px'
+                        $scope.drawingStorage.setCurrentHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                    },
+                    resize: function(evt, ui) {
+                        $scope.drawingStorage.currentZoom = $scope.drawingStorage.currentZoom || 1
+                        var factor = (1 / $scope.drawingStorage.currentZoom) - 1
+                        ui.size.width += Math.round((ui.size.width - ui.originalSize.width) * factor)
+                        ui.size.height += Math.round((ui.size.height - ui.originalSize.height) * factor)
                     }
                 })
             }
@@ -122,6 +123,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                  * Create a rectangle shape
                  */
                 $(document).on('keypress', function (evt) {
+                    // When you push R start creating a object
                     if (evt.keyCode === 114 && !$(evt.target).is('input, textarea')) {
                         createSquareByDragging = true
                         $('.main').css('cursor', 'crosshair')
@@ -233,10 +235,10 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                         })
                     })
                 })
-
-                this.startKeyBindings()
-                this.startCreateHtmlObjectBindings()
             }
+
+            this.startKeyBindings()
+            this.startCreateHtmlObjectBindings()
         }
     }
 }

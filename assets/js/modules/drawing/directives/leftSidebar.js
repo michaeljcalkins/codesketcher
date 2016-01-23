@@ -21,8 +21,9 @@ module.exports = function LeftSidebarDirective() {
                 <div class="panel-heading">
                     Pages
                     <button
-                        ng-click="drawingStorage.createPageAndSetAsCurrent()"
-                        class="btn btn-link">+</button>
+                        class="btn btn-default btn-xs pull-right"
+                        style="margin-top: 4px; width: 25px"
+                        ng-click="drawingStorage.createPageAndSetAsCurrent()">+</button>
                 </div>
                 <div class="panel-body">
                     <ul

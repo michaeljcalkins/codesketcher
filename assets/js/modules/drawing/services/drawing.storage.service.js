@@ -22,8 +22,7 @@ module.exports = function($rootScope, $http, $timeout) {
                 .toString(16)
                 .substring(1);
             }
-            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-            s4() + '-' + s4() + s4() + s4();
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
         }
 
         this.openFileDialog = () => {
@@ -36,10 +35,12 @@ module.exports = function($rootScope, $http, $timeout) {
                     }
                 ]
             }, (data) => {
+                if (!data) return
+
                 var dataString = fs.readFileSync(data[0])
                 this.currentSketch = eval("(" + dataString.toString() + ")")
                 this.currentSketchFilename = data[0]
-                $rootScope.$apply()
+                $rootScope.$digest()
                 $rootScope.$broadcast('sketches:loaded')
                 this.setLastObjects()
             })
@@ -50,8 +51,19 @@ module.exports = function($rootScope, $http, $timeout) {
             this.currentPage = null
             this.currentSketchFilename = false
             this.currentSketch = {
-                pages: []
+                pages: [
+                    {
+                        id: guid(),
+                        name: 'New Page',
+                        styles: {
+                            width: '1200px',
+                            height: '900px'
+                        },
+                        htmlObjects: []
+                    }
+                ]
             }
+            this.setCurrentPage(this.currentSketch.pages[0])
         }
 
         this.showSaveDialog = () => {
@@ -94,6 +106,8 @@ module.exports = function($rootScope, $http, $timeout) {
         }
 
         this.zoomIn = () => {
+            if (this.currentZoom >= 4 || !this.currentSketch) return
+
             this.currentZoom += .2
             $(".drawing-canvas").animate({
                 zoom: this.currentZoom
@@ -101,6 +115,8 @@ module.exports = function($rootScope, $http, $timeout) {
         }
 
         this.zoomOut = () => {
+            if (this.currentZoom <= .2 || !this.currentSketch) return
+
             this.currentZoom -= .2
             $(".drawing-canvas").animate({
                 zoom: this.currentZoom
@@ -108,10 +124,9 @@ module.exports = function($rootScope, $http, $timeout) {
         }
 
         this.setLastObjects = () => {
-            console.log('this.currentSketch.lastPageId', this.currentSketch.lastPageId)
             if (this.currentSketch.lastPageId) {
                 this.setCurrentPageById(this.currentSketch.lastPageId)
-                $rootScope.$apply()
+                $rootScope.$digest()
             }
         }
 
@@ -169,7 +184,7 @@ module.exports = function($rootScope, $http, $timeout) {
 
         this.setCurrentHtmlObject = (htmlObject) => {
             this.currentHtmlObject = htmlObject
-            if (!$rootScope.$$phase) $rootScope.$apply()
+            if (!$rootScope.$$phase) $rootScope.$digest()
             $rootScope.$broadcast('htmlObject:selected')
         }
 
@@ -178,14 +193,17 @@ module.exports = function($rootScope, $http, $timeout) {
             let htmlObjectsCopy = _.clone(this.currentSketch.pages[pageIndex].htmlObjects)
             _.remove(htmlObjectsCopy, { id: htmlObject.id })
             this.currentSketch.pages[pageIndex].htmlObjects = htmlObjectsCopy
+            $rootScope.$digest()
             $rootScope.$broadcast('htmlObject:removed')
         }
 
         this.createHtmlObject = (newHtmlObject) => {
+            newHtmlObject.styles.opacity = 1
+            console.log(this.currentPage.id)
             let pageIndex = _.findIndex(this.currentSketch.pages, { id: this.currentPage.id })
             this.currentSketch.pages[pageIndex].htmlObjects.push(newHtmlObject)
             this.setCurrentPage(this.currentSketch.pages[pageIndex])
-            $rootScope.$apply()
+            $rootScope.$digest()
             $rootScope.$broadcast('htmlObject:created')
         }
 
