@@ -15,6 +15,7 @@ module.exports = function RightSidebarDirective() {
                     <div class="form-column text-center two-thirds">
                         <input
                             type="text"
+                            ng-change="drawingStorage.updatePage(drawingStorage.currentPage)"
                             ng-model="drawingStorage.currentPage.name">
                     </div>
                 </div>
@@ -26,14 +27,14 @@ module.exports = function RightSidebarDirective() {
                     <div class="form-column text-center">
                         <input
                             type="text"
-
+                            ng-change="drawingStorage.updatePage(drawingStorage.currentPage)"
                             ng-model="drawingStorage.currentPage.styles.width">
                         Width
                     </div>
                     <div class="form-column text-center">
                         <input
                             type="text"
-
+                            ng-change="drawingStorage.updatePage(drawingStorage.currentPage)"
                             ng-model="drawingStorage.currentPage.styles.height">
                         Height
                     </div>
@@ -47,14 +48,14 @@ module.exports = function RightSidebarDirective() {
                         <div class="form-column one-half text-center">
                             <input
                                 type="text"
-
+                                ng-change="drawingStorage.updatePage(drawingStorage.currentPage)"
                                 ng-model="drawingStorage.currentPage.styles.background">
                             Fill
                         </div>
                         <div class="form-column one-half text-center">
                             <input
                                 type="text"
-
+                                ng-change="drawingStorage.updatePage(drawingStorage.currentPage)"
                                 ng-model="drawingStorage.currentPage.styles.backgroundSize">
                             Size
                         </div>
@@ -136,6 +137,27 @@ module.exports = function RightSidebarDirective() {
                             ng-change="drawingStorage.updateHtmlObject(drawingStorage.currentHtmlObject)"
                             ng-model="drawingStorage.currentHtmlObject.styles.height">
                         Height
+                    </div>
+                </div>
+
+                <div class="sidebar-row">
+                    <div class="form-column form-label">
+                        Radius
+                    </div>
+                    <div class="form-column text-center" style="width: 45%">
+                        <input
+                            type="range"
+                            ng-change="drawingStorage.updateHtmlObject(drawingStorage.currentHtmlObject)"
+                            ng-model="drawingStorage.currentHtmlObject.styles.borderRadius"
+                            max="100"
+                            min="0"
+                            step="1">
+                    </div>
+                    <div class="form-column text-center" style="width: 22%">
+                        <input
+                            type="text"
+                            ng-change="drawingStorage.updateHtmlObject(drawingStorage.currentHtmlObject)"
+                            ng-model="drawingStorage.currentHtmlObject.styles.borderRadius">
                     </div>
                 </div>
 

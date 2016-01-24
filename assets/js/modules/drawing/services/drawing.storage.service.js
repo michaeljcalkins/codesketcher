@@ -43,9 +43,10 @@ module.exports = function($rootScope, $http, $timeout) {
                 var dataString = fs.readFileSync(data[0])
                 this.currentSketch = eval("(" + dataString.toString() + ")")
                 this.currentSketchFilename = data[0]
-                $rootScope.$broadcast('sketches:loaded')
+                this.currentHtmlObject = null
+                this.currentPage = null
                 this.setLastObjects()
-                $rootScope.$digest()
+                $rootScope.$broadcast('sketch:loaded')
             })
         }
 
@@ -90,7 +91,7 @@ module.exports = function($rootScope, $http, $timeout) {
                 console.log('Sketch saved...')
                 this.flags.isDirty = false
                 $rootScope.$broadcast('sketch:saved')
-                $rootScope.$digest()
+                if (!$rootScope.$$phase) $rootScope.$digest()
             })
         }
 
@@ -117,7 +118,7 @@ module.exports = function($rootScope, $http, $timeout) {
             this.currentZoom = (parseFloat(this.currentZoom) + .2).toFixed(1)
             $(".drawing-canvas").animate({
                 zoom: this.currentZoom
-            })
+            }, 'medium')
         }
 
         this.zoomOut = () => {
@@ -126,13 +127,13 @@ module.exports = function($rootScope, $http, $timeout) {
             this.currentZoom = (parseFloat(this.currentZoom) - .2).toFixed(1)
             $(".drawing-canvas").animate({
                 zoom: this.currentZoom
-            })
+            }, 'medium')
         }
 
         this.setLastObjects = () => {
             if (this.currentSketch.lastPageId) {
                 this.setCurrentPageById(this.currentSketch.lastPageId)
-                $rootScope.$digest()
+                if (!$rootScope.$$phase) $rootScope.$digest()
             }
         }
 
@@ -202,7 +203,6 @@ module.exports = function($rootScope, $http, $timeout) {
             let htmlObjectsCopy = _.clone(this.currentSketch.pages[pageIndex].htmlObjects)
             _.remove(htmlObjectsCopy, { id: htmlObject.id })
             this.currentSketch.pages[pageIndex].htmlObjects = htmlObjectsCopy
-            $rootScope.$digest()
             $rootScope.$broadcast('htmlObject:removed')
             this.flags.isDirty = true
         }
@@ -212,9 +212,9 @@ module.exports = function($rootScope, $http, $timeout) {
             let pageIndex = _.findIndex(this.currentSketch.pages, { id: this.currentPage.id })
             this.currentSketch.pages[pageIndex].htmlObjects.push(newHtmlObject)
             this.setCurrentPage(this.currentSketch.pages[pageIndex])
-            $rootScope.$digest()
             $rootScope.$broadcast('htmlObject:created')
             this.flags.isDirty = true
+            if (!$rootScope.$$phase) $rootScope.$digest()
         }
 
         this.createHtmlObjectAndSetAsCurrent = (newHtmlObject) => {
@@ -231,12 +231,20 @@ module.exports = function($rootScope, $http, $timeout) {
             if (!$rootScope.$$phase) $rootScope.$digest()
         }
 
+        this.updatePage = (page) => {
+            let index = _.findIndex(this.currentSketch.pages, { id: page.id })
+            this.currentSketch.pages.splice(index, 1, page)
+            this.flags.isDirty = true
+            $rootScope.$broadcast('page:updated')
+            if (!$rootScope.$$phase) $rootScope.$digest()
+        }
+
         this.bringCurrentObjectForward = () => {
             this.currentHtmlObject.styles['z-index'] = this.currentHtmlObject.styles['z-index'] || 1
             this.currentHtmlObject.styles['z-index']++
             this.updateHtmlObject(this.currentHtmlObject)
             this.flags.isDirty = true
-            $rootScope.$digest()
+            if (!$rootScope.$$phase) $rootScope.$digest()
         }
 
         this.sendCurrentObjectBackward = () => {
@@ -244,7 +252,7 @@ module.exports = function($rootScope, $http, $timeout) {
             this.currentHtmlObject.styles['z-index']--
             this.updateHtmlObject(this.currentHtmlObject)
             this.flags.isDirty = true
-            $rootScope.$digest()
+            if (!$rootScope.$$phase) $rootScope.$digest()
         }
 
         this.unlockCurrentHtmlObject = () => {

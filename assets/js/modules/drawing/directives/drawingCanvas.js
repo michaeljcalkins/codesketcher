@@ -3,7 +3,7 @@
 var _ = require('lodash'),
     $ = require('jquery')
 
-module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
+module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope, hotkeys) {
     return {
         scope: {
             drawingStorage: '='
@@ -40,9 +40,10 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                 return _.isObject(a) && _.isObject(b) ? _.extend(a, b, deep) : b
             }
 
-            let createSquareByDragging = false
+            let createByDragging = false
             let squareCreated = false
             let startingPosition = null
+            let createACircle = false
 
             $rootScope.$on('htmlObject:unlocked', () => {
                 this.startResizable()
@@ -75,8 +76,8 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
             this.startResizable = () => {
                 $('.current-html-object').resizable({
                     stop: (evt, ui) => {
-                        $scope.drawingStorage.currentHtmlObject.styles.height = ui.size.height + 'px'
-                        $scope.drawingStorage.currentHtmlObject.styles.width = ui.size.width + 'px'
+                        $scope.drawingStorage.currentHtmlObject.styles.height = Math.round(ui.size.height) + 'px'
+                        $scope.drawingStorage.currentHtmlObject.styles.width = Math.round(ui.size.width) + 'px'
                         $scope.drawingStorage.setCurrentHtmlObject($scope.drawingStorage.currentHtmlObject)
                         $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
                     },
@@ -93,9 +94,9 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                 $('.current-html-object').draggable({
                     distance: 3,
                     scroll: true,
-                    stop: (evt, ui) => {
-                        $scope.drawingStorage.currentHtmlObject.styles.left = ui.position.left + 'px'
-                        $scope.drawingStorage.currentHtmlObject.styles.top = ui.position.top + 'px'
+                    stop: function (evt, ui) {
+                        $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
+                        $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
                         $scope.drawingStorage.setCurrentHtmlObject($scope.drawingStorage.currentHtmlObject)
                         $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
                     },
@@ -109,91 +110,9 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                 })
             }
 
-            this.startKeyBindings = () => {
-                $(document).on('keydown', (evt) => {
-                    if ((evt.keyCode === 8 || evt.keyCode === 46) && !$(evt.target).is('input, textarea')) {
-                        evt.stopPropagation()
-                        evt.preventDefault()
-                        $scope.drawingStorage.removeHtmlObject($scope.drawingStorage.currentHtmlObject)
-                    }
-                })
-
-                /**
-                 * Create a rectangle shape
-                 */
-                $(document).on('keypress', function (evt) {
-                    // When you push R start creating a object
-                    if (evt.keyCode === 114 && !$(evt.target).is('input, textarea')) {
-                        createSquareByDragging = true
-                        $('.main').css('cursor', 'crosshair')
-                        $('.html-object').resizable('destroy')
-                        $('.html-object').draggable('destroy')
-                    }
-                })
-
-                $(document).on('keydown', (evt) => {
-                    if ($(evt.target).is('input, textarea')) return
-
-                    if (evt.metaKey && evt.keyCode === 83) {
-                        $scope.drawingStorage.saveCurrentSketch()
-                        $rootScope.$digest()
-                        evt.preventDefault()
-                    }
-
-                    if (evt.metaKey && evt.keyCode === 79) {
-                        $scope.drawingStorage.openFileDialog()
-                        $rootScope.$digest()
-                        evt.preventDefault()
-                    }
-
-                    if (evt.metaKey && evt.keyCode === 78) {
-                        $scope.drawingStorage.newCurrentSketch()
-                        $rootScope.$digest()
-                        evt.preventDefault()
-                    }
-
-                    if ([37,38,39,40].indexOf(evt.keyCode) > -1) {
-                        let numberOfPixelsToMove = evt.shiftKey ? 10 : 1
-                        switch(evt.keyCode) {
-                            case 37: // left
-                                var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
-                                $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft - numberOfPixelsToMove) + 'px'
-                                $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                                $rootScope.$digest()
-                                evt.preventDefault()
-                                break
-
-                            case 38: // up
-                                var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
-                                $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop - numberOfPixelsToMove) + 'px'
-                                $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                                $rootScope.$digest()
-                                evt.preventDefault()
-                                break
-
-                            case 39: // right
-                                var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
-                                $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft + numberOfPixelsToMove) + 'px'
-                                $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                                $rootScope.$digest()
-                                evt.preventDefault()
-                                break
-
-                            case 40: // down
-                                var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
-                                $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop +  numberOfPixelsToMove) + 'px'
-                                $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                                $rootScope.$digest()
-                                evt.preventDefault()
-                                break
-                        }
-                    }
-                })
-            }
-
             this.startCreateHtmlObjectBindings = () => {
                 $('.main').on('mousedown', (evt) => {
-                    if (!createSquareByDragging) return
+                    if (!createByDragging) return
 
                     $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
                     var factor = (1 / $scope.drawingStorage.currentZoom)
@@ -208,6 +127,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                             height: 0,
                             width: 0,
                             position: 'absolute',
+                            borderRadius: createACircle ? '100%' : '',
                             zIndex: 999999,
                             left: factor * startingPosition.x,
                             top: factor * startingPosition.y
@@ -218,7 +138,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                 })
 
                 $('.main').on('mousemove', (evt) => {
-                    if (!createSquareByDragging || !squareCreated) return
+                    if (!createByDragging || !squareCreated) return
 
                     let factor = (1 / $scope.drawingStorage.currentZoom)
                     let newWidth = evt.offsetX - startingPosition.x
@@ -232,7 +152,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                 })
 
                 $('.main').on('mouseup', (evt) => {
-                    if (!createSquareByDragging) return
+                    if (!createByDragging) return
 
                     let factor = (1 / $scope.drawingStorage.currentZoom)
                     let newWidth = evt.offsetX - startingPosition.x
@@ -253,6 +173,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                             borderStyle: 'solid',
                             borderColor: '#979797',
                             backgroundImage: '',
+                            borderRadius: createACircle ? '100%' : 0,
                             transform: '',
                             color: '#444',
                             fontFamily: 'Arial',
@@ -260,7 +181,8 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                         }
                     }
                     squareCreated = false
-                    createSquareByDragging = false
+                    createACircle = false
+                    createByDragging = false
                     $('.main').css('cursor', 'auto')
                     $('.html-object-placeholder').remove()
 
@@ -298,6 +220,180 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope) {
                             }
                         })
                     })
+                })
+            }
+
+            this.startKeyBindings = () => {
+                hotkeys.add({
+                    combo: 'meta+-',
+                    description: 'Zoom out.',
+                    callback: (evt) => {
+                        $scope.drawingStorage.zoomOut()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'meta+=',
+                    description: 'Zoom in.',
+                    callback: (evt) => {
+                        $scope.drawingStorage.zoomIn()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'backspace',
+                    description: 'Remove currently selected html object.',
+                    callback: (evt) => {
+                        evt.stopPropagation()
+                        evt.preventDefault()
+                        $scope.drawingStorage.removeHtmlObject($scope.drawingStorage.currentHtmlObject)
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'r',
+                    description: 'Create a rectangle.',
+                    callback: (evt) => {
+                        createByDragging = true
+                        $('.main').css('cursor', 'crosshair')
+                        $('.html-object').resizable('destroy')
+                        $('.html-object').draggable('destroy')
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'o',
+                    description: 'Create a circle.',
+                    callback: (evt) => {
+                        createByDragging = true
+                        createACircle = true
+                        $('.main').css('cursor', 'crosshair')
+                        $('.html-object').resizable('destroy')
+                        $('.html-object').draggable('destroy')
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'meta+s',
+                    description: 'Save current sketch.',
+                    callback: (evt) => {
+                        $scope.drawingStorage.saveCurrentSketch()
+                        evt.preventDefault()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'meta+o',
+                    description: 'Open an existing sketch.',
+                    callback: (evt) => {
+                        $scope.drawingStorage.openFileDialog()
+                        evt.preventDefault()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'meta+n',
+                    description: 'Create a new sketch.',
+                    callback: (evt) => {
+                        $scope.drawingStorage.newCurrentSketch()
+                        evt.preventDefault()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'left',
+                    description: 'Move current html object left 1 pixel.',
+                    callback: (evt) => {
+                        let numberOfPixelsToMove = 1
+                        var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
+                        $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft - numberOfPixelsToMove) + 'px'
+                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        evt.preventDefault()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'shift+left',
+                    description: 'Move current html object left 10 pixels.',
+                    callback: (evt) => {
+                        let numberOfPixelsToMove = 10
+                        var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
+                        $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft - numberOfPixelsToMove) + 'px'
+                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        evt.preventDefault()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'up',
+                    description: 'Move current html object up 1 pixel.',
+                    callback: (evt) => {
+                        let numberOfPixelsToMove = 1
+                        var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
+                        $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop - numberOfPixelsToMove) + 'px'
+                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        evt.preventDefault()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'shift+up',
+                    description: 'Move current html object up 10 pixels.',
+                    callback: (evt) => {
+                        let numberOfPixelsToMove = 10
+                        var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
+                        $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop - numberOfPixelsToMove) + 'px'
+                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        evt.preventDefault()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'right',
+                    description: 'Move current html object right 1 pixel.',
+                    callback: (evt) => {
+                        let numberOfPixelsToMove = 1
+                        var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
+                        $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft + numberOfPixelsToMove) + 'px'
+                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        evt.preventDefault()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'shift+right',
+                    description: 'Move current html object right 10 pixels.',
+                    callback: (evt) => {
+                        let numberOfPixelsToMove = 10
+                        var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
+                        $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft + numberOfPixelsToMove) + 'px'
+                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        evt.preventDefault()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'down',
+                    description: 'Move current html object down 1 pixel.',
+                    callback: (evt) => {
+                        let numberOfPixelsToMove = 1
+                        var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
+                        $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop +  numberOfPixelsToMove) + 'px'
+                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        evt.preventDefault()
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'shift+down',
+                    description: 'Move current html object down 10 pixels.',
+                    callback: (evt) => {
+                        let numberOfPixelsToMove = 10
+                        var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
+                        $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop +  numberOfPixelsToMove) + 'px'
+                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        evt.preventDefault()
+                    }
                 })
             }
 

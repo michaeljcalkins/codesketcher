@@ -38,12 +38,12 @@ module.exports = function HeaderBarDirective() {
                                 Insert <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a>Rectangle</a></li>
-                                <li><a>Oval</a></li>
-                                <li><a>Text</a></li>
-                                <li><a>Image</a></li>
+                                <li><a>Rectangle (R)</a></li>
+                                <li><a>Oval (O)</a></li>
+                                <li><a>Text (T)</a></li>
+                                <li><a>Image (I)</a></li>
                                 <li class="divider"></li>
-                                <li><a>Styled Text</a></li>
+                                <li><a>Styled Text (S)</a></li>
                             </ul>
                         </li>
                         <li><a>&nbsp;</a></li>

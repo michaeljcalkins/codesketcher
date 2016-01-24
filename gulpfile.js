@@ -35,14 +35,14 @@ gulp.task('run', ['default'], function() {
     return run('electron .').exec()
 })
 
-gulp.task('watch', ['scripts', 'styles'], function (cb) {
-    watch('assets/js/**/*.js', function () {
-        gulp.run('scripts')
-    })
+gulp.task('watch', ['styles'], function (cb) {
+    // watch('assets/js/**/*.js', function () {
+    //     gulp.run('scripts')
+    // })
 
     watch('assets/scss/**/*.scss', function () {
         gulp.run('styles')
     })
 })
 
-gulp.task('default', ['scripts', 'styles'])
+gulp.task('default', ['styles'])
