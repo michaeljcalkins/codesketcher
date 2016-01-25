@@ -3,7 +3,7 @@
 var _ = require('lodash'),
     $ = require('jquery')
 
-module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope, hotkeys) {
+module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, $rootScope, hotkeys) {
     return {
         scope: {
             drawingStorage: '='
@@ -45,36 +45,82 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope, hot
             let startingPosition = null
             let createACircle = false
 
-            $rootScope.$on('htmlObject:unlocked', () => {
-                this.startResizable()
-                this.startDraggable()
+            $rootScope.$on(DrawingEvents.htmlObject.unlocked, () => {
+
             })
 
-            $rootScope.$on('htmlObject:locked', () => {
+            $rootScope.$on(DrawingEvents.htmlObject.locked, () => {
+
+            })
+
+            $rootScope.$on(DrawingEvents.htmlObject.removed, () => {
                 this.disableResizable()
                 this.disableDraggable()
             })
 
-            $rootScope.$on('htmlObject:selected', () => {
-                this.startResizable()
-                this.startDraggable()
-
-                if ($scope.drawingStorage.currentHtmlObject.isLocked) {
-                    this.disableResizable()
-                    this.disableDraggable()
-                }
+            $rootScope.$on(DrawingEvents.htmlObject.selected, () => {
+                // if (!$scope.drawingStorage.currentHtmlObject.isLocked) {
+                this.disableResizable()
+                this.disableDraggable()
+                this.enableCurrentResizable()
+                this.enableCurrentDraggable()
+                // }
             })
 
-            this.disableResizable = () => {
-                $('.current-html-object').resizable('destroy')
-            }
+            $rootScope.$on(DrawingEvents.insert.rectangle, () => {
+                if (! $scope.drawingStorage.currentSketch) return
+
+                createByDragging = true
+                $('.main').css('cursor', 'crosshair')
+                this.stopResizable()
+                this.stopDraggable()
+            })
+
+            $rootScope.$on(DrawingEvents.insert.oval, () => {
+                if (!$scope.drawingStorage.currentSketch) return
+
+                createByDragging = true
+                createACircle = true
+                $('.main').css('cursor', 'crosshair')
+                this.stopResizable()
+                this.stopDraggable()
+            })
+
+            $rootScope.$on(DrawingEvents.insert.text, () => {
+
+            })
+
+            $rootScope.$on(DrawingEvents.insert.image, () => {
+
+            })
 
             this.disableDraggable = () => {
-                $('.current-html-object').draggable('destroy')
+                $('.html-object').draggable('disable')
+            }
+
+            this.disableResizable = () => {
+                $('.html-object').resizable('disable')
+            }
+
+            this.enableCurrentResizable = () => {
+                $('.current-html-object').resizable('enable')
+            }
+
+            this.enableCurrentDraggable = () => {
+                $('.current-html-object').draggable('enable')
+            }
+
+            this.stopResizable = () => {
+                $('.current-html-object').resizable('disable')
+            }
+
+            this.stopDraggable = () => {
+                $('.current-html-object').draggable('disable')
             }
 
             this.startResizable = () => {
-                $('.current-html-object').resizable({
+                $('.html-object').resizable({
+                    disabled: true,
                     stop: (evt, ui) => {
                         $scope.drawingStorage.currentHtmlObject.styles.height = Math.round(ui.size.height) + 'px'
                         $scope.drawingStorage.currentHtmlObject.styles.width = Math.round(ui.size.width) + 'px'
@@ -91,8 +137,9 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope, hot
             }
 
             this.startDraggable = () => {
-                $('.current-html-object').draggable({
+                $('.html-object').draggable({
                     distance: 3,
+                    disabled: true,
                     scroll: true,
                     stop: function (evt, ui) {
                         $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
@@ -110,117 +157,94 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope, hot
                 })
             }
 
-            this.startCreateHtmlObjectBindings = () => {
-                $('.main').on('mousedown', (evt) => {
-                    if (!createByDragging) return
+            this.startNewHtmlObjectProcess = (evt) => {
+                if (!createByDragging) return
 
-                    $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
-                    var factor = (1 / $scope.drawingStorage.currentZoom)
+                $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
+                var factor = (1 / $scope.drawingStorage.currentZoom)
 
-                    startingPosition = {
-                        x: evt.offsetX,
-                        y: evt.offsetY
-                    }
+                startingPosition = {
+                    x: evt.offsetX,
+                    y: evt.offsetY
+                }
 
-                    var newDiv = $('<div class="html-object-placeholder" />')
-                        .css({
-                            height: 0,
-                            width: 0,
-                            position: 'absolute',
-                            borderRadius: createACircle ? '100%' : '',
-                            zIndex: 999999,
-                            left: factor * startingPosition.x,
-                            top: factor * startingPosition.y
-                        })
-                    $('.drawing-canvas').append(newDiv)
-
-                    squareCreated = true
-                })
-
-                $('.main').on('mousemove', (evt) => {
-                    if (!createByDragging || !squareCreated) return
-
-                    let factor = (1 / $scope.drawingStorage.currentZoom)
-                    let newWidth = evt.offsetX - startingPosition.x
-                    let newHeight = evt.offsetY - startingPosition.y
-
-                    $('.html-object-placeholder')
-                        .css({
-                            width: factor * newWidth,
-                            height: factor * newHeight
-                        })
-                })
-
-                $('.main').on('mouseup', (evt) => {
-                    if (!createByDragging) return
-
-                    let factor = (1 / $scope.drawingStorage.currentZoom)
-                    let newWidth = evt.offsetX - startingPosition.x
-                    let newHeight = evt.offsetY - startingPosition.y
-
-                    $('.drawing-canvas-screen').remove()
-
-                    let newHtmlObject = {
-                        id: Math.floor(Math.random() * 10000),
-                        styles: {
-                            height: (factor * newHeight) + 'px',
-                            width: (factor * newWidth) + 'px',
-                            position: 'absolute',
-                            left: (factor * startingPosition.x) + 'px',
-                            top: (factor * startingPosition.y) + 'px',
-                            backgroundColor: '#D8D8D8',
-                            borderWidth: '1px',
-                            borderStyle: 'solid',
-                            borderColor: '#979797',
-                            backgroundImage: '',
-                            borderRadius: createACircle ? '100%' : 0,
-                            transform: '',
-                            color: '#444',
-                            fontFamily: 'Arial',
-                            fontSize: '18px'
-                        }
-                    }
-                    squareCreated = false
-                    createACircle = false
-                    createByDragging = false
-                    $('.main').css('cursor', 'auto')
-                    $('.html-object-placeholder').remove()
-
-                    $scope.drawingStorage.createHtmlObject(newHtmlObject)
-                    $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject)
-
-                    setTimeout(() => {
-                        $('.html-object').resizable({
-                            stop: (evt, ui) => {
-                                let newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
-                                    styles: {
-                                        height: ui.size.height + 'px',
-                                        width: ui.size.width + 'px'
-                                    }
-                                }, deep)
-
-                                $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject)
-                                $scope.drawingStorage.updateHtmlObject(newHtmlObject)
-                            }
-                        })
-
-                        $('.html-object').draggable({
-                            distance: 3,
-                            scroll: true,
-                            stop: (evt, ui) => {
-                                let newHtmlObject = _.assign($scope.drawingStorage.currentHtmlObject, {
-                                    styles: {
-                                        left: ui.position.left + 'px',
-                                        top: ui.position.top + 'px'
-                                    }
-                                }, deep)
-
-                                $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject)
-                                $scope.drawingStorage.updateHtmlObject(newHtmlObject)
-                            }
-                        })
+                var newDiv = $('<div class="html-object-placeholder" />')
+                    .css({
+                        height: 0,
+                        width: 0,
+                        position: 'absolute',
+                        borderRadius: createACircle ? '100%' : '',
+                        zIndex: 999999,
+                        left: factor * startingPosition.x,
+                        top: factor * startingPosition.y
                     })
-                })
+                $('.drawing-canvas').append(newDiv)
+                this.startDraggable()
+                this.startResizable()
+
+                squareCreated = true
+            }
+
+            this.adjustNewHtmlObject = (evt) => {
+                if (!createByDragging || !squareCreated) return
+
+                let factor = (1 / $scope.drawingStorage.currentZoom)
+                let newWidth = evt.offsetX - startingPosition.x
+                let newHeight = evt.offsetY - startingPosition.y
+
+                $('.html-object-placeholder')
+                    .css({
+                        width: factor * newWidth,
+                        height: factor * newHeight
+                    })
+            }
+
+            this.createNewHtmlObject = (evt) => {
+                if (!createByDragging) return
+
+                let factor = (1 / $scope.drawingStorage.currentZoom)
+                let newWidth = evt.offsetX - startingPosition.x
+                let newHeight = evt.offsetY - startingPosition.y
+
+                $('.drawing-canvas-screen').remove()
+
+                let newHtmlObject = {
+                    id: Math.floor(Math.random() * 10000),
+                    rotation: 0,
+                    styles: {
+                        height: Math.round(factor * newHeight) + 'px',
+                        width: Math.round(factor * newWidth) + 'px',
+                        position: 'absolute',
+                        left: Math.round(factor * startingPosition.x) + 'px',
+                        top: Math.round(factor * startingPosition.y) + 'px',
+                        backgroundColor: '#D8D8D8',
+                        borderWidth: '1px',
+                        borderStyle: 'solid',
+                        borderColor: '#979797',
+                        backgroundImage: '',
+                        borderRadius: createACircle ? '100%' : 0,
+                        transform: 'rotate(0deg)',
+                        color: '#444',
+                        fontFamily: 'Arial',
+                        fontSize: '18px'
+                    }
+                }
+                squareCreated = false
+                createACircle = false
+                createByDragging = false
+                $('.main').css('cursor', 'auto')
+                $('.html-object-placeholder').remove()
+
+                $scope.drawingStorage.createHtmlObject(newHtmlObject)
+                this.startDraggable()
+                this.startResizable()
+                $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject)
+            }
+
+            this.startCreateHtmlObjectBindings = () => {
+                $('.main').on('mousedown', this.startNewHtmlObjectProcess)
+                $('.main').on('mousemove', this.adjustNewHtmlObject)
+                $('.main').on('mouseup', this.createNewHtmlObject)
             }
 
             this.startKeyBindings = () => {
@@ -251,13 +275,34 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope, hot
                 })
 
                 hotkeys.add({
+                    combo: 'esc',
+                    description: 'Stop whatever you were doing.',
+                    callback: (evt) => {
+                        $scope.drawingStorage.currentHtmlObject = null
+                        squareCreated = false
+                        createACircle = false
+                        createByDragging = false
+                        // $('.main').css('cursor', 'auto')
+                        // $('.drawing-canvas-screen').remove()
+                        // $('.html-object-placeholder').remove()
+                        // $('.html-object').resizable('disable')
+                        // $('.html-object').draggable('disable')
+                        this.stopResizable()
+                        this.stopDraggable()
+                    }
+                })
+
+                hotkeys.add({
                     combo: 'r',
                     description: 'Create a rectangle.',
                     callback: (evt) => {
+                        if (! $scope.drawingStorage.currentSketch) return
+
+                        this.stopResizable()
+                        this.stopDraggable()
+                        $scope.drawingStorage.currentHtmlObject = null
                         createByDragging = true
                         $('.main').css('cursor', 'crosshair')
-                        $('.html-object').resizable('destroy')
-                        $('.html-object').draggable('destroy')
                     }
                 })
 
@@ -265,6 +310,39 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope, hot
                     combo: 'o',
                     description: 'Create a circle.',
                     callback: (evt) => {
+                        if (! $scope.drawingStorage.currentSketch) return
+
+                        this.stopResizable()
+                        this.stopDraggable()
+                        $scope.drawingStorage.currentHtmlObject = null
+                        createByDragging = true
+                        createACircle = true
+                        $('.main').css('cursor', 'crosshair')
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 't',
+                    description: 'Create text.',
+                    callback: (evt) => {
+                        if (! $scope.drawingStorage.currentSketch) return
+
+                        $scope.drawingStorage.currentHtmlObject = null
+                        createByDragging = true
+                        createACircle = true
+                        $('.main').css('cursor', 'crosshair')
+                        $('.html-object').resizable('destroy')
+                        $('.html-object').draggable('destroy')
+                    }
+                })
+
+                hotkeys.add({
+                    combo: 'i',
+                    description: 'Insert an image.',
+                    callback: (evt) => {
+                        if (! $scope.drawingStorage.currentSketch) return
+
+                        $scope.drawingStorage.currentHtmlObject = null
                         createByDragging = true
                         createACircle = true
                         $('.main').css('cursor', 'crosshair')
@@ -399,6 +477,8 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, $rootScope, hot
 
             this.startKeyBindings()
             this.startCreateHtmlObjectBindings()
+            this.startDraggable()
+            this.startResizable()
         }
     }
 }

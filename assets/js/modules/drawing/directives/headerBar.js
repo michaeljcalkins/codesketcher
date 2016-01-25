@@ -1,9 +1,27 @@
 'use strict'
 
-module.exports = function HeaderBarDirective() {
+module.exports = function HeaderBarDirective(DrawingEvents, $rootScope) {
     return {
         scope: {
             drawingStorage: '='
+        },
+        controllerAs: 'ctrl',
+        controller: function() {
+            this.sendInsertRectangleEvent = () => {
+                $rootScope.$broadcast(DrawingEvents.insert.rectangle)
+            }
+
+            this.sendInsertOvalEvent = () => {
+                $rootScope.$broadcast(DrawingEvents.insert.oval)
+            }
+
+            this.sendInsertTextEvent = () => {
+                $rootScope.$broadcast(DrawingEvents.insert.text)
+            }
+
+            this.sendInsertImageEvent = () => {
+                $rootScope.$broadcast(DrawingEvents.insert.image)
+            }
         },
         template: `
         <nav class="navbar navbar-default navbar-fixed-top">
@@ -38,12 +56,10 @@ module.exports = function HeaderBarDirective() {
                                 Insert <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a>Rectangle (R)</a></li>
-                                <li><a>Oval (O)</a></li>
-                                <li><a>Text (T)</a></li>
-                                <li><a>Image (I)</a></li>
-                                <li class="divider"></li>
-                                <li><a>Styled Text (S)</a></li>
+                                <li ng-click="ctrl.sendInsertRectangleEvent()"><a>Rectangle (R)</a></li>
+                                <li ng-click="ctrl.sendInsertOvalEvent()"><a>Oval (O)</a></li>
+                                <li ng-click="ctrl.sendInsertTextEvent()"><a>Text (T)</a></li>
+                                <li ng-click="ctrl.sendInsertImageEvent()"><a>Image (I)</a></li>
                             </ul>
                         </li>
                         <li><a>&nbsp;</a></li>
@@ -77,12 +93,6 @@ module.exports = function HeaderBarDirective() {
                             </a>
                         </li>
                         <li><a>&nbsp;</a></li>
-                        <li class="pointer">
-                            <a>
-                                <i class="fa fa-rotate-right"></i>
-                                Rotate
-                            </a>
-                        </li>
                         <li class="pointer">
                             <a>
                                 <i class="fa fa-expand"></i>

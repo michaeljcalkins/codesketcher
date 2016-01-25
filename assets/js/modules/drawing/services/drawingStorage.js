@@ -29,6 +29,8 @@ module.exports = function($rootScope, $http, $timeout) {
         }
 
         this.openFileDialog = () => {
+            if (this.flags.isDirty && !confirm("You are going to lose your unsaved work, is that ok?")) return
+
             dialog.showOpenDialog({
                 properties: [ 'openFile' ],
                 filters: [
@@ -81,6 +83,10 @@ module.exports = function($rootScope, $http, $timeout) {
                 this.currentSketchFilename = data
                 this.saveCurrentSketch()
             })
+        }
+
+        this.rotationChange = () => {
+            this.currentHtmlObject.styles.transform = `rotate(${this.currentHtmlObject.rotation}deg)`
         }
 
         this.saveCurrentSketch = () => {
@@ -194,8 +200,8 @@ module.exports = function($rootScope, $http, $timeout) {
 
         this.setCurrentHtmlObject = (htmlObject) => {
             this.currentHtmlObject = htmlObject
-            if (!$rootScope.$$phase) $rootScope.$digest()
             $rootScope.$broadcast('htmlObject:selected')
+            if (!$rootScope.$$phase) $rootScope.$digest()
         }
 
         this.removeHtmlObject = (htmlObject) => {

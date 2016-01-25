@@ -163,6 +163,30 @@ module.exports = function RightSidebarDirective() {
 
                 <div class="sidebar-row">
                     <div class="form-column form-label">
+                        Rotation
+                    </div>
+                    <div class="form-column text-center" style="width: 45%">
+                        <input
+                            type="range"
+                            ng-model="drawingStorage.currentHtmlObject.rotation"
+                            ng-change="drawingStorage.rotationChange()"
+                            max="360"
+                            min="0"
+                            step="1">
+                    </div>
+                    <div class="form-column text-center" style="width: 22%">
+                        <input
+                            type="number"
+                            max="360"
+                            min="0"
+                            step="1"
+                            ng-change="drawingStorage.rotationChange()"
+                            ng-model="drawingStorage.currentHtmlObject.rotation">
+                    </div>
+                </div>
+
+                <div class="sidebar-row">
+                    <div class="form-column form-label">
                         Opacity
                     </div>
                     <div class="form-column text-center" style="width: 45%">
