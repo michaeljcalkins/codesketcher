@@ -49,6 +49,7 @@ module.exports = function($rootScope, $http, $timeout) {
                 this.currentPage = null
                 this.setLastObjects()
                 $rootScope.$broadcast('sketch:loaded')
+                document.title = 'Code Sketcher | ' + this.currentSketchFilename
             })
         }
 
@@ -71,6 +72,7 @@ module.exports = function($rootScope, $http, $timeout) {
             }
             this.setCurrentPage(this.currentSketch.pages[0])
             this.flags.isDirty = true
+            document.title = 'Code Sketcher | New Sketch'
         }
 
         this.showSaveDialog = () => {

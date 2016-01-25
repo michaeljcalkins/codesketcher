@@ -282,11 +282,6 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                         squareCreated = false
                         createACircle = false
                         createByDragging = false
-                        // $('.main').css('cursor', 'auto')
-                        // $('.drawing-canvas-screen').remove()
-                        // $('.html-object-placeholder').remove()
-                        // $('.html-object').resizable('disable')
-                        // $('.html-object').draggable('disable')
                         this.stopResizable()
                         this.stopDraggable()
                     }
