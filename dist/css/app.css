@@ -366,6 +366,13 @@ body.sketch-styles .html-object {
   /* non-prefixed version, currently
      not supported by any browser */
 }
+body.sketch-styles .html-object img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+}
 body.sketch-styles .current-html-object {
   cursor: move;
   /* fallback if grab cursor is unsupported */
@@ -389,7 +396,7 @@ body.sketch-styles .unfocused-html-object:hover .html-object-border {
   bottom: 0;
   z-index: 10;
 }
-body.sketch-styles .ui-resizable-handle.ui-resizable-se.ui-icon.ui-icon-gripsmall-diagonal-se {
+body.sketch-styles .ui-resizable-handle {
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,e5e5e5+100;White+3D */
   background: #ffffff;
   /* Old browsers */
@@ -400,10 +407,40 @@ body.sketch-styles .ui-resizable-handle.ui-resizable-se.ui-icon.ui-icon-gripsmal
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e5e5e5',GradientType=0 );
   /* IE6-9 */
   box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.4);
-  right: -4px;
-  bottom: -4px;
   width: 8px;
   height: 8px;
+}
+body.sketch-styles .ui-resizable-handle.ui-resizable-se {
+  right: -4px;
+  bottom: -4px;
+}
+body.sketch-styles .ui-resizable-handle.ui-resizable-sw {
+  left: -4px;
+  bottom: -4px;
+}
+body.sketch-styles .ui-resizable-handle.ui-resizable-ne {
+  right: -4px;
+  top: -4px;
+}
+body.sketch-styles .ui-resizable-handle.ui-resizable-nw {
+  left: -4px;
+  top: -4px;
+}
+body.sketch-styles .ui-resizable-handle.ui-resizable-n {
+  left: 50%;
+  top: -4px;
+}
+body.sketch-styles .ui-resizable-handle.ui-resizable-s {
+  left: 50%;
+  bottom: -4px;
+}
+body.sketch-styles .ui-resizable-handle.ui-resizable-e {
+  right: -4px;
+  top: 50%;
+}
+body.sketch-styles .ui-resizable-handle.ui-resizable-w {
+  left: -4px;
+  top: 50%;
 }
 body.sketch-styles .sidebar-row {
   clear: both;

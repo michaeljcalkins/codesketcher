@@ -16,8 +16,9 @@ angular
         'cfp.hotkeys',
         'codesketcher.drawing'
     ])
-    .config(function($urlRouterProvider) {
+    .config(function($urlRouterProvider, $compileProvider) {
         $urlRouterProvider.otherwise('/drawing')
+        $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image/);
     })
     .controller('AppCtrl', function(DrawingStorage) {
         this.drawingStorage = DrawingStorage

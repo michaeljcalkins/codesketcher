@@ -3,7 +3,7 @@
 var _ = require('lodash'),
     $ = require('jquery')
 
-module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, $rootScope, hotkeys) {
+module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, $rootScope, hotkeys, DrawingGuid) {
     return {
         scope: {
             drawingStorage: '='
@@ -28,7 +28,15 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                         }"
                         ng-style="htmlObject.styles">
                         <div class="html-object-border"></div>
-                        {{ htmlObject.styles.body }}
+                        <div ng-switch on="htmlObject.type">
+                            <div ng-switch-when="image">
+                                <img ng-src="data:image;base64,{{ htmlObject.imageSrc }}" style="height: 100%; width: 100%;">
+                            </div>
+                            <div ng-switch-default>
+                                {{ htmlObject.styles.body }}
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -37,9 +45,14 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
         controllerAs: 'ctrl',
         controller: function($scope) {
             let createByDragging = false
-            let createACircle = false
+            let createAnOval = false
             let squareCreated = false
             let startingPosition = null
+
+            $rootScope.$on(DrawingEvents.htmlObject.created, () => {
+                this.startResizable()
+                this.startDraggable()
+            })
 
             $rootScope.$on(DrawingEvents.htmlObject.unlocked, () => {
                 this.enableCurrentResizable()
@@ -57,6 +70,9 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
             })
 
             $rootScope.$on(DrawingEvents.htmlObject.selected, () => {
+                this.startResizable()
+                this.startDraggable()
+
                 this.disableResizable()
                 this.disableDraggable()
 
@@ -79,7 +95,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                 if (!$scope.drawingStorage.currentSketch) return
 
                 createByDragging = true
-                createACircle = true
+                createAnOval = true
                 $('.main').css('cursor', 'crosshair')
                 this.stopResizable()
                 this.stopDraggable()
@@ -120,9 +136,10 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
             this.startResizable = () => {
                 $('.html-object').resizable({
                     disabled: true,
+                    handles: 'all',
                     stop: (evt, ui) => {
-                        $scope.drawingStorage.currentHtmlObject.styles.height = Math.round(ui.size.height) + 'px'
-                        $scope.drawingStorage.currentHtmlObject.styles.width = Math.round(ui.size.width) + 'px'
+                        $scope.drawingStorage.currentHtmlObject.styles.height = Math.round($('.current-html-object').outerHeight()) + 'px'
+                        $scope.drawingStorage.currentHtmlObject.styles.width = Math.round($('.current-html-object').outerWidth()) + 'px'
                         $scope.drawingStorage.setCurrentHtmlObject($scope.drawingStorage.currentHtmlObject)
                         $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
                     },
@@ -172,7 +189,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                         height: 0,
                         width: 0,
                         position: 'absolute',
-                        borderRadius: createACircle ? '100%' : '',
+                        borderRadius: createAnOval ? '100%' : '',
                         zIndex: 999999,
                         left: factor * startingPosition.x,
                         top: factor * startingPosition.y
@@ -208,8 +225,9 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                 $('.drawing-canvas-screen').remove()
 
                 let newHtmlObject = {
-                    id: Math.floor(Math.random() * 10000),
+                    id: DrawingGuid.guid(),
                     rotation: 0,
+                    type: createAnOval ? 'oval' : 'rectangle',
                     styles: {
                         height: Math.round(factor * newHeight) + 'px',
                         width: Math.round(factor * newWidth) + 'px',
@@ -221,7 +239,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                         borderStyle: 'solid',
                         borderColor: '#979797',
                         backgroundImage: '',
-                        borderRadius: createACircle ? '100%' : 0,
+                        borderRadius: createAnOval ? '100%' : 0,
                         transform: 'rotate(0deg)',
                         color: '#444',
                         fontFamily: 'Arial',
@@ -229,7 +247,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                     }
                 }
                 squareCreated = false
-                createACircle = false
+                createAnOval = false
                 createByDragging = false
                 $('.main').css('cursor', 'auto')
                 $('.html-object-placeholder').remove()
@@ -282,10 +300,11 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                     callback: (evt) => {
                         $scope.drawingStorage.currentHtmlObject = null
                         squareCreated = false
-                        createACircle = false
+                        createAnOval = false
                         createByDragging = false
                         this.stopResizable()
                         this.stopDraggable()
+                        $('.main').css('cursor', 'auto')
                     }
                 })
 
@@ -313,7 +332,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                         this.stopDraggable()
                         $scope.drawingStorage.currentHtmlObject = null
                         createByDragging = true
-                        createACircle = true
+                        createAnOval = true
                         $('.main').css('cursor', 'crosshair')
                     }
                 })
@@ -324,12 +343,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                     callback: (evt) => {
                         if (! $scope.drawingStorage.currentSketch) return
 
-                        $scope.drawingStorage.currentHtmlObject = null
-                        createByDragging = true
-                        createACircle = true
-                        $('.main').css('cursor', 'crosshair')
-                        $('.html-object').resizable('destroy')
-                        $('.html-object').draggable('destroy')
+
                     }
                 })
 
@@ -339,12 +353,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                     callback: (evt) => {
                         if (! $scope.drawingStorage.currentSketch) return
 
-                        $scope.drawingStorage.currentHtmlObject = null
-                        createByDragging = true
-                        createACircle = true
-                        $('.main').css('cursor', 'crosshair')
-                        $('.html-object').resizable('destroy')
-                        $('.html-object').draggable('destroy')
+                        DrawingStorage.openImageDialog()
                     }
                 })
 

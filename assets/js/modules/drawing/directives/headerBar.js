@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = function HeaderBarDirective(DrawingEvents, $rootScope) {
+module.exports = function HeaderBarDirective(DrawingEvents, DrawingStorage, $rootScope) {
     return {
         scope: {
             drawingStorage: '='
@@ -20,7 +20,7 @@ module.exports = function HeaderBarDirective(DrawingEvents, $rootScope) {
             }
 
             this.sendInsertImageEvent = () => {
-                $rootScope.$broadcast(DrawingEvents.insert.image)
+                DrawingStorage.openImageDialog()
             }
         },
         template: `

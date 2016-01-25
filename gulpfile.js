@@ -40,7 +40,7 @@ gulp.task('watch', ['styles'], function (cb) {
     //     gulp.run('scripts')
     // })
 
-    watch('assets/scss/**/*.scss', function () {
+    watch('assets/sass/**/*.scss', function () {
         gulp.run('styles')
     })
 })

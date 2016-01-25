@@ -12,3 +12,4 @@ angular
     // Services
     .service('DrawingStorage', require('./services/drawingStorage.js'))
     .service('DrawingEvents', require('./services/drawingEvents.js'))
+    .service('DrawingGuid', require('./services/drawingGuid.js'))

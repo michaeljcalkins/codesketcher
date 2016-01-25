@@ -1,14 +1,15 @@
 'use strict'
 
 let $ = require('jquery')
-var remote = require('remote');
-var shell = remote.require('shell');
-var fs = require('fs');
+let remote = require('remote');
+let shell = remote.require('shell');
+let fs = require('fs');
+let sizeOf = require('image-size');
 
-var BrowserWindow = remote.require('browser-window');
-var dialog = remote.require('dialog');
+let BrowserWindow = remote.require('browser-window');
+let dialog = remote.require('dialog');
 
-module.exports = function($rootScope, $http, $timeout) {
+module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvents) {
     this.currentHtmlObject = null
     this.currentPage = null
     this.currentSketch = null
@@ -16,15 +17,6 @@ module.exports = function($rootScope, $http, $timeout) {
     this.currentZoom = 1
     this.flags = {
         isDirty: false
-    }
-
-    function guid() {
-        function s4() {
-            return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-        }
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
     }
 
     this.openFileDialog = () => {
@@ -41,7 +33,7 @@ module.exports = function($rootScope, $http, $timeout) {
         }, (data) => {
             if (!data) return
 
-            var dataString = fs.readFileSync(data[0])
+            let dataString = fs.readFileSync(data[0])
             this.currentSketch = eval("(" + dataString.toString() + ")")
             this.currentSketchFilename = data[0]
             this.currentHtmlObject = null
@@ -59,7 +51,7 @@ module.exports = function($rootScope, $http, $timeout) {
         this.currentSketch = {
             pages: [
                 {
-                    id: guid(),
+                    id: DrawingGuid.guid(),
                     name: 'New Page',
                     styles: {
                         width: '1200px',
@@ -152,7 +144,7 @@ module.exports = function($rootScope, $http, $timeout) {
 
     this.createPage = () => {
         this.currentSketch.pages.push({
-            id: guid(),
+            id: DrawingGuid.guid(),
             name: "",
             htmlObjects: [],
             styles: {
@@ -166,7 +158,7 @@ module.exports = function($rootScope, $http, $timeout) {
     }
 
     this.createPageAndSetAsCurrent = () => {
-        let id = guid()
+        let id = DrawingGuid.guid()
         this.currentSketch.pages.push({
             id: id,
             name: "",
@@ -272,5 +264,56 @@ module.exports = function($rootScope, $http, $timeout) {
         this.currentHtmlObject.isLocked = true
         $rootScope.$broadcast('htmlObject:locked')
         this.flags.isDirty = true
+    }
+
+    this.openImageDialog = () => {
+        dialog.showOpenDialog({
+            properties: [ 'openFile' ],
+            filters: [
+                { name: 'Images', extensions: ['jpg', 'png', 'gif'] }
+            ]
+        }, (data) => {
+            if (!data) return
+
+            let imageData = fs.readFileSync(data[0])
+            let base64Image = this.convertImageDataToBase64(imageData)
+            let dimensions = sizeOf(data[0])
+
+            this.addImageHtmlObject(base64Image, dimensions.width, dimensions.height)
+        })
+    }
+
+    this.convertImageDataToBase64 = (imageData) => {
+        return new Buffer(imageData, 'binary').toString('base64')
+    }
+
+    this.addImageHtmlObject = (base64Image, width, height) => {
+        let newHtmlObject = {
+            id: DrawingGuid.guid(),
+            rotation: 0,
+            imageSrc: base64Image,
+            type: 'image',
+            styles: {
+                height: height + 'px',
+                width: width + 'px',
+                position: 'absolute',
+                left: '0px',
+                top: '0px',
+                backgroundColor: '',
+                borderWidth: '',
+                borderStyle: '',
+                borderColor: '',
+                backgroundImage: '',
+                borderRadius: 0,
+                transform: 'rotate(0deg)',
+                color: '',
+                fontFamily: '',
+                fontSize: ''
+            }
+        }
+
+        this.createHtmlObject(newHtmlObject)
+        this.setCurrentHtmlObject(newHtmlObject)
+        $rootScope.$broadcast(DrawingEvents.htmlObject.created)
     }
 }

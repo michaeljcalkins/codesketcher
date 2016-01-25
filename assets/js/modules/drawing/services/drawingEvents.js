@@ -7,6 +7,7 @@ module.exports = function() {
             image: 'insert:image'
         },
         htmlObject: {
+            created: 'htmlObject:created',
             unlocked: 'htmlObject:unlocked',
             locked: 'htmlObject:locked',
             selected: 'htmlObject:selected',
