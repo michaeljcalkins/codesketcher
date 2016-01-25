@@ -36,21 +36,19 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
         `,
         controllerAs: 'ctrl',
         controller: function($scope) {
-            let deep = function (a, b) {
-                return _.isObject(a) && _.isObject(b) ? _.extend(a, b, deep) : b
-            }
-
             let createByDragging = false
+            let createACircle = false
             let squareCreated = false
             let startingPosition = null
-            let createACircle = false
 
             $rootScope.$on(DrawingEvents.htmlObject.unlocked, () => {
-
+                this.enableCurrentResizable()
+                this.enableCurrentDraggable()
             })
 
             $rootScope.$on(DrawingEvents.htmlObject.locked, () => {
-
+                this.disableResizable()
+                this.disableDraggable()
             })
 
             $rootScope.$on(DrawingEvents.htmlObject.removed, () => {
@@ -59,12 +57,13 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
             })
 
             $rootScope.$on(DrawingEvents.htmlObject.selected, () => {
-                // if (!$scope.drawingStorage.currentHtmlObject.isLocked) {
                 this.disableResizable()
                 this.disableDraggable()
-                this.enableCurrentResizable()
-                this.enableCurrentDraggable()
-                // }
+
+                if (!$scope.drawingStorage.currentHtmlObject.isLocked) {
+                    this.enableCurrentResizable()
+                    this.enableCurrentDraggable()
+                }
             })
 
             $rootScope.$on(DrawingEvents.insert.rectangle, () => {
@@ -234,6 +233,9 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                 createByDragging = false
                 $('.main').css('cursor', 'auto')
                 $('.html-object-placeholder').remove()
+
+                if (Math.round(factor * newHeight) < 1 || Math.round(factor * newWidth) < 1)
+                    return
 
                 $scope.drawingStorage.createHtmlObject(newHtmlObject)
                 this.startDraggable()

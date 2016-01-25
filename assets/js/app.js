@@ -20,5 +20,5 @@ angular
         $urlRouterProvider.otherwise('/drawing')
     })
     .controller('AppCtrl', function(DrawingStorage) {
-        this.drawingStorage = new DrawingStorage()
+        this.drawingStorage = DrawingStorage
     })
