@@ -1,9 +1,9 @@
 'use strict'
 
-module.exports = function HeaderBarDirective(DrawingEvents, DrawingStorage, $rootScope) {
+module.exports = function HeaderBarDirective(DrawingEvents, DrawingModel, $rootScope) {
     return {
         scope: {
-            drawingStorage: '='
+            drawingModel: '='
         },
         controllerAs: 'ctrl',
         controller: function() {
@@ -20,7 +20,7 @@ module.exports = function HeaderBarDirective(DrawingEvents, DrawingStorage, $roo
             }
 
             this.sendInsertImageEvent = () => {
-                DrawingStorage.openImageDialog()
+                DrawingModel.openImageDialog()
             }
         },
         template: `
@@ -28,13 +28,13 @@ module.exports = function HeaderBarDirective(DrawingEvents, DrawingStorage, $roo
             <div class="container-fluid">
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav text-center">
-                        <li class="pointer" ng-click="drawingStorage.newCurrentSketch()">
+                        <li class="pointer" ng-click="drawingModel.newCurrentSketch()">
                              <a>
                                 <i class="fa fa-file"></i>
                                 New
                             </a>
                         </li>
-                        <li class="dropdown pointer" ng-click="drawingStorage.openFileDialog()">
+                        <li class="dropdown pointer" ng-click="drawingModel.openFileDialog()">
                             <a class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-folder-open"></i>
                                 Open
@@ -42,8 +42,8 @@ module.exports = function HeaderBarDirective(DrawingEvents, DrawingStorage, $roo
                         </li>
                         <li
                             class="dropdown pointer"
-                            ng-class="{ disabled: !drawingStorage.flags.isDirty }"
-                            ng-click="drawingStorage.saveCurrentSketch()">
+                            ng-class="{ disabled: !drawingModel.flags.isDirty }"
+                            ng-click="drawingModel.saveCurrentSketch()">
                             <a class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-floppy-o"></i>
                                 Save
@@ -76,18 +76,18 @@ module.exports = function HeaderBarDirective(DrawingEvents, DrawingStorage, $roo
                             </a>
                         </li>
                         <li><a>&nbsp;</a></li>
-                        <li class="pointer" ng-click="drawingStorage.zoomIn()">
+                        <li class="pointer" ng-click="drawingModel.zoomIn()">
                             <a style="margin-top: 14px;">
                                 <i class="fa fa-plus"></i>
                             </a>
                         </li>
-                        <li class="pointer" ng-click="drawingStorage.zoomIn()">
+                        <li class="pointer" ng-click="drawingModel.zoomIn()">
                             <a>
                                 <i class="fa fa-search"></i>
-                                {{ (drawingStorage.currentZoom * 100) | number:0 }}%
+                                {{ (drawingModel.currentZoom * 100) | number:0 }}%
                             </a>
                         </li>
-                        <li class="pointer" ng-click="drawingStorage.zoomOut()">
+                        <li class="pointer" ng-click="drawingModel.zoomOut()">
                             <a style="margin-top: 14px;">
                                 <i class="fa fa-minus"></i>
                             </a>
@@ -100,13 +100,13 @@ module.exports = function HeaderBarDirective(DrawingEvents, DrawingStorage, $roo
                             </a>
                         </li>
                         <li><a>&nbsp;</a></li>
-                        <li class="pointer" ng-click="drawingStorage.bringCurrentObjectForward()">
+                        <li class="pointer" ng-click="drawingModel.bringCurrentObjectForward()">
                             <a>
                                 <i class="fa fa-level-up"></i>
                                 Forward
                             </a>
                         </li>
-                        <li class="pointer" ng-click="drawingStorage.sendCurrentObjectBackward()">
+                        <li class="pointer" ng-click="drawingModel.sendCurrentObjectBackward()">
                             <a>
                                 <i class="fa fa-level-down"></i>
                                 Backward

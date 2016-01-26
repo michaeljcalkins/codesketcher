@@ -3,30 +3,31 @@
 var _ = require('lodash'),
     $ = require('jquery')
 
-module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, $rootScope, hotkeys, DrawingGuid) {
+module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $rootScope, hotkeys, DrawingGuid) {
     return {
         scope: {
-            drawingStorage: '='
+            drawingModel: '='
         },
         template: `
         <div class="main">
             <div
                 class="drawing-container"
-                ng-if="drawingStorage.currentPage"
-                ng-style="{ width: drawingStorage.getContainerWidth() }">
+                ng-if="drawingModel.currentPage"
+                ng-style="{ width: drawingModel.getContainerWidth() }">
                 <div
                     class="drawing-canvas"
-                    ng-style="drawingStorage.currentPage.styles">
+                    ng-style="drawingModel.currentPage.styles">
                     <div
                         class="html-object"
-                        ng-mousedown="drawingStorage.setCurrentHtmlObject(htmlObject)"
-                        ng-click="drawingStorage.setCurrentHtmlObject(htmlObject)"
-                        ng-repeat="htmlObject in drawingStorage.currentPage.htmlObjects track by $index"
+                        ng-mousedown="drawingModel.setCurrentHtmlObject(htmlObject)"
+                        ng-click="drawingModel.setCurrentHtmlObject(htmlObject)"
+                        ng-repeat="htmlObject in drawingModel.currentPage.htmlObjects track by $index | orderBy:$index:true"
                         ng-class="{
-                            'current-html-object': htmlObject.id == drawingStorage.currentHtmlObject.id,
-                            'unfocused-html-object': htmlObject.id != drawingStorage.currentHtmlObject.id
+                            'current-html-object': htmlObject.id == drawingModel.currentHtmlObject.id,
+                            'unfocused-html-object': htmlObject.id != drawingModel.currentHtmlObject.id
                         }"
-                        ng-style="htmlObject.styles">
+                        ng-style="htmlObject.styles"
+                        style="z-index: {{ drawingModel.currentPage.htmlObjects.length - $index }}">
                         <div class="html-object-border"></div>
                         <div ng-switch on="htmlObject.type">
                             <div ng-switch-when="image">
@@ -36,7 +37,6 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                                 {{ htmlObject.styles.body }}
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -76,14 +76,14 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                 this.disableResizable()
                 this.disableDraggable()
 
-                if (!$scope.drawingStorage.currentHtmlObject.isLocked) {
+                if (!DrawingModel.currentHtmlObject.isLocked) {
                     this.enableCurrentResizable()
                     this.enableCurrentDraggable()
                 }
             })
 
             $rootScope.$on(DrawingEvents.insert.rectangle, () => {
-                if (! $scope.drawingStorage.currentSketch) return
+                if (!DrawingModel.currentSketch) return
 
                 createByDragging = true
                 $('.main').css('cursor', 'crosshair')
@@ -92,7 +92,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
             })
 
             $rootScope.$on(DrawingEvents.insert.oval, () => {
-                if (!$scope.drawingStorage.currentSketch) return
+                if (!DrawingModel.currentSketch) return
 
                 createByDragging = true
                 createAnOval = true
@@ -138,16 +138,20 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                     disabled: true,
                     handles: 'all',
                     stop: (evt, ui) => {
-                        $scope.drawingStorage.currentHtmlObject.styles.height = Math.round($('.current-html-object').outerHeight()) + 'px'
-                        $scope.drawingStorage.currentHtmlObject.styles.width = Math.round($('.current-html-object').outerWidth()) + 'px'
-                        $scope.drawingStorage.setCurrentHtmlObject($scope.drawingStorage.currentHtmlObject)
-                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        DrawingModel.currentHtmlObject.styles.height = Math.round($('.current-html-object').outerHeight()) + 'px'
+                        DrawingModel.currentHtmlObject.styles.width = Math.round($('.current-html-object').outerWidth()) + 'px'
+                        DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
+                        DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
+                        DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
+                        DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
                     },
                     resize: function(evt, ui) {
-                        $scope.drawingStorage.currentZoom = $scope.drawingStorage.currentZoom || 1
-                        var factor = (1 / $scope.drawingStorage.currentZoom) - 1
-                        ui.size.width += Math.round((ui.size.width - ui.originalSize.width) * factor)
-                        ui.size.height += Math.round((ui.size.height - ui.originalSize.height) * factor)
+                        DrawingModel.currentZoom = DrawingModel.currentZoom || 1
+                        let factor = (1 / DrawingModel.currentZoom) - 1
+                        ui.size.width += Math.round(($('.current-html-object').outerWidth() - ui.originalSize.width) * factor)
+                        ui.size.height += Math.round(($('.current-html-object').outerHeight() - ui.originalSize.height) * factor)
+                        ui.position.top += Math.round((ui.position.top - ui.originalPosition.top) * factor)
+                        ui.position.left += Math.round((ui.position.left - ui.originalPosition.left) * factor)
                     }
                 })
             }
@@ -158,15 +162,15 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                     disabled: true,
                     scroll: true,
                     stop: function (evt, ui) {
-                        $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
-                        $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
-                        $scope.drawingStorage.setCurrentHtmlObject($scope.drawingStorage.currentHtmlObject)
-                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
+                        DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
+                        DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
+                        DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
+                        DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
                     },
                     drag: function (evt, ui) {
                         // http://stackoverflow.com/questions/8605439/jquery-draggable-div-with-zoom
-                        $scope.drawingStorage.currentZoom = $scope.drawingStorage.currentZoom || 1
-                        var factor = (1 / $scope.drawingStorage.currentZoom) - 1
+                        DrawingModel.currentZoom = DrawingModel.currentZoom || 1
+                        var factor = (1 / DrawingModel.currentZoom) - 1
                         ui.position.top += Math.round((ui.position.top - ui.originalPosition.top) * factor)
                         ui.position.left += Math.round((ui.position.left - ui.originalPosition.left) * factor)
                     }
@@ -177,7 +181,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                 if (!createByDragging) return
 
                 $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
-                var factor = (1 / $scope.drawingStorage.currentZoom)
+                var factor = (1 / DrawingModel.currentZoom)
 
                 startingPosition = {
                     x: evt.offsetX,
@@ -204,7 +208,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
             this.adjustNewHtmlObject = (evt) => {
                 if (!createByDragging || !squareCreated) return
 
-                let factor = (1 / $scope.drawingStorage.currentZoom)
+                let factor = (1 / DrawingModel.currentZoom)
                 let newWidth = evt.offsetX - startingPosition.x
                 let newHeight = evt.offsetY - startingPosition.y
 
@@ -218,7 +222,7 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
             this.createNewHtmlObject = (evt) => {
                 if (!createByDragging) return
 
-                let factor = (1 / $scope.drawingStorage.currentZoom)
+                let factor = (1 / DrawingModel.currentZoom)
                 let newWidth = evt.offsetX - startingPosition.x
                 let newHeight = evt.offsetY - startingPosition.y
 
@@ -255,10 +259,10 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                 if (Math.round(factor * newHeight) < 1 || Math.round(factor * newWidth) < 1)
                     return
 
-                $scope.drawingStorage.createHtmlObject(newHtmlObject)
+                DrawingModel.createHtmlObject(newHtmlObject)
                 this.startDraggable()
                 this.startResizable()
-                $scope.drawingStorage.setCurrentHtmlObject(newHtmlObject)
+                DrawingModel.setCurrentHtmlObject(newHtmlObject)
             }
 
             this.startCreateHtmlObjectBindings = () => {
@@ -269,36 +273,10 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
 
             this.startKeyBindings = () => {
                 hotkeys.add({
-                    combo: 'meta+-',
-                    description: 'Zoom out.',
-                    callback: (evt) => {
-                        $scope.drawingStorage.zoomOut()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'meta+=',
-                    description: 'Zoom in.',
-                    callback: (evt) => {
-                        $scope.drawingStorage.zoomIn()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'backspace',
-                    description: 'Remove currently selected html object.',
-                    callback: (evt) => {
-                        evt.stopPropagation()
-                        evt.preventDefault()
-                        $scope.drawingStorage.removeHtmlObject($scope.drawingStorage.currentHtmlObject)
-                    }
-                })
-
-                hotkeys.add({
                     combo: 'esc',
                     description: 'Stop whatever you were doing.',
                     callback: (evt) => {
-                        $scope.drawingStorage.currentHtmlObject = null
+                        DrawingModel.currentHtmlObject = null
                         squareCreated = false
                         createAnOval = false
                         createByDragging = false
@@ -312,11 +290,11 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                     combo: 'r',
                     description: 'Create a rectangle.',
                     callback: (evt) => {
-                        if (! $scope.drawingStorage.currentSketch) return
+                        if (! DrawingModel.currentSketch) return
 
                         this.stopResizable()
                         this.stopDraggable()
-                        $scope.drawingStorage.currentHtmlObject = null
+                        DrawingModel.currentHtmlObject = null
                         createByDragging = true
                         $('.main').css('cursor', 'crosshair')
                     }
@@ -326,11 +304,11 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                     combo: 'o',
                     description: 'Create a circle.',
                     callback: (evt) => {
-                        if (! $scope.drawingStorage.currentSketch) return
+                        if (! DrawingModel.currentSketch) return
 
                         this.stopResizable()
                         this.stopDraggable()
-                        $scope.drawingStorage.currentHtmlObject = null
+                        DrawingModel.currentHtmlObject = null
                         createByDragging = true
                         createAnOval = true
                         $('.main').css('cursor', 'crosshair')
@@ -341,142 +319,9 @@ module.exports = function DrawingCanvasDirective(DrawingStorage, DrawingEvents, 
                     combo: 't',
                     description: 'Create text.',
                     callback: (evt) => {
-                        if (! $scope.drawingStorage.currentSketch) return
+                        if (! DrawingModel.currentSketch) return
 
 
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'i',
-                    description: 'Insert an image.',
-                    callback: (evt) => {
-                        if (! $scope.drawingStorage.currentSketch) return
-
-                        DrawingStorage.openImageDialog()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'meta+s',
-                    description: 'Save current sketch.',
-                    callback: (evt) => {
-                        $scope.drawingStorage.saveCurrentSketch()
-                        evt.preventDefault()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'meta+o',
-                    description: 'Open an existing sketch.',
-                    callback: (evt) => {
-                        $scope.drawingStorage.openFileDialog()
-                        evt.preventDefault()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'meta+n',
-                    description: 'Create a new sketch.',
-                    callback: (evt) => {
-                        $scope.drawingStorage.newCurrentSketch()
-                        evt.preventDefault()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'left',
-                    description: 'Move current html object left 1 pixel.',
-                    callback: (evt) => {
-                        let numberOfPixelsToMove = 1
-                        var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
-                        $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft - numberOfPixelsToMove) + 'px'
-                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                        evt.preventDefault()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'shift+left',
-                    description: 'Move current html object left 10 pixels.',
-                    callback: (evt) => {
-                        let numberOfPixelsToMove = 10
-                        var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
-                        $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft - numberOfPixelsToMove) + 'px'
-                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                        evt.preventDefault()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'up',
-                    description: 'Move current html object up 1 pixel.',
-                    callback: (evt) => {
-                        let numberOfPixelsToMove = 1
-                        var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
-                        $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop - numberOfPixelsToMove) + 'px'
-                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                        evt.preventDefault()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'shift+up',
-                    description: 'Move current html object up 10 pixels.',
-                    callback: (evt) => {
-                        let numberOfPixelsToMove = 10
-                        var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
-                        $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop - numberOfPixelsToMove) + 'px'
-                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                        evt.preventDefault()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'right',
-                    description: 'Move current html object right 1 pixel.',
-                    callback: (evt) => {
-                        let numberOfPixelsToMove = 1
-                        var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
-                        $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft + numberOfPixelsToMove) + 'px'
-                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                        evt.preventDefault()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'shift+right',
-                    description: 'Move current html object right 10 pixels.',
-                    callback: (evt) => {
-                        let numberOfPixelsToMove = 10
-                        var intLeft = +$scope.drawingStorage.currentHtmlObject.styles.left.slice(0, -2)
-                        $scope.drawingStorage.currentHtmlObject.styles.left = Math.round(intLeft + numberOfPixelsToMove) + 'px'
-                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                        evt.preventDefault()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'down',
-                    description: 'Move current html object down 1 pixel.',
-                    callback: (evt) => {
-                        let numberOfPixelsToMove = 1
-                        var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
-                        $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop +  numberOfPixelsToMove) + 'px'
-                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                        evt.preventDefault()
-                    }
-                })
-
-                hotkeys.add({
-                    combo: 'shift+down',
-                    description: 'Move current html object down 10 pixels.',
-                    callback: (evt) => {
-                        let numberOfPixelsToMove = 10
-                        var intTop = +$scope.drawingStorage.currentHtmlObject.styles.top.slice(0, -2)
-                        $scope.drawingStorage.currentHtmlObject.styles.top = Math.round(intTop +  numberOfPixelsToMove) + 'px'
-                        $scope.drawingStorage.updateHtmlObject($scope.drawingStorage.currentHtmlObject)
-                        evt.preventDefault()
                     }
                 })
             }

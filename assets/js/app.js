@@ -20,6 +20,6 @@ angular
         $urlRouterProvider.otherwise('/drawing')
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image/);
     })
-    .controller('AppCtrl', function(DrawingStorage) {
-        this.drawingStorage = DrawingStorage
+    .controller('AppCtrl', function(DrawingModel, DrawingHotkeys) {
+        this.drawingModel = DrawingModel
     })

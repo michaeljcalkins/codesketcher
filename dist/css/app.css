@@ -218,10 +218,6 @@ body.public-styles section.section-highlight h3 {
 }
 
 /* IE7 */
-/*
-* Base structure
-*/
-/* Move down content because we have a fixed navbar that is 50px tall */
 body.sketch-styles {
   padding-top: 60px;
   background: #f2f2f2;
@@ -428,18 +424,22 @@ body.sketch-styles .ui-resizable-handle.ui-resizable-nw {
 }
 body.sketch-styles .ui-resizable-handle.ui-resizable-n {
   left: 50%;
+  margin-left: -4px;
   top: -4px;
 }
 body.sketch-styles .ui-resizable-handle.ui-resizable-s {
-  left: 50%;
   bottom: -4px;
+  left: 50%;
+  margin-left: -4px;
 }
 body.sketch-styles .ui-resizable-handle.ui-resizable-e {
   right: -4px;
+  margin-top: -4px;
   top: 50%;
 }
 body.sketch-styles .ui-resizable-handle.ui-resizable-w {
   left: -4px;
+  margin-top: -4px;
   top: 50%;
 }
 body.sketch-styles .sidebar-row {

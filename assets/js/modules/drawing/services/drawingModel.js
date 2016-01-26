@@ -1,13 +1,24 @@
 'use strict'
 
-let $ = require('jquery')
-let remote = require('remote');
-let shell = remote.require('shell');
-let fs = require('fs');
-let sizeOf = require('image-size');
+let $ = require('jquery'),
+    remote = require('remote'),
+    shell = remote.require('shell'),
+    fs = require('fs'),
+    sizeOf = require('image-size'),
+    BrowserWindow = remote.require('browser-window'),
+    dialog = remote.require('dialog')
 
-let BrowserWindow = remote.require('browser-window');
-let dialog = remote.require('dialog');
+function moveElementInArray(arrayToBeModified, oldIndex, newIndex) {
+    if (newIndex >= arrayToBeModified.length) {
+        var k = newIndex - arrayToBeModified.length
+        while ((k--) + 1) {
+            arrayToBeModified.push(undefined)
+        }
+    }
+    arrayToBeModified.splice(newIndex, 0, arrayToBeModified.splice(oldIndex, 1)[0])
+
+    return arrayToBeModified
+}
 
 module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvents) {
     this.currentHtmlObject = null
@@ -34,7 +45,7 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
             if (!data) return
 
             let dataString = fs.readFileSync(data[0])
-            this.currentSketch = eval("(" + dataString.toString() + ")")
+            this.currentSketch = eval('(' + dataString.toString() + ')')
             this.currentSketchFilename = data[0]
             this.currentHtmlObject = null
             this.currentPage = null
@@ -188,6 +199,13 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
         this.currentHtmlObject = null
         this.currentSketch.lastPageId = page.id
 
+        this.currentPage.htmlObjects = this.currentPage.htmlObjects.filter((result) => {
+            return !!result
+        })
+        .map((result) => {
+            return result
+        })
+
         $rootScope.$broadcast('page:selected')
     }
 
@@ -239,19 +257,22 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
     }
 
     this.bringCurrentObjectForward = () => {
-        this.currentHtmlObject.styles['z-index'] = this.currentHtmlObject.styles['z-index'] || 1
-        this.currentHtmlObject.styles['z-index']++
-        this.updateHtmlObject(this.currentHtmlObject)
+        let currentIndex = _.findIndex(this.currentPage.htmlObjects, { id: this.currentHtmlObject.id })
+        this.currentPage.htmlObjects = moveElementInArray(this.currentPage.htmlObjects, currentIndex, (currentIndex - 1))
+
         this.flags.isDirty = true
         if (!$rootScope.$$phase) $rootScope.$digest()
+        this.updateHtmlObject(this.currentHtmlObject)
     }
 
     this.sendCurrentObjectBackward = () => {
-        this.currentHtmlObject.styles['z-index'] = this.currentHtmlObject.styles['z-index'] || 1
-        this.currentHtmlObject.styles['z-index']--
-        this.updateHtmlObject(this.currentHtmlObject)
+        let currentIndex = _.findIndex(this.currentPage.htmlObjects, { id: this.currentHtmlObject.id })
+        this.currentPage.htmlObjects = moveElementInArray(this.currentPage.htmlObjects, currentIndex, (currentIndex + 1))
+
         this.flags.isDirty = true
         if (!$rootScope.$$phase) $rootScope.$digest()
+        this.updateHtmlObject(this.currentHtmlObject)
+
     }
 
     this.unlockCurrentHtmlObject = () => {
@@ -315,5 +336,47 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
         this.createHtmlObject(newHtmlObject)
         this.setCurrentHtmlObject(newHtmlObject)
         $rootScope.$broadcast(DrawingEvents.htmlObject.created)
+    }
+
+    this.alignCurrentHtmlObjectLeft = () => {
+        this.currentHtmlObject.styles.left = '0px'
+        this.updateHtmlObject(this.currentHtmlObject)
+    }
+
+    this.alignCurrentHtmlObjectVertically = () => {
+        let pageWidth = +this.currentPage.styles.width.slice(0, -2)
+        let objWidth = +this.currentHtmlObject.styles.width.slice(0, -2)
+
+        this.currentHtmlObject.styles.left = ((pageWidth / 2) - (objWidth / 2)) + 'px'
+        this.updateHtmlObject(this.currentHtmlObject)
+    }
+
+    this.alignCurrentHtmlObjectRight = () => {
+        let pageWidth = +this.currentPage.styles.width.slice(0, -2)
+        let objWidth = +this.currentHtmlObject.styles.width.slice(0, -2)
+
+        this.currentHtmlObject.styles.left = (pageWidth - objWidth) + 'px'
+        this.updateHtmlObject(this.currentHtmlObject)
+    }
+
+    this.alignCurrentHtmlObjectTop = () => {
+        this.currentHtmlObject.styles.top = 0
+        this.updateHtmlObject(this.currentHtmlObject)
+    }
+
+    this.alignCurrentHtmlObjectHorizontally = () => {
+        let pageHeight = +this.currentPage.styles.height.slice(0, -2)
+        let objHeight = +this.currentHtmlObject.styles.height.slice(0, -2)
+
+        this.currentHtmlObject.styles.top = ((pageHeight / 2) - (objHeight / 2)) + 'px'
+        this.updateHtmlObject(this.currentHtmlObject)
+    }
+
+    this.alignCurrentHtmlObjectBottom = () => {
+        let pageHeight = +this.currentPage.styles.height.slice(0, -2)
+        let objHeight = +this.currentHtmlObject.styles.height.slice(0, -2)
+
+        this.currentHtmlObject.styles.top = (pageHeight - objHeight) + 'px'
+        this.updateHtmlObject(this.currentHtmlObject)
     }
 }

@@ -10,6 +10,7 @@ angular
     .directive('drawingCanvas', require('./directives/drawingCanvas.js'))
 
     // Services
-    .service('DrawingStorage', require('./services/drawingStorage.js'))
+    .service('DrawingModel', require('./services/DrawingModel.js'))
     .service('DrawingEvents', require('./services/drawingEvents.js'))
     .service('DrawingGuid', require('./services/drawingGuid.js'))
+    .service('DrawingHotkeys', require('./services/drawingHotkeys.js'))
