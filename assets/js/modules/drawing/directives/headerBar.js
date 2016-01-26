@@ -1,12 +1,11 @@
 'use strict'
 
-module.exports = function HeaderBarDirective(DrawingEvents, DrawingModel, $rootScope) {
+module.exports = function(DrawingEvents, DrawingModel, DrawingLayers, $rootScope) {
     return {
-        scope: {
-            drawingModel: '='
-        },
-        controllerAs: 'ctrl',
-        controller: function() {
+        controller: function($scope) {
+            $scope.drawingModel = DrawingModel
+            $scope.drawingLayers = DrawingLayers
+
             this.sendInsertRectangleEvent = () => {
                 $rootScope.$broadcast(DrawingEvents.insert.rectangle)
             }
@@ -100,13 +99,13 @@ module.exports = function HeaderBarDirective(DrawingEvents, DrawingModel, $rootS
                             </a>
                         </li>
                         <li><a>&nbsp;</a></li>
-                        <li class="pointer" ng-click="drawingModel.bringCurrentObjectForward()">
+                        <li class="pointer" ng-click="drawingLayers.bringCurrentObjectForward()">
                             <a>
                                 <i class="fa fa-level-up"></i>
                                 Forward
                             </a>
                         </li>
-                        <li class="pointer" ng-click="drawingModel.sendCurrentObjectBackward()">
+                        <li class="pointer" ng-click="drawingLayers.sendCurrentObjectBackward()">
                             <a>
                                 <i class="fa fa-level-down"></i>
                                 Backward

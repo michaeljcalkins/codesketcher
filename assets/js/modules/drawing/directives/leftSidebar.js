@@ -1,15 +1,15 @@
 'use strict'
 
-module.exports = function LeftSidebarDirective($rootScope) {
+module.exports = function(DrawingModel, DrawingLayers, $timeout) {
     return {
-        scope: {
-            drawingModel: '='
-        },
         controller: function($scope) {
             $scope.sortableOptions = {
                 distance: 3,
                 update: function() {
-                    $scope.drawingModel.flags.dirty = true
+                    $timeout(function() {
+                        DrawingModel.flags.dirty = true
+                        DrawingLayers.updateLayerPositions()
+                    })
                 }
             }
         },
@@ -57,7 +57,7 @@ module.exports = function LeftSidebarDirective($rootScope) {
                             ng-class="{ active: drawingModel.currentHtmlObject.id == htmlObject.id }"
                             ng-repeat="htmlObject in drawingModel.currentPage.htmlObjects"
                             ng-click="drawingModel.setCurrentHtmlObject(htmlObject)">
-                            <a>{{ htmlObject.name ? htmlObject.name : 'Unnamed object' }}</a>
+                            <a>{{ htmlObject.name ? htmlObject.name : 'Unnamed ' + htmlObject.type }}</a>
                         </li>
                     </ul>
                 </div>

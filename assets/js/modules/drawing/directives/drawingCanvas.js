@@ -3,11 +3,8 @@
 var _ = require('lodash'),
     $ = require('jquery')
 
-module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $rootScope, hotkeys, DrawingGuid) {
+module.exports = function(DrawingModel, DrawingEvents, $rootScope, hotkeys, DrawingGuid, $timeout) {
     return {
-        scope: {
-            drawingModel: '='
-        },
         template: `
         <div class="main">
             <div
@@ -21,14 +18,14 @@ module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $r
                         class="html-object"
                         ng-mousedown="drawingModel.setCurrentHtmlObject(htmlObject)"
                         ng-click="drawingModel.setCurrentHtmlObject(htmlObject)"
-                        ng-repeat="htmlObject in drawingModel.currentPage.htmlObjects track by $index | orderBy:$index:true"
+                        ng-repeat="htmlObject in drawingModel.currentPage.htmlObjects track by $index"
                         ng-class="{
-                            'current-html-object': htmlObject.id == drawingModel.currentHtmlObject.id,
-                            'unfocused-html-object': htmlObject.id != drawingModel.currentHtmlObject.id
+                            'current-html-object': drawingModel.isCurrentHtmlObject(htmlObject.id),
+                            'unfocused-html-object': !drawingModel.isCurrentHtmlObject(htmlObject.id)
                         }"
-                        ng-style="htmlObject.styles"
-                        style="z-index: {{ drawingModel.currentPage.htmlObjects.length - $index }}">
+                        ng-style="htmlObject.styles">
                         <div class="html-object-border"></div>
+                        {{ htmlObject.styles.zIndex }}
                         <div ng-switch on="htmlObject.type">
                             <div ng-switch-when="image">
                                 <img ng-src="data:image;base64,{{ htmlObject.imageSrc }}" style="height: 100%; width: 100%;">
@@ -42,7 +39,6 @@ module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $r
             </div>
         </div>
         `,
-        controllerAs: 'ctrl',
         controller: function($scope) {
             let createByDragging = false
             let createAnOval = false
@@ -67,19 +63,6 @@ module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $r
             $rootScope.$on(DrawingEvents.htmlObject.removed, () => {
                 this.disableResizable()
                 this.disableDraggable()
-            })
-
-            $rootScope.$on(DrawingEvents.htmlObject.selected, () => {
-                this.startResizable()
-                this.startDraggable()
-
-                this.disableResizable()
-                this.disableDraggable()
-
-                if (!DrawingModel.currentHtmlObject.isLocked) {
-                    this.enableCurrentResizable()
-                    this.enableCurrentDraggable()
-                }
             })
 
             $rootScope.$on(DrawingEvents.insert.rectangle, () => {
@@ -109,6 +92,21 @@ module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $r
 
             })
 
+            $rootScope.$on(DrawingEvents.htmlObject.selected, () => {
+                $timeout(() => {
+                    this.startResizable()
+                    this.startDraggable()
+
+                    this.disableResizable()
+                    this.disableDraggable()
+
+                    if (!DrawingModel.currentHtmlObject.isLocked) {
+                        this.enableResizable()
+                        this.enableDraggable()
+                    }
+                })
+            })
+
             this.disableDraggable = () => {
                 $('.html-object').draggable('disable')
             }
@@ -117,26 +115,34 @@ module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $r
                 $('.html-object').resizable('disable')
             }
 
-            this.enableCurrentResizable = () => {
+            this.enableResizable = () => {
                 $('.current-html-object').resizable('enable')
             }
 
-            this.enableCurrentDraggable = () => {
+            this.enableDraggable = () => {
                 $('.current-html-object').draggable('enable')
             }
 
             this.stopResizable = () => {
-                $('.current-html-object').resizable('disable')
+                try {
+                    $('.current-html-object').resizable('destroy')
+                } catch(e) {
+                    console.log(e)
+                }
             }
 
             this.stopDraggable = () => {
-                $('.current-html-object').draggable('disable')
+                try {
+                    $('.current-html-object').draggable('destroy')
+                } catch(e) {
+                    console.log(e)
+                }
             }
 
             this.startResizable = () => {
                 $('.html-object').resizable({
-                    disabled: true,
                     handles: 'all',
+                    disabled: true,
                     stop: (evt, ui) => {
                         DrawingModel.currentHtmlObject.styles.height = Math.round($('.current-html-object').outerHeight()) + 'px'
                         DrawingModel.currentHtmlObject.styles.width = Math.round($('.current-html-object').outerWidth()) + 'px'
@@ -159,8 +165,8 @@ module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $r
             this.startDraggable = () => {
                 $('.html-object').draggable({
                     distance: 3,
-                    disabled: true,
                     scroll: true,
+                    disabled: true,
                     stop: function (evt, ui) {
                         DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
                         DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
@@ -180,7 +186,6 @@ module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $r
             this.startNewHtmlObjectProcess = (evt) => {
                 if (!createByDragging) return
 
-                $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
                 var factor = (1 / DrawingModel.currentZoom)
 
                 startingPosition = {
@@ -283,6 +288,7 @@ module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $r
                         this.stopResizable()
                         this.stopDraggable()
                         $('.main').css('cursor', 'auto')
+                        $('.drawing-canvas-screen').remove()
                     }
                 })
 
@@ -297,6 +303,7 @@ module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $r
                         DrawingModel.currentHtmlObject = null
                         createByDragging = true
                         $('.main').css('cursor', 'crosshair')
+                        $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
                     }
                 })
 
@@ -312,6 +319,7 @@ module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $r
                         createByDragging = true
                         createAnOval = true
                         $('.main').css('cursor', 'crosshair')
+                        $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
                     }
                 })
 
@@ -328,8 +336,6 @@ module.exports = function DrawingCanvasDirective(DrawingModel, DrawingEvents, $r
 
             this.startKeyBindings()
             this.startCreateHtmlObjectBindings()
-            this.startDraggable()
-            this.startResizable()
         }
     }
 }

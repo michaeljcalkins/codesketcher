@@ -8,18 +8,6 @@ let $ = require('jquery'),
     BrowserWindow = remote.require('browser-window'),
     dialog = remote.require('dialog')
 
-function moveElementInArray(arrayToBeModified, oldIndex, newIndex) {
-    if (newIndex >= arrayToBeModified.length) {
-        var k = newIndex - arrayToBeModified.length
-        while ((k--) + 1) {
-            arrayToBeModified.push(undefined)
-        }
-    }
-    arrayToBeModified.splice(newIndex, 0, arrayToBeModified.splice(oldIndex, 1)[0])
-
-    return arrayToBeModified
-}
-
 module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvents) {
     this.currentHtmlObject = null
     this.currentPage = null
@@ -28,6 +16,10 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
     this.currentZoom = 1
     this.flags = {
         isDirty: false
+    }
+
+    this.isCurrentHtmlObject = (id) => {
+        return id === _.get(this.currentHtmlObject, 'id')
     }
 
     this.openFileDialog = () => {
@@ -101,7 +93,7 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
             console.log('Sketch saved...')
             this.flags.isDirty = false
             $rootScope.$broadcast('sketch:saved')
-            if (!$rootScope.$$phase) $rootScope.$digest()
+            if (!$rootScope.$$phase) $rootScope.$apply()
         })
     }
 
@@ -143,7 +135,7 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
     this.setLastObjects = () => {
         if (this.currentSketch.lastPageId) {
             this.setCurrentPageById(this.currentSketch.lastPageId)
-            if (!$rootScope.$$phase) $rootScope.$digest()
+            if (!$rootScope.$$phase) $rootScope.$apply()
         }
     }
 
@@ -210,9 +202,9 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
     }
 
     this.setCurrentHtmlObject = (htmlObject) => {
-        this.currentHtmlObject = htmlObject
-        $rootScope.$broadcast('htmlObject:selected')
-        if (!$rootScope.$$phase) $rootScope.$digest()
+        this.currentHtmlObject = angular.copy(htmlObject)
+        $rootScope.$broadcast(DrawingEvents.htmlObject.selected)
+        if (!$rootScope.$$phase) $rootScope.$apply()
     }
 
     this.removeHtmlObject = (htmlObject) => {
@@ -220,7 +212,7 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
         let htmlObjectsCopy = _.clone(this.currentSketch.pages[pageIndex].htmlObjects)
         _.remove(htmlObjectsCopy, { id: htmlObject.id })
         this.currentSketch.pages[pageIndex].htmlObjects = htmlObjectsCopy
-        $rootScope.$broadcast('htmlObject:removed')
+        $rootScope.$broadcast(DrawingEvents.htmlObject.removed)
         this.flags.isDirty = true
     }
 
@@ -229,9 +221,10 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
         let pageIndex = _.findIndex(this.currentSketch.pages, { id: this.currentPage.id })
         this.currentSketch.pages[pageIndex].htmlObjects.push(newHtmlObject)
         this.setCurrentPage(this.currentSketch.pages[pageIndex])
-        $rootScope.$broadcast('htmlObject:created')
+        $rootScope.$broadcast(DrawingEvents.htmlObject.created)
         this.flags.isDirty = true
-        if (!$rootScope.$$phase) $rootScope.$digest()
+
+        if (!$rootScope.$$phase) $rootScope.$apply()
     }
 
     this.createHtmlObjectAndSetAsCurrent = (newHtmlObject) => {
@@ -241,11 +234,12 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
     }
 
     this.updateHtmlObject = (htmlObject) => {
-        let index = _.findIndex(this.currentPage.htmlObjects, { id: htmlObject.id })
-        this.currentPage.htmlObjects.splice(index, 1, htmlObject)
-        this.flags.isDirty = true
-        $rootScope.$broadcast('htmlObject:updated')
-        if (!$rootScope.$$phase) $rootScope.$digest()
+        $timeout(() => {
+            let index = _.findIndex(this.currentPage.htmlObjects, { id: htmlObject.id })
+            this.currentPage.htmlObjects.splice(index, 1, htmlObject)
+            this.flags.isDirty = true
+            $rootScope.$broadcast('htmlObject:updated')
+        })
     }
 
     this.updatePage = (page) => {
@@ -253,26 +247,7 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
         this.currentSketch.pages.splice(index, 1, page)
         this.flags.isDirty = true
         $rootScope.$broadcast('page:updated')
-        if (!$rootScope.$$phase) $rootScope.$digest()
-    }
-
-    this.bringCurrentObjectForward = () => {
-        let currentIndex = _.findIndex(this.currentPage.htmlObjects, { id: this.currentHtmlObject.id })
-        this.currentPage.htmlObjects = moveElementInArray(this.currentPage.htmlObjects, currentIndex, (currentIndex - 1))
-
-        this.flags.isDirty = true
-        if (!$rootScope.$$phase) $rootScope.$digest()
-        this.updateHtmlObject(this.currentHtmlObject)
-    }
-
-    this.sendCurrentObjectBackward = () => {
-        let currentIndex = _.findIndex(this.currentPage.htmlObjects, { id: this.currentHtmlObject.id })
-        this.currentPage.htmlObjects = moveElementInArray(this.currentPage.htmlObjects, currentIndex, (currentIndex + 1))
-
-        this.flags.isDirty = true
-        if (!$rootScope.$$phase) $rootScope.$digest()
-        this.updateHtmlObject(this.currentHtmlObject)
-
+        if (!$rootScope.$$phase) $rootScope.$apply()
     }
 
     this.unlockCurrentHtmlObject = () => {
@@ -336,47 +311,5 @@ module.exports = function($rootScope, $http, $timeout, DrawingGuid, DrawingEvent
         this.createHtmlObject(newHtmlObject)
         this.setCurrentHtmlObject(newHtmlObject)
         $rootScope.$broadcast(DrawingEvents.htmlObject.created)
-    }
-
-    this.alignCurrentHtmlObjectLeft = () => {
-        this.currentHtmlObject.styles.left = '0px'
-        this.updateHtmlObject(this.currentHtmlObject)
-    }
-
-    this.alignCurrentHtmlObjectVertically = () => {
-        let pageWidth = +this.currentPage.styles.width.slice(0, -2)
-        let objWidth = +this.currentHtmlObject.styles.width.slice(0, -2)
-
-        this.currentHtmlObject.styles.left = ((pageWidth / 2) - (objWidth / 2)) + 'px'
-        this.updateHtmlObject(this.currentHtmlObject)
-    }
-
-    this.alignCurrentHtmlObjectRight = () => {
-        let pageWidth = +this.currentPage.styles.width.slice(0, -2)
-        let objWidth = +this.currentHtmlObject.styles.width.slice(0, -2)
-
-        this.currentHtmlObject.styles.left = (pageWidth - objWidth) + 'px'
-        this.updateHtmlObject(this.currentHtmlObject)
-    }
-
-    this.alignCurrentHtmlObjectTop = () => {
-        this.currentHtmlObject.styles.top = 0
-        this.updateHtmlObject(this.currentHtmlObject)
-    }
-
-    this.alignCurrentHtmlObjectHorizontally = () => {
-        let pageHeight = +this.currentPage.styles.height.slice(0, -2)
-        let objHeight = +this.currentHtmlObject.styles.height.slice(0, -2)
-
-        this.currentHtmlObject.styles.top = ((pageHeight / 2) - (objHeight / 2)) + 'px'
-        this.updateHtmlObject(this.currentHtmlObject)
-    }
-
-    this.alignCurrentHtmlObjectBottom = () => {
-        let pageHeight = +this.currentPage.styles.height.slice(0, -2)
-        let objHeight = +this.currentHtmlObject.styles.height.slice(0, -2)
-
-        this.currentHtmlObject.styles.top = (pageHeight - objHeight) + 'px'
-        this.updateHtmlObject(this.currentHtmlObject)
     }
 }

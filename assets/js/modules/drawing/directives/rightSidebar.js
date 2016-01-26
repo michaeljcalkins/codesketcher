@@ -1,9 +1,10 @@
 'use strict'
 
-module.exports = function RightSidebarDirective() {
+module.exports = function(DrawingModel, DrawingAlign) {
     return {
-        scope: {
-            drawingModel: '='
+        controller: function($scope) {
+            $scope.drawingModel = DrawingModel
+            $scope.drawingAlign = DrawingAlign
         },
         template: `
         <div class="right-sidebar">
@@ -71,38 +72,38 @@ module.exports = function RightSidebarDirective() {
                         <button
                             title="Align selected objects left"
                             class="btn btn-default"
-                            ng-click="drawingModel.alignCurrentHtmlObjectLeft()">
+                            ng-click="drawingAlign.alignCurrentHtmlObjectLeft()">
                             <i class="glyphicon glyphicon-object-align-left"></i>
                         </button>
                         <button
                             title="Align selected objects centered vertically"
                             class="btn btn-default"
-                            ng-click="drawingModel.alignCurrentHtmlObjectVertically()">
+                            ng-click="drawingAlign.alignCurrentHtmlObjectVertically()">
                             <i class="glyphicon glyphicon-object-align-vertical"></i>
                         </button>
                         <button
                             title="Align selected objects right"
                             class="btn btn-default"
-                            ng-click="drawingModel.alignCurrentHtmlObjectRight()">
+                            ng-click="drawingAlign.alignCurrentHtmlObjectRight()">
                             <i class="glyphicon glyphicon-object-align-right"></i>
                         </button>
 
                         <button
                             title="Align selected objects to the top"
                             class="btn btn-default"
-                            ng-click="drawingModel.alignCurrentHtmlObjectTop()">
+                            ng-click="drawingAlign.alignCurrentHtmlObjectTop()">
                             <i class="glyphicon glyphicon-object-align-top"></i>
                         </button>
                         <button
                             title="Align selected objects centered horizontally"
                             class="btn btn-default"
-                            ng-click="drawingModel.alignCurrentHtmlObjectHorizontally()">
+                            ng-click="drawingAlign.alignCurrentHtmlObjectHorizontally()">
                             <i class="glyphicon glyphicon-object-align-horizontal"></i>
                         </button>
                         <button
                             title="Align selected objects to the bottom"
                             class="btn btn-default"
-                            ng-click="drawingModel.alignCurrentHtmlObjectBottom()">
+                            ng-click="drawingAlign.alignCurrentHtmlObjectBottom()">
                             <i class="glyphicon glyphicon-object-align-bottom"></i>
                         </button>
                     </div>

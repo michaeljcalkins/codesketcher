@@ -7,249 +7,29 @@ html {
   overflow-x: hidden;
 }
 
+body {
+  padding-top: 60px;
+  background: #f2f2f2;
+}
+
 .pointer {
   cursor: pointer;
 }
 
-body.public-styles .container {
-  min-width: 1000px;
-  max-width: 1440px;
-  padding: 0;
-  margin: 0 auto;
-  box-shadow: 0 0 3px 0 #C6C6C6;
-  background: #fff;
-  overflow: hidden;
-}
-body.public-styles .navbar-default {
-  border: 0;
-  background-color: transparent;
-  height: auto;
-  margin: 0 0 0 10px;
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  transition: all .35s;
-  z-index: 1;
-}
-body.public-styles .navbar-default .navbar-btn > .btn {
-  margin-top: 15px;
-  color: #fff;
-  font-size: 16px;
-}
-body.public-styles .navbar-default .navbar-header .navbar-brand {
-  text-transform: lowercase;
-  font-weight: 400;
-  font-size: 22px;
-  margin-top: 15px;
-  color: #fff;
-}
-body.public-styles .navbar-default .nav > li > a,
-body.public-styles .navbar-default .nav > li > a:focus {
-  text-transform: uppercase;
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-}
-body.public-styles .navbar-default .nav > li.active > a,
-body.public-styles .navbar-default .nav > li.active > a:focus {
-  color: #fff !important;
-  background-color: transparent;
-}
-body.public-styles .navbar-default .nav > li.active > a:hover,
-body.public-styles .navbar-default .nav > li.active > a:focus:hover {
-  background-color: transparent;
-}
-body.public-styles section {
-  overflow: hidden;
-  clear: both;
-  width: 100%;
-}
-body.public-styles section.section-home {
-  padding: 45px 0 0;
-  position: relative;
-  width: 100%;
-  text-align: center;
-  color: #fff;
-  background-image: url("/img/home-bg.jpg");
-  background-position: 0% 0%, 50% 50%;
-  background-repeat: repeat, no-repeat;
-  background-attachment: scroll, fixed;
-  background-size: cover;
-}
-body.public-styles section.section-home h1 {
-  margin-bottom: 10px;
-  font-size: 56px;
-  font-weight: 300;
-  margin-top: 120px;
-  text-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
-}
-body.public-styles section.section-home p {
-  margin-bottom: 55px;
-  font-size: 26px;
-  font-weight: 300;
-  text-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
-}
-body.public-styles section.section-home .site-preview {
-  background: url("/img/site-preview-full.png") no-repeat center top;
-  background-size: cover;
-  border-radius: 5px 5px 0 0;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
-  margin: 60px auto 0;
-  width: 940px;
-  height: 441px;
-}
-body.public-styles section.section-features {
-  background: #f0f2f1;
-  padding-bottom: 125px;
-}
-body.public-styles section.section-features h2 {
-  font-size: 48px;
-  font-weight: 300;
-  margin-top: 125px;
-  margin-bottom: 20px;
-  color: #525252;
-}
-body.public-styles section.section-features h3 {
-  color: #aeaeae;
-  font-size: 21px;
-  font-weight: normal;
-  margin-bottom: 60px;
-}
-body.public-styles section.section-features p {
-  margin-top: 10px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  line-height: 25px;
-}
-body.public-styles section.section-features hr {
-  margin: 0;
-}
-body.public-styles section.section-features .panel {
-  border: 1px solid #ddd;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-}
-body.public-styles section.section-features .panel-body {
-  overflow: hidden;
-  position: relative;
-}
-body.public-styles section.section-features h4 {
-  color: #337AB7;
-  margin-top: 70px;
-}
-body.public-styles section.section-features p {
-  margin-bottom: 25px;
-}
-body.public-styles section.section-features .preview-descriptions {
-  margin-left: 30px;
-}
-body.public-styles section.section-features .image-preview {
-  background-size: cover;
-  background-color: #fff;
-  border-radius: 4px 0 0 0;
-  border: 1px solid #ddd;
-  border-right: 0;
-  border-bottom: 0;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-  height: 400px;
-  position: absolute;
-  bottom: 0;
-  left: 50px;
-  top: 30px;
-  right: 0;
-  width: 100%;
-}
-body.public-styles section.section-features .image-preview.image-preview-left {
-  border-radius: 0 4px 0 0;
-  border: 1px solid #ddd;
-  border-left: 0;
-  border-bottom: 0;
-  right: 50px;
-  left: 0;
-}
-body.public-styles section.section-auth {
-  padding-top: 14%;
-  position: fixed;
-  height: 100%;
-  background-image: linear-gradient(rgba(251, 114, 89, 0.9), rgba(251, 114, 89, 0.9)), url(/img/header2.jpg);
-  background-size: cover;
-}
-body.public-styles section.section-highlight {
-  padding: 100px;
-}
-body.public-styles section.section-highlight h2 {
-  font-size: 48px;
-  font-weight: 300;
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #525252;
-}
-body.public-styles section.section-highlight h3 {
-  font-family: 'Source Sans Pro';
-  color: #aeaeae;
-  font-size: 21px;
-  font-weight: normal;
-  margin-bottom: 60px;
-}
-
-.centered-pills {
-  text-align: center;
-}
-
-.centered-pills ul.nav-pills {
-  display: inline-block;
-}
-
-.centered-pills li {
-  display: inline;
-}
-
-.centered-pills a {
-  float: left;
-}
-
-* html .centered-pills ul.nav-pills {
-  display: inline;
-}
-
-/* IE6 */
-* + html .centered-pills ul.nav-pills {
-  display: inline;
-}
-
-/* IE7 */
-body.sketch-styles {
-  padding-top: 60px;
-  background: #f2f2f2;
-  /*
-  * Global add-ons
-  */
-  /*
-  * Top navigation
-  * Hide default border to remove 1px line.
-  */
-  /*
-  * Main content
-  */
-  /**
-  * jQuery Resizable Handles
-  */
-  /*
-  * Right Sidebar
-  */
-  /**
-  * Left Sidebar
-  */
-  /* Sidebar navigation */
-}
-body.sketch-styles .sub-header {
+.sub-header {
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
 }
-body.sketch-styles .navbar-fixed-top {
+
+/*
+* Top navigation
+* Hide default border to remove 1px line.
+*/
+.navbar-fixed-top {
   border: 0;
 }
-body.sketch-styles nav.navbar-default {
+
+nav.navbar-default {
   border-radius: 0;
   height: 60px;
   margin-bottom: 0;
@@ -266,14 +46,15 @@ body.sketch-styles nav.navbar-default {
   /* IE6-9 */
   border-bottom: 1px solid #b4b4b4;
 }
-body.sketch-styles nav.navbar-default .fa {
+nav.navbar-default .fa {
   font-size: 16px;
   margin: 5px 0 5px;
   display: block;
   width: 100%;
   clear: both;
 }
-body.sketch-styles ul.navbar-nav {
+
+ul.navbar-nav {
   list-style: none;
   margin: 0 2px;
   padding: 0;
@@ -285,26 +66,34 @@ body.sketch-styles ul.navbar-nav {
           justify-content: space-around;
   width: 100%;
 }
-body.sketch-styles .navbar-nav > li {
-  color: #505050;
+
+.navbar-nav > li {
+  color: #282828;
   height: 60px;
   padding: 10px 0;
 }
-body.sketch-styles .navbar-nav > li > a {
+
+.navbar-nav > li > a {
   color: inherit;
   font-size: 11px;
   line-height: inherit;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
-body.sketch-styles .navbar-nav > li > a:hover {
-  color: #505050;
+
+.navbar-nav > li > a:hover {
+  color: #282828;
 }
-body.sketch-styles .navbar-default .navbar-nav > .open > a {
+
+.navbar-default .navbar-nav > .open > a {
   background: none;
   color: #000;
 }
-body.sketch-styles .main {
+
+/**
+ * Main content
+ */
+.main {
   background: #efefef;
   position: absolute;
   overflow: scroll;
@@ -314,7 +103,8 @@ body.sketch-styles .main {
   right: 215px;
   z-index: 1;
 }
-body.sketch-styles .drawing-canvas {
+
+.drawing-canvas {
   display: table;
   margin: 0 auto;
   padding: 100px;
@@ -322,7 +112,8 @@ body.sketch-styles .drawing-canvas {
   background: white;
   box-shadow: 0 0 7px -1px rgba(0, 0, 0, 0.2);
 }
-body.sketch-styles .drawing-canvas-screen {
+
+.drawing-canvas-screen {
   position: absolute;
   left: 0;
   bottom: 0;
@@ -331,10 +122,12 @@ body.sketch-styles .drawing-canvas-screen {
   background: transparent;
   z-index: 99999;
 }
-body.sketch-styles .drawing-container {
+
+.drawing-container {
   padding: 100px 0;
 }
-body.sketch-styles .html-object-container {
+
+.html-object-container {
   position: absolute;
   cursor: crosshair;
   background: red;
@@ -345,10 +138,12 @@ body.sketch-styles .html-object-container {
   height: 100%;
   width: 100%;
 }
-body.sketch-styles .html-object-placeholder {
+
+.html-object-placeholder {
   border: 1px solid #979797;
 }
-body.sketch-styles .html-object {
+
+.html-object {
   z-index: 1;
   -webkit-touch-callout: none;
   /* iOS Safari */
@@ -362,27 +157,30 @@ body.sketch-styles .html-object {
   /* non-prefixed version, currently
      not supported by any browser */
 }
-body.sketch-styles .html-object img {
+.html-object img {
   position: absolute;
   top: 0;
   right: 0;
   left: 0;
   bottom: 0;
 }
-body.sketch-styles .current-html-object {
+
+.current-html-object {
   cursor: move;
   /* fallback if grab cursor is unsupported */
   cursor: grab;
   cursor: -webkit-grab;
 }
-body.sketch-styles .current-html-object.grabbing {
+
+.current-html-object.grabbing {
   cursor: grabbing;
   cursor: -webkit-grabbing;
 }
-body.sketch-styles .unfocused-html-object .html-object-border {
+
+.unfocused-html-object .html-object-border {
   display: none;
 }
-body.sketch-styles .unfocused-html-object:hover .html-object-border {
+.unfocused-html-object:hover .html-object-border {
   display: block;
   border: 2px solid #3cb8fe !important;
   position: absolute;
@@ -392,7 +190,11 @@ body.sketch-styles .unfocused-html-object:hover .html-object-border {
   bottom: 0;
   z-index: 10;
 }
-body.sketch-styles .ui-resizable-handle {
+
+/**
+* jQuery Resizable Handles
+*/
+.ui-resizable-handle {
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,e5e5e5+100;White+3D */
   background: #ffffff;
   /* Old browsers */
@@ -406,122 +208,55 @@ body.sketch-styles .ui-resizable-handle {
   width: 8px;
   height: 8px;
 }
-body.sketch-styles .ui-resizable-handle.ui-resizable-se {
+
+.ui-resizable-handle.ui-resizable-se {
   right: -4px;
   bottom: -4px;
 }
-body.sketch-styles .ui-resizable-handle.ui-resizable-sw {
+
+.ui-resizable-handle.ui-resizable-sw {
   left: -4px;
   bottom: -4px;
 }
-body.sketch-styles .ui-resizable-handle.ui-resizable-ne {
+
+.ui-resizable-handle.ui-resizable-ne {
   right: -4px;
   top: -4px;
 }
-body.sketch-styles .ui-resizable-handle.ui-resizable-nw {
+
+.ui-resizable-handle.ui-resizable-nw {
   left: -4px;
   top: -4px;
 }
-body.sketch-styles .ui-resizable-handle.ui-resizable-n {
+
+.ui-resizable-handle.ui-resizable-n {
   left: 50%;
   margin-left: -4px;
   top: -4px;
 }
-body.sketch-styles .ui-resizable-handle.ui-resizable-s {
+
+.ui-resizable-handle.ui-resizable-s {
   bottom: -4px;
   left: 50%;
   margin-left: -4px;
 }
-body.sketch-styles .ui-resizable-handle.ui-resizable-e {
+
+.ui-resizable-handle.ui-resizable-e {
   right: -4px;
   margin-top: -4px;
   top: 50%;
 }
-body.sketch-styles .ui-resizable-handle.ui-resizable-w {
+
+.ui-resizable-handle.ui-resizable-w {
   left: -4px;
   margin-top: -4px;
   top: 50%;
 }
-body.sketch-styles .sidebar-row {
-  clear: both;
-  float: left;
-  width: 100%;
-}
-body.sketch-styles .sidebar-header {
-  background: #f8f8f8;
-  border-top: 1px solid #B8B8B8;
-  border-bottom: 1px solid #B8B8B8;
-  width: 100%;
-  clear: both;
-  font-size: 11px;
-  font-weight: bold;
-  padding: 5px;
-}
-body.sketch-styles .form-column {
-  float: left;
-  font-size: 10px;
-  width: 33%;
-  padding: 5px;
-}
-body.sketch-styles .form-label {
-  line-height: 23px;
-  font-size: 11px;
-}
-body.sketch-styles .form-column input,
-body.sketch-styles .form-column textarea {
-  border: 1px solid #b6b6b6;
-  font-size: 11px;
-  padding: 1px 3px;
-  margin-bottom: 2px;
-  width: 100%;
-}
-body.sketch-styles .form-column input[type="range"] {
-  margin-top: 3px;
-}
-body.sketch-styles .one-fifth {
-  width: 20%;
-}
-body.sketch-styles .one-fourth {
-  width: 25%;
-}
-body.sketch-styles .full-width {
-  width: 100%;
-}
-body.sketch-styles .one-half {
-  width: 50%;
-}
-body.sketch-styles .two-thirds {
-  width: 66.66%;
-}
-body.sketch-styles .one-third {
-  width: 33.33%;
-}
-body.sketch-styles .right-sidebar {
-  position: fixed;
-  top: 60px;
-  bottom: 0;
-  right: 0;
-  z-index: 1;
-  display: block;
-  overflow-x: hidden;
-  overflow-y: auto;
-  /* Scrollable contents if viewport is shorter than content. */
-  background-color: #DFDFDF;
-  border-left: 1px solid #B8B8B8;
-  width: 215px;
-}
-body.sketch-styles .align-object-btns {
-  background: #f3f3f3;
-  width: 100%;
-  border-bottom: 1px solid #B8B8B8;
-}
-body.sketch-styles .align-object-btns button.btn-default {
-  background: #f3f3f3;
-  border: 0;
-  border-radius: 0;
-  width: 17%;
-}
-body.sketch-styles .left-sidebar {
+
+/**
+* Left Sidebar
+*/
+.left-sidebar {
   position: fixed;
   top: 60px;
   bottom: 0;
@@ -536,32 +271,39 @@ body.sketch-styles .left-sidebar {
   border-right: 1px solid #B8B8B8;
   width: 160px;
 }
-body.sketch-styles .left-sidebar .panel-left-sidebar {
+
+.left-sidebar .panel-left-sidebar {
   margin: 0 -20px 30px;
   box-shadow: none;
   border-radius: 0;
   background: transparent;
   border: 0;
 }
-body.sketch-styles .left-sidebar .panel-left-sidebar .panel-body {
+
+.left-sidebar .panel-left-sidebar .panel-body {
   border: 0 !important;
 }
-body.sketch-styles .left-sidebar .panel-left-sidebar ul {
+
+.left-sidebar .panel-left-sidebar ul {
   margin: 0;
   padding: 0;
 }
-body.sketch-styles .left-sidebar .panel-left-sidebar ul li {
+
+.left-sidebar .panel-left-sidebar ul li {
   margin: 0;
   padding: 0;
   line-height: 12px;
 }
-body.sketch-styles .left-sidebar .panel-left-sidebar ul li a {
+
+.left-sidebar .panel-left-sidebar ul li a {
   height: 30px;
 }
-body.sketch-styles .left-sidebar .panel-left-sidebar ul li.active a {
+
+.left-sidebar .panel-left-sidebar ul li.active a {
   background: #6d9ee1;
 }
-body.sketch-styles .left-sidebar .panel-left-sidebar .panel-heading {
+
+.left-sidebar .panel-left-sidebar .panel-heading {
   background: #f3f3f3;
   border-radius: 0;
   padding: 0 10px;
@@ -570,14 +312,17 @@ body.sketch-styles .left-sidebar .panel-left-sidebar .panel-heading {
   border-bottom: 1px solid #b8b8b8;
   height: 30px;
 }
-body.sketch-styles .left-sidebar .panel-left-sidebar .panel-body {
+
+.left-sidebar .panel-left-sidebar .panel-body {
   border-radius: 0;
   font-size: 12px;
   margin: 0;
   border-bottom: 1px solid #ddd;
   padding: 0;
 }
-body.sketch-styles .nav-sidebar {
+
+/* Sidebar navigation */
+.nav-sidebar {
   margin-right: -21px;
   /* 20px padding + 1px border */
   margin-bottom: 20px;
@@ -585,14 +330,113 @@ body.sketch-styles .nav-sidebar {
   margin-left: -20px;
   padding: 0;
 }
-body.sketch-styles .nav-sidebar > li > a {
+
+.nav-sidebar > li > a {
   color: #333;
   padding-right: 10px;
   padding-left: 10px;
 }
-body.sketch-styles .nav-sidebar > .active > a,
-body.sketch-styles .nav-sidebar > .active > a:hover,
-body.sketch-styles .nav-sidebar > .active > a:focus {
+
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
   color: #fff;
   background-color: #428bca;
+}
+
+.sidebar-row {
+  clear: both;
+  float: left;
+  width: 100%;
+}
+
+.sidebar-header {
+  background: #f8f8f8;
+  border-top: 1px solid #B8B8B8;
+  border-bottom: 1px solid #B8B8B8;
+  width: 100%;
+  clear: both;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.form-column {
+  float: left;
+  font-size: 10px;
+  width: 33%;
+  padding: 5px;
+}
+
+.form-label {
+  line-height: 23px;
+  font-size: 11px;
+}
+
+.form-column input,
+.form-column textarea {
+  border: 1px solid #b6b6b6;
+  font-size: 11px;
+  padding: 1px 3px;
+  margin-bottom: 2px;
+  width: 100%;
+}
+
+.form-column input[type="range"] {
+  margin-top: 3px;
+}
+
+.one-fifth {
+  width: 20%;
+}
+
+.one-fourth {
+  width: 25%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.one-half {
+  width: 50%;
+}
+
+.two-thirds {
+  width: 66.66%;
+}
+
+.one-third {
+  width: 33.33%;
+}
+
+/*
+* Right Sidebar
+*/
+.right-sidebar {
+  position: fixed;
+  top: 60px;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+  display: block;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Scrollable contents if viewport is shorter than content. */
+  background-color: #DFDFDF;
+  border-left: 1px solid #B8B8B8;
+  width: 215px;
+}
+
+.align-object-btns {
+  background: #f3f3f3;
+  width: 100%;
+  border-bottom: 1px solid #B8B8B8;
+}
+
+.align-object-btns button.btn-default {
+  background: #f3f3f3;
+  border: 0;
+  border-radius: 0;
+  width: 17%;
 }
