@@ -5,14 +5,11 @@ require('angular-local-storage')
 require('angular-ui-sortable')
 require('angular-hotkeys')
 
-require('./assets/js/modules/drawing')
-
 angular
     .module('codesketcher', [
         'ui.sortable',
         'LocalStorageModule',
-        'cfp.hotkeys',
-        'codesketcher.drawing'
+        'cfp.hotkeys'
     ])
     .config(function($compileProvider) {
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image/);
@@ -20,3 +17,17 @@ angular
     .controller('AppCtrl', function(DrawingHotkeys) {
 
     })
+
+// Directives
+require('./assets/js/directives/HeaderBar.js')
+require('./assets/js/directives/LeftSidebar.js')
+require('./assets/js/directives/RightSidebar.js')
+require('./assets/js/directives/DrawingCanvas.js')
+
+// Services
+require('./assets/js/services/DrawingModel.js')
+require('./assets/js/services/DrawingEvents.js')
+require('./assets/js/services/DrawingGuid.js')
+require('./assets/js/services/DrawingHotkeys.js')
+require('./assets/js/services/DrawingAlign.js')
+require('./assets/js/services/DrawingLayers.js')
