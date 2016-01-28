@@ -73,6 +73,7 @@
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
+    border: 1px dashed #dddddd;
 }
 
 .current-html-object.grabbing {
@@ -98,6 +99,23 @@
     }
 }
 
+.html-object textarea {
+    background: transparent;
+    border: none;
+    resize: none;
+    outline: none;
+    text-align: inherit;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    width: 100%;
+}
+
+.html-object-switch-container {
+
+}
 
 /**
 * jQuery Resizable Handles

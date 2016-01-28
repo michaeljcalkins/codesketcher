@@ -23,14 +23,24 @@ module.exports = angular
                             ng-click="drawingModel.setCurrentHtmlObject(htmlObject)"
                             ng-repeat="htmlObject in drawingModel.currentPage.htmlObjects track by $index"
                             ng-class="{
+                                'text-html-object': drawingModel.currentHtmlObject.type == 'text',
                                 'current-html-object': drawingModel.isCurrentHtmlObject(htmlObject.id),
                                 'unfocused-html-object': !drawingModel.isCurrentHtmlObject(htmlObject.id)
                             }"
                             ng-style="htmlObject.styles">
                             <div class="html-object-border"></div>
-                            <div ng-switch on="htmlObject.type">
+                            <div
+                                class="html-object-switch-container"
+                                ng-switch on="htmlObject.type">
                                 <div ng-switch-when="image">
                                     <img ng-src="data:image;base64,{{ htmlObject.imageSrc }}" style="height: 100%; width: 100%;">
+                                </div>
+                                <div ng-switch-when="text">
+                                    <textarea
+                                        ng-change="drawingModel.updateHtmlObject(drawingModel.currentHtmlObject)"
+                                        msd-elastic
+                                        placeholder="Write your text here..."
+                                        ng-model="htmlObject.styles.body"></textarea>
                                 </div>
                                 <div
                                     ng-switch-default
@@ -45,6 +55,7 @@ module.exports = angular
             controller: function($scope) {
                 let createByDragging = false
                 let createAnOval = false
+                let createAText = false
                 let squareCreated = false
                 let startingPosition = null
 
@@ -155,6 +166,11 @@ module.exports = angular
                             DrawingModel.currentHtmlObject.styles.width = Math.round($('.current-html-object').outerWidth()) + 'px'
                             DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
                             DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
+
+                            if (DrawingModel.currentHtmlObject.type === 'text') {
+                                DrawingModel.currentHtmlObject.styles.height = 'auto'
+                            }
+
                             DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
                             DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
                         },
@@ -200,6 +216,11 @@ module.exports = angular
                         y: evt.offsetY
                     }
 
+                    if (createAText) {
+                        this.createNewHtmlObject(evt)
+                        return
+                    }
+
                     var newDiv = $('<div class="html-object-placeholder" />')
                         .css({
                             height: 0,
@@ -240,36 +261,67 @@ module.exports = angular
 
                     $('.drawing-canvas-screen').remove()
 
+                    let htmlObjectType = 'rectangle'
+                    htmlObjectType = createAnOval ? 'oval' : htmlObjectType
+                    htmlObjectType = createAText ? 'text' : htmlObjectType
+
                     let newHtmlObject = {
                         id: DrawingGuid.guid(),
                         rotation: 0,
-                        type: createAnOval ? 'oval' : 'rectangle',
-                        styles: {
-                            height: Math.round(factor * newHeight) + 'px',
-                            width: Math.round(factor * newWidth) + 'px',
-                            position: 'absolute',
-                            left: Math.round(factor * startingPosition.x) + 'px',
-                            top: Math.round(factor * startingPosition.y) + 'px',
-                            backgroundColor: '#D8D8D8',
-                            borderWidth: '1px',
-                            borderStyle: 'solid',
-                            borderColor: '#979797',
-                            backgroundImage: '',
-                            borderRadius: createAnOval ? '100%' : 0,
-                            transform: 'rotate(0deg)',
-                            color: '#444',
-                            fontFamily: 'Arial',
-                            fontSize: '18px'
-                        }
+                        type: htmlObjectType
                     }
+
+                    if ((Math.round(factor * newHeight) < 1 || Math.round(factor * newWidth) < 1) && !createAText) {
+                        console.error('Did not create object, due to size of 0 or less.')
+                        return
+                    }
+
+                    switch(htmlObjectType) {
+                        case 'rectangle' :
+                        case 'oval' :
+                            newHtmlObject.styles = {
+                                backgroundColor: '#D8D8D8',
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                                borderColor: '#979797',
+                                backgroundImage: '',
+                                borderRadius: createAnOval ? '100%' : 0,
+                                color: '#444',
+                                fontFamily: 'Arial',
+                                fontSize: '18px',
+                                height: Math.round(factor * newHeight) + 'px',
+                                width: Math.round(factor * newWidth) + 'px',
+                                position: 'absolute',
+                                left: Math.round(factor * startingPosition.x) + 'px',
+                                top: Math.round(factor * startingPosition.y) + 'px',
+                                transform: 'rotate(0deg)'
+                            }
+                            break
+
+                        case 'text' :
+                            newHtmlObject.styles = {
+                                backgroundColor: 'transparent',
+                                color: '#444',
+                                fontFamily: 'Arial',
+                                fontSize: '18px',
+                                textAlign: 'center',
+                                height: 'auto',
+                                width: '240px',
+                                position: 'absolute',
+                                left: Math.round(factor * startingPosition.x) + 'px',
+                                top: Math.round(factor * startingPosition.y) + 'px',
+                                transform: 'rotate(0deg)',
+                                body: ''
+                            }
+                            break
+                    }
+
                     squareCreated = false
                     createAnOval = false
+                    createAText = false
                     createByDragging = false
                     $('.main').css('cursor', 'auto')
                     $('.html-object-placeholder').remove()
-
-                    if (Math.round(factor * newHeight) < 1 || Math.round(factor * newWidth) < 1)
-                        return
 
                     DrawingModel.createHtmlObject(newHtmlObject)
                     this.startDraggable()
@@ -336,7 +388,13 @@ module.exports = angular
                         callback: (evt) => {
                             if (! DrawingModel.currentSketch) return
 
-
+                            this.stopResizable()
+                            this.stopDraggable()
+                            DrawingModel.currentHtmlObject = null
+                            createByDragging = true
+                            createAText = true
+                            $('.main').css('cursor', 'crosshair')
+                            $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
                         }
                     })
                 }

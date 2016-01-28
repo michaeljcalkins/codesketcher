@@ -167,7 +167,7 @@ angular
                                 ng-model="drawingModel.currentHtmlObject.styles.width">
                             Width
                         </div>
-                        <div class="form-column text-center">
+                        <div class="form-column text-center" ng-hide="drawingModel.currentHtmlObject.type == 'text'">
                             <input
                                 type="text"
                                 ng-change="drawingModel.updateHtmlObject(drawingModel.currentHtmlObject)"

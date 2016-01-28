@@ -4,12 +4,14 @@ var angular = require('angular')
 require('angular-local-storage')
 require('angular-ui-sortable')
 require('angular-hotkeys')
+require('angular-elastic')
 
 angular
     .module('codesketcher', [
         'ui.sortable',
         'LocalStorageModule',
-        'cfp.hotkeys'
+        'cfp.hotkeys',
+        'monospaced.elastic'
     ])
     .config(function($compileProvider) {
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image/);

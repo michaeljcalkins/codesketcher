@@ -183,6 +183,7 @@ ul.navbar-nav {
   /* fallback if grab cursor is unsupported */
   cursor: grab;
   cursor: -webkit-grab;
+  border: 1px dashed #dddddd;
 }
 
 .current-html-object.grabbing {
@@ -202,6 +203,16 @@ ul.navbar-nav {
   left: 0;
   bottom: 0;
   z-index: 10;
+}
+
+.html-object textarea {
+  background: transparent;
+  border: none;
+  resize: none;
+  outline: none;
+  text-align: inherit;
+  box-shadow: none;
+  width: 100%;
 }
 
 /**
