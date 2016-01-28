@@ -1,16 +1,25 @@
 'use strict'
 
-module.exports = angular
+angular
     .module('codesketcher')
     .directive('leftSidebar', function(DrawingModel, DrawingLayers, $timeout) {
         return {
             controller: function($scope) {
-                $scope.sortableOptions = {
+                $scope.sortableHtmlObjectOptions = {
                     distance: 3,
                     update: function() {
                         $timeout(function() {
                             DrawingModel.flags.dirty = true
                             DrawingLayers.updateLayerPositions()
+                        })
+                    }
+                }
+
+                $scope.sortablePageOptions = {
+                    distance: 3,
+                    update: function() {
+                        $timeout(function() {
+                            DrawingModel.flags.dirty = true
                         })
                     }
                 }
@@ -31,7 +40,7 @@ module.exports = angular
                         <ul
                             class="nav nav-sidebar"
                             ng-model="drawingModel.currentSketch.pages"
-                            ui-sortable="sortableOptions">
+                            ui-sortable="sortablePageOptions">
                              <li
                                 ng-repeat="page in drawingModel.currentSketch.pages track by $index"
                                 ng-class="{
@@ -53,7 +62,7 @@ module.exports = angular
                         <ul
                             class="nav nav-sidebar"
                             ng-model="drawingModel.currentPage.htmlObjects"
-                            ui-sortable="sortableOptions"
+                            ui-sortable="sortableHtmlObjectOptions"
                             ng-if="drawingModel.currentPage">
                              <li
                                 ng-class="{ active: drawingModel.currentHtmlObject.id == htmlObject.id }"

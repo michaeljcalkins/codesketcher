@@ -28,7 +28,6 @@ module.exports = angular
                             }"
                             ng-style="htmlObject.styles">
                             <div class="html-object-border"></div>
-                            {{ htmlObject.styles.zIndex }}
                             <div ng-switch on="htmlObject.type">
                                 <div ng-switch-when="image">
                                     <img ng-src="data:image;base64,{{ htmlObject.imageSrc }}" style="height: 100%; width: 100%;">
@@ -151,8 +150,8 @@ module.exports = angular
                             DrawingModel.currentHtmlObject.styles.width = Math.round($('.current-html-object').outerWidth()) + 'px'
                             DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
                             DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
-                            DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
                             DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
+                            DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
                         },
                         resize: function(evt, ui) {
                             DrawingModel.currentZoom = DrawingModel.currentZoom || 1
@@ -173,8 +172,8 @@ module.exports = angular
                         stop: function (evt, ui) {
                             DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
                             DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
-                            DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
                             DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
+                            DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
                         },
                         drag: function (evt, ui) {
                             // http://stackoverflow.com/questions/8605439/jquery-draggable-div-with-zoom

@@ -1,8 +1,8 @@
 'use strict'
 
-module.exports = angular
+angular
     .module('codesketcher')
-    .directive('rghtSidebar', function(DrawingModel, DrawingAlign) {
+    .directive('rightSidebar', function(DrawingModel, DrawingAlign) {
         return {
             controller: function($scope) {
                 $scope.drawingModel = DrawingModel

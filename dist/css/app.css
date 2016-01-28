@@ -31,7 +31,8 @@ body {
 
 nav.navbar-default {
   border-radius: 0;
-  height: 60px;
+  padding-top: 25px;
+  height: 85px;
   margin-bottom: 0;
   background: #f6f6f6;
   /* Old browsers */
@@ -54,6 +55,15 @@ nav.navbar-default .fa {
   clear: both;
 }
 
+.header-title-bar {
+  color: #555;
+  position: absolute;
+  top: 5px;
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+}
+
 ul.navbar-nav {
   list-style: none;
   margin: 0 2px;
@@ -68,9 +78,16 @@ ul.navbar-nav {
 }
 
 .navbar-nav > li {
-  color: #282828;
   height: 60px;
   padding: 10px 0;
+}
+
+.navbar-default .navbar-nav > li > a {
+  color: #555;
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+  color: #282828;
 }
 
 .navbar-nav > li > a {
@@ -79,10 +96,6 @@ ul.navbar-nav {
   line-height: inherit;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
-}
-
-.navbar-nav > li > a:hover {
-  color: #282828;
 }
 
 .navbar-default .navbar-nav > .open > a {
@@ -97,7 +110,7 @@ ul.navbar-nav {
   background: #efefef;
   position: absolute;
   overflow: scroll;
-  top: 60px;
+  top: 85px;
   bottom: 0;
   left: 160px;
   right: 215px;
@@ -258,7 +271,7 @@ ul.navbar-nav {
 */
 .left-sidebar {
   position: fixed;
-  top: 60px;
+  top: 85px;
   bottom: 0;
   left: 0;
   z-index: 1;
@@ -344,6 +357,37 @@ ul.navbar-nav {
   background-color: #428bca;
 }
 
+/*
+* Right Sidebar
+*/
+.right-sidebar {
+  position: fixed;
+  top: 85px;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+  display: block;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Scrollable contents if viewport is shorter than content. */
+  background-color: #DFDFDF;
+  border-left: 1px solid #B8B8B8;
+  width: 215px;
+}
+
+.align-object-btns {
+  background: #f3f3f3;
+  width: 100%;
+  border-bottom: 1px solid #B8B8B8;
+}
+
+.align-object-btns button.btn-default {
+  background: #f3f3f3;
+  border: 0;
+  border-radius: 0;
+  width: 17%;
+}
+
 .sidebar-row {
   clear: both;
   float: left;
@@ -408,35 +452,4 @@ ul.navbar-nav {
 
 .one-third {
   width: 33.33%;
-}
-
-/*
-* Right Sidebar
-*/
-.right-sidebar {
-  position: fixed;
-  top: 60px;
-  bottom: 0;
-  right: 0;
-  z-index: 1;
-  display: block;
-  overflow-x: hidden;
-  overflow-y: auto;
-  /* Scrollable contents if viewport is shorter than content. */
-  background-color: #DFDFDF;
-  border-left: 1px solid #B8B8B8;
-  width: 215px;
-}
-
-.align-object-btns {
-  background: #f3f3f3;
-  width: 100%;
-  border-bottom: 1px solid #B8B8B8;
-}
-
-.align-object-btns button.btn-default {
-  background: #f3f3f3;
-  border: 0;
-  border-radius: 0;
-  width: 17%;
 }

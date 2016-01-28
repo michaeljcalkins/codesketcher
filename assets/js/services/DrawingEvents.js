@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = angular
+angular
     .module('codesketcher')
     .service('DrawingEvents', function() {
         return {

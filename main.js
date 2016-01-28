@@ -16,7 +16,8 @@ function createWindow () {
         width: 1200,
         height: 800,
         title: 'Code Sketcher',
-        center: true
+        center: true,
+        titleBarStyle: 'hidden-inset'
     });
 
     // and load the index.html of the app.

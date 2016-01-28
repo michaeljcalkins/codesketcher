@@ -13,7 +13,8 @@
 
 nav.navbar-default {
     border-radius: 0;
-    height: 60px;
+    padding-top: 25px;
+    height: 85px;
     margin-bottom: 0;
     background: #f6f6f6; /* Old browsers */
     background: -moz-linear-gradient(top,  #f6f6f6 0%, #dadada 100%); /* FF3.6+ */
@@ -34,6 +35,15 @@ nav.navbar-default {
     }
 }
 
+.header-title-bar {
+    color: #555;
+    position: absolute;
+    top: 5px;
+    margin: 0 auto;
+    text-align: center;
+    width: 100%;
+}
+
 ul.navbar-nav {
     list-style: none;
     margin: 0 2px;
@@ -43,13 +53,17 @@ ul.navbar-nav {
     width: 100%;
 }
 
-ul.navbar-nav li {
-}
-
 .navbar-nav > li {
-    color: #282828;
     height: 60px;
     padding: 10px 0;
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: #555;
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+    color: #282828;
 }
 
 .navbar-nav > li > a {
@@ -58,10 +72,6 @@ ul.navbar-nav li {
     line-height: inherit;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
-}
-
-.navbar-nav > li > a:hover {
-    color: #282828;
 }
 
 .navbar-default .navbar-nav > .open > a {

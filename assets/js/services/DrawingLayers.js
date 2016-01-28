@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = angular
+angular
     .module('codesketcher')
     .service('DrawingLayers', function(DrawingModel, DrawingEvents, $rootScope, $timeout) {
         $rootScope.$on(DrawingEvents.htmlObject.created, () => {
@@ -16,9 +16,11 @@ module.exports = angular
         })
 
         this.updateLayerPositions = function() {
-            DrawingModel.currentPage.htmlObjects.forEach((htmlObject, key) => {
-                htmlObject.styles.zIndex = DrawingModel.currentPage.htmlObjects.length - key
-                DrawingModel.updateHtmlObject(htmlObject)
+            $timeout(function() {
+                DrawingModel.currentPage.htmlObjects.forEach((htmlObject, key) => {
+                    htmlObject.styles.zIndex = DrawingModel.currentPage.htmlObjects.length - key
+                    DrawingModel.updateHtmlObject(htmlObject)
+                })
             })
         }
 
@@ -29,8 +31,8 @@ module.exports = angular
                 _.remove(DrawingModel.currentPage.htmlObjects, { id: DrawingModel.currentHtmlObject.id })
                 DrawingModel.currentPage.htmlObjects.splice((currentIndex - 1), 0, DrawingModel.currentHtmlObject)
 
+                DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
                 DrawingModel.flags.isDirty = true
-                DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
             })
         }
 
@@ -41,8 +43,8 @@ module.exports = angular
                 _.remove(DrawingModel.currentPage.htmlObjects, { id: DrawingModel.currentHtmlObject.id })
                 DrawingModel.currentPage.htmlObjects.splice((currentIndex + 1), 0, DrawingModel.currentHtmlObject)
 
+                DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
                 DrawingModel.flags.isDirty = true
-                DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
             })
         }
     })

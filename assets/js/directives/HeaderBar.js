@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = angular
+angular
     .module('codesketcher')
     .directive('headerBar', function(DrawingEvents, DrawingModel, DrawingLayers, $rootScope) {
         return {
@@ -26,6 +26,7 @@ module.exports = angular
             },
             template: `
             <nav class="navbar navbar-default navbar-fixed-top">
+                <header-title-bar></header-title-bar>
                 <div class="container-fluid">
                     <div id="navbar" class="navbar-collapse collapse">
                         <ul class="nav navbar-nav text-center">

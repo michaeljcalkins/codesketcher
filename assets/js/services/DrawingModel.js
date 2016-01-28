@@ -8,13 +8,13 @@ let $ = require('jquery'),
     BrowserWindow = remote.require('browser-window'),
     dialog = remote.require('dialog')
 
-module.exports = angular
+angular
     .module('codesketcher')
     .service('DrawingModel', function($rootScope, $http, $timeout, DrawingGuid, DrawingEvents) {
         this.currentHtmlObject = null
         this.currentPage = null
         this.currentSketch = null
-        this.currentSketchFilename = false
+        this.currentSketchFilename = null
         this.currentZoom = 1
         this.flags = {
             isDirty: false
