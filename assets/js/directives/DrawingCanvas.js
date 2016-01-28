@@ -6,7 +6,7 @@ var angular = require('angular'),
 
 module.exports = angular
     .module('codesketcher')
-    .directive('drawingCanvas', function (DrawingModel, DrawingEvents, $rootScope, hotkeys, DrawingGuid, $timeout) {
+    .directive('drawingCanvas', function (DrawingModel, DrawingEvents, $rootScope, hotkeys, DrawingGuid, $timeout, $sce) {
         return {
             template: `
             <div class="main">
@@ -32,15 +32,16 @@ module.exports = angular
                                 <div ng-switch-when="image">
                                     <img ng-src="data:image;base64,{{ htmlObject.imageSrc }}" style="height: 100%; width: 100%;">
                                 </div>
-                                <div ng-switch-default>
-                                    {{ htmlObject.styles.body }}
-                                </div>
+                                <div
+                                    ng-switch-default
+                                    ng-bind-html="ctrl.toTrusted(htmlObject.styles.body)"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             `,
+            controllerAs: 'ctrl',
             controller: function($scope) {
                 let createByDragging = false
                 let createAnOval = false
@@ -108,6 +109,10 @@ module.exports = angular
                         }
                     })
                 })
+
+                this.toTrusted = (htmlCode) => {
+                    return $sce.trustAsHtml(htmlCode)
+                }
 
                 this.disableDraggable = () => {
                     $('.html-object').draggable('disable')

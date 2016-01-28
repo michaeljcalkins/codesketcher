@@ -221,7 +221,7 @@ angular
         this.createHtmlObject = (newHtmlObject) => {
             newHtmlObject.styles.opacity = 1
             let pageIndex = _.findIndex(this.currentSketch.pages, { id: this.currentPage.id })
-            this.currentSketch.pages[pageIndex].htmlObjects.push(newHtmlObject)
+            this.currentSketch.pages[pageIndex].htmlObjects.unshift(newHtmlObject)
             this.setCurrentPage(this.currentSketch.pages[pageIndex])
             $rootScope.$broadcast(DrawingEvents.htmlObject.created)
             this.flags.isDirty = true
