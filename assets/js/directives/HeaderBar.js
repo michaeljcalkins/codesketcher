@@ -30,13 +30,19 @@ angular
                 <div class="container-fluid">
                     <div id="navbar" class="navbar-collapse collapse">
                         <ul class="nav navbar-nav text-center">
-                            <li class="pointer" ng-click="drawingModel.newCurrentSketch()">
+                            <li
+                                class="pointer"
+                                title="Create a new sketch (cmd + s)"
+                                ng-click="drawingModel.newCurrentSketch()">
                                  <a>
                                     <i class="fa fa-file"></i>
                                     New
                                 </a>
                             </li>
-                            <li class="dropdown pointer" ng-click="drawingModel.openFileDialog()">
+                            <li
+                                class="dropdown pointer"
+                                ng-click="drawingModel.openFileDialog()"
+                                title="Open a sketch (cmd + o)">
                                 <a class="dropdown-toggle" data-toggle="dropdown">
                                     <i class="fa fa-folder-open"></i>
                                     Open
@@ -44,6 +50,7 @@ angular
                             </li>
                             <li
                                 class="dropdown pointer"
+                                title="Save currently open sketch (cmd + s)"
                                 ng-class="{ disabled: !drawingModel.flags.isDirty }"
                                 ng-click="drawingModel.saveCurrentSketch()">
                                 <a class="dropdown-toggle" data-toggle="dropdown">
@@ -58,57 +65,93 @@ angular
                                     Insert <span class="caret"></span>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li ng-click="ctrl.sendInsertRectangleEvent()"><a>Rectangle (R)</a></li>
-                                    <li ng-click="ctrl.sendInsertOvalEvent()"><a>Oval (O)</a></li>
-                                    <li ng-click="ctrl.sendInsertTextEvent()"><a>Text (T)</a></li>
-                                    <li ng-click="ctrl.sendInsertImageEvent()"><a>Image (I)</a></li>
+                                    <li
+                                        title="Create a rectangle"
+                                        ng-click="ctrl.sendInsertRectangleEvent()">
+                                        <a>Rectangle (R)</a>
+                                    </li>
+                                    <li
+                                        title="Create an oval"
+                                        ng-click="ctrl.sendInsertOvalEvent()">
+                                        <a>Oval (O)</a>
+                                    </li>
+                                    <li
+                                        title="Insert styled text"
+                                        ng-click="ctrl.sendInsertTextEvent()">
+                                        <a>Text (T)</a>
+                                    </li>
+                                    <li
+                                        title="Insert an image from your computer"
+                                        ng-click="ctrl.sendInsertImageEvent()">
+                                        <a>Image (I)</a>
+                                    </li>
                                 </ul>
                             </li>
                             <li><a>&nbsp;</a></li>
-                            <li class="pointer">
+                            <li
+                                title="Group the currently selected objects together"
+                                class="pointer">
                                 <a>
                                     <i class="fa fa-object-group"></i>
                                     Group
                                 </a>
                             </li>
-                            <li class="pointer">
+                            <li
+                                title="Ungroup the currently selected grouped objects"
+                                class="pointer">
                                 <a>
                                     <i class="fa fa-object-ungroup"></i>
                                     Ungroup
                                 </a>
                             </li>
                             <li><a>&nbsp;</a></li>
-                            <li class="pointer" ng-click="drawingModel.zoomIn()">
+                            <li
+                                class="pointer"
+                                title="Zoom in (cmd + =)"
+                                ng-click="drawingModel.zoomIn()">
                                 <a style="margin-top: 14px;">
                                     <i class="fa fa-plus"></i>
                                 </a>
                             </li>
-                            <li class="pointer" ng-click="drawingModel.zoomIn()">
+                            <li
+                                title="Shows current zoom level"
+                                class="pointer">
                                 <a>
                                     <i class="fa fa-search"></i>
                                     {{ (drawingModel.currentZoom * 100) | number:0 }}%
                                 </a>
                             </li>
-                            <li class="pointer" ng-click="drawingModel.zoomOut()">
+                            <li
+                                class="pointer"
+                                title="Zoom out (cmd + -)"
+                                ng-click="drawingModel.zoomOut()">
                                 <a style="margin-top: 14px;">
                                     <i class="fa fa-minus"></i>
                                 </a>
                             </li>
                             <li><a>&nbsp;</a></li>
-                            <li class="pointer">
+                            <li
+                                title="Scale currently selected object by pixels or percentage"
+                                class="pointer">
                                 <a>
                                     <i class="fa fa-expand"></i>
                                     Scale
                                 </a>
                             </li>
                             <li><a>&nbsp;</a></li>
-                            <li class="pointer" ng-click="drawingLayers.bringCurrentObjectForward()">
+                            <li
+                                class="pointer"
+                                title="Bring current object forwards"
+                                ng-click="drawingLayers.bringCurrentObjectForward()">
                                 <a>
                                     <i class="fa fa-level-up"></i>
                                     Forward
                                 </a>
                             </li>
-                            <li class="pointer" ng-click="drawingLayers.sendCurrentObjectBackward()">
+                            <li
+                                class="pointer"
+                                title="Send current object backwards"
+                                ng-click="drawingLayers.sendCurrentObjectBackward()">
                                 <a>
                                     <i class="fa fa-level-down"></i>
                                     Backward

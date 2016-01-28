@@ -12,7 +12,7 @@ angular
             let pageWidth = +DrawingModel.currentPage.styles.width.slice(0, -2)
             let objWidth = +DrawingModel.currentHtmlObject.styles.width.slice(0, -2)
 
-            DrawingModel.currentHtmlObject.styles.left = ((pageWidth / 2) - (objWidth / 2)) + 'px'
+            DrawingModel.currentHtmlObject.styles.left = ~~((pageWidth / 2) - (objWidth / 2)) + 'px'
             DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
         }
 
@@ -20,7 +20,7 @@ angular
             let pageWidth = +DrawingModel.currentPage.styles.width.slice(0, -2)
             let objWidth = +DrawingModel.currentHtmlObject.styles.width.slice(0, -2)
 
-            DrawingModel.currentHtmlObject.styles.left = (pageWidth - objWidth) + 'px'
+            DrawingModel.currentHtmlObject.styles.left = ~~(pageWidth - objWidth) + 'px'
             DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
         }
 
@@ -33,7 +33,7 @@ angular
             let pageHeight = +DrawingModel.currentPage.styles.height.slice(0, -2)
             let objHeight = +DrawingModel.currentHtmlObject.styles.height.slice(0, -2)
 
-            DrawingModel.currentHtmlObject.styles.top = ((pageHeight / 2) - (objHeight / 2)) + 'px'
+            DrawingModel.currentHtmlObject.styles.top = ~~((pageHeight / 2) - (objHeight / 2)) + 'px'
             DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
         }
 
@@ -41,7 +41,7 @@ angular
             let pageHeight = +DrawingModel.currentPage.styles.height.slice(0, -2)
             let objHeight = +DrawingModel.currentHtmlObject.styles.height.slice(0, -2)
 
-            DrawingModel.currentHtmlObject.styles.top = (pageHeight - objHeight) + 'px'
+            DrawingModel.currentHtmlObject.styles.top = ~~(pageHeight - objHeight) + 'px'
             DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
         }
     })

@@ -54,6 +54,7 @@ angular
         hotkeys.add({
             combo: 'meta+s',
             description: 'Save current sketch.',
+            allowIn: ['input', 'textarea', 'select'],
             callback: (evt) => {
                 DrawingModel.saveCurrentSketch()
                 evt.preventDefault()
