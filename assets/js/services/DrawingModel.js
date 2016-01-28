@@ -254,13 +254,13 @@ angular
 
         this.unlockCurrentHtmlObject = () => {
             this.currentHtmlObject.isLocked = false
-            $rootScope.$broadcast('htmlObject:unlocked')
+            $rootScope.$broadcast(DrawingEvents.htmlObject.unlocked)
             this.flags.isDirty = true
         }
 
         this.lockCurrentHtmlObject = () => {
             this.currentHtmlObject.isLocked = true
-            $rootScope.$broadcast('htmlObject:locked')
+            $rootScope.$broadcast(DrawingEvents.htmlObject.locked)
             this.flags.isDirty = true
         }
 

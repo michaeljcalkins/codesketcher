@@ -54,8 +54,8 @@ module.exports = angular
                 })
 
                 $rootScope.$on(DrawingEvents.htmlObject.unlocked, () => {
-                    this.enableCurrentResizable()
-                    this.enableCurrentDraggable()
+                    this.enableResizable()
+                    this.enableDraggable()
                 })
 
                 $rootScope.$on(DrawingEvents.htmlObject.locked, () => {
