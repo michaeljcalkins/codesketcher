@@ -7,7 +7,7 @@
     overflow: scroll;
     top: 85px;
     bottom: 0;
-    left: 160px;
+    left: 215px;
     right: 215px;
     z-index: 1;
 }
@@ -52,6 +52,7 @@
 }
 
 .html-object {
+    border: 1px solid transparent;
     z-index: 1;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;   /* Chrome/Safari/Opera */
@@ -66,6 +67,66 @@
         left: 0;
         bottom: 0;
     }
+
+
+    /**
+    * jQuery Resizable Handles
+    */
+    .ui-resizable-handle {
+        /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,e5e5e5+100;White+3D */
+        background: #ffffff; /* Old browsers */
+        background: -moz-linear-gradient(top,  #ffffff 0%, #e5e5e5 100%); /* FF3.6-15 */
+        background: -webkit-linear-gradient(top,  #ffffff 0%,#e5e5e5 100%); /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(to bottom,  #ffffff 0%,#e5e5e5 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e5e5e5',GradientType=0 ); /* IE6-9 */
+        box-shadow: 0 0 3px 0 rgba(0, 0, 0, .4);
+        width: 8px;
+        height: 8px;
+    }
+
+    .ui-resizable-handle.ui-resizable-se {
+        right: -5px;
+        bottom: -5px;
+    }
+
+    .ui-resizable-handle.ui-resizable-sw {
+        left: -5px;
+        bottom: -5px;
+    }
+
+    .ui-resizable-handle.ui-resizable-ne {
+        right: -5px;
+        top: -5px;
+    }
+
+    .ui-resizable-handle.ui-resizable-nw {
+        left: -5px;
+        top: -5px;
+    }
+
+    .ui-resizable-handle.ui-resizable-n {
+        left: 50%;
+        margin-left: -5px;
+        top: -5px;
+    }
+
+    .ui-resizable-handle.ui-resizable-s {
+        bottom: -5px;
+        left: 50%;
+        margin-left: -5px;
+    }
+
+    .ui-resizable-handle.ui-resizable-e {
+        right: -5px;
+        margin-top: -5px;
+        top: 50%;
+    }
+
+    .ui-resizable-handle.ui-resizable-w {
+        left: -5px;
+        margin-top: -5px;
+        top: 50%;
+    }
 }
 
 .current-html-object {
@@ -73,7 +134,15 @@
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
-    border: 1px dashed #dddddd;
+
+    .html-object-border {
+        border: 1px dashed #dddddd;
+        position: absolute;
+        left: -2px;
+        bottom: -2px;
+        right: -2px;
+        top: -2px;
+    }
 }
 
 .current-html-object.grabbing {
@@ -115,63 +184,4 @@
 
 .html-object-switch-container {
 
-}
-
-/**
-* jQuery Resizable Handles
-*/
-.ui-resizable-handle {
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,e5e5e5+100;White+3D */
-    background: #ffffff; /* Old browsers */
-    background: -moz-linear-gradient(top,  #ffffff 0%, #e5e5e5 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top,  #ffffff 0%,#e5e5e5 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom,  #ffffff 0%,#e5e5e5 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e5e5e5',GradientType=0 ); /* IE6-9 */
-    box-shadow: 0 0 3px 0 rgba(0, 0, 0, .4);
-    width: 8px;
-    height: 8px;
-}
-
-.ui-resizable-handle.ui-resizable-se {
-    right: -4px;
-    bottom: -4px;
-}
-
-.ui-resizable-handle.ui-resizable-sw {
-    left: -4px;
-    bottom: -4px;
-}
-
-.ui-resizable-handle.ui-resizable-ne {
-    right: -4px;
-    top: -4px;
-}
-
-.ui-resizable-handle.ui-resizable-nw {
-    left: -4px;
-    top: -4px;
-}
-
-.ui-resizable-handle.ui-resizable-n {
-    left: 50%;
-    margin-left: -4px;
-    top: -4px;
-}
-
-.ui-resizable-handle.ui-resizable-s {
-    bottom: -4px;
-    left: 50%;
-    margin-left: -4px;
-}
-
-.ui-resizable-handle.ui-resizable-e {
-    right: -4px;
-    margin-top: -4px;
-    top: 50%;
-}
-
-.ui-resizable-handle.ui-resizable-w {
-    left: -4px;
-    margin-top: -4px;
-    top: 50%;
 }

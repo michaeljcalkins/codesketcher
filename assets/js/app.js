@@ -2,16 +2,21 @@
 
 var angular = require('angular')
 require('angular-local-storage')
+require('angular-ui-bootstrap')
 require('angular-ui-sortable')
 require('angular-hotkeys')
 require('angular-elastic')
+require('angular-highlightjs')
 
 angular
     .module('codesketcher', [
         'ui.sortable',
-        'LocalStorageModule',
+        'ui.bootstrap',
         'cfp.hotkeys',
-        'monospaced.elastic'
+        'LocalStorageModule',
+        'monospaced.elastic',
+        'hljs',
+        'colorpicker.module'
     ])
     .config(function($compileProvider) {
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image/);
@@ -19,6 +24,10 @@ angular
     .controller('AppCtrl', function(DrawingHotkeys) {
 
     })
+
+// Modules
+require('./assets/js/modules/export')
+require('./assets/js/modules/resizable')
 
 // Services
 require('./assets/js/services/DrawingModel.js')

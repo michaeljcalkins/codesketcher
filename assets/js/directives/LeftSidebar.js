@@ -4,9 +4,11 @@ angular
     .module('codesketcher')
     .directive('leftSidebar', function(DrawingModel, DrawingLayers, $timeout) {
         return {
+            replace: true,
             controller: function($scope) {
                 $scope.sortableHtmlObjectOptions = {
                     distance: 3,
+                    axis: 'y',
                     update: function() {
                         $timeout(function() {
                             DrawingModel.flags.dirty = true
@@ -17,6 +19,7 @@ angular
 
                 $scope.sortablePageOptions = {
                     distance: 3,
+                    axis: 'y',
                     update: function() {
                         $timeout(function() {
                             DrawingModel.flags.dirty = true
@@ -25,7 +28,10 @@ angular
                 }
             },
             template: `
-            <div class="left-sidebar">
+            <div
+                class="left-sidebar"
+                resizable-handles="'e'"
+                resizable>
                 <div
                     ng-show="drawingModel.currentSketch"
                     class="panel panel-left-sidebar">
@@ -66,7 +72,7 @@ angular
                             ng-if="drawingModel.currentPage">
                              <li
                                 ng-class="{ active: drawingModel.currentHtmlObject.id == htmlObject.id }"
-                                ng-repeat="htmlObject in drawingModel.currentPage.htmlObjects"
+                                ng-repeat="htmlObject in drawingModel.currentPage.htmlObjects track by $index"
                                 ng-click="drawingModel.setCurrentHtmlObject(htmlObject)">
                                 <a>{{ htmlObject.name ? htmlObject.name : 'Unnamed ' + htmlObject.type }}</a>
                             </li>

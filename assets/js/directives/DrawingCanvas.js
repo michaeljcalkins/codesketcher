@@ -162,17 +162,19 @@ module.exports = angular
                         handles: 'all',
                         disabled: true,
                         stop: (evt, ui) => {
-                            DrawingModel.currentHtmlObject.styles.height = Math.round($('.current-html-object').outerHeight()) + 'px'
-                            DrawingModel.currentHtmlObject.styles.width = Math.round($('.current-html-object').outerWidth()) + 'px'
-                            DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
-                            DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
+                            $timeout(function() {
+                                DrawingModel.currentHtmlObject.styles.height = Math.round($('.current-html-object').outerHeight()) + 'px'
+                                DrawingModel.currentHtmlObject.styles.width = Math.round($('.current-html-object').outerWidth()) + 'px'
+                                DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
+                                DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
 
-                            if (DrawingModel.currentHtmlObject.type === 'text') {
-                                DrawingModel.currentHtmlObject.styles.height = 'auto'
-                            }
+                                if (DrawingModel.currentHtmlObject.type === 'text') {
+                                    DrawingModel.currentHtmlObject.styles.height = 'auto'
+                                }
 
-                            DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
-                            DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
+                                DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
+                                DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
+                            })
                         },
                         resize: function(evt, ui) {
                             DrawingModel.currentZoom = DrawingModel.currentZoom || 1
@@ -191,10 +193,12 @@ module.exports = angular
                         scroll: true,
                         disabled: true,
                         stop: function (evt, ui) {
-                            DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
-                            DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
-                            DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
-                            DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
+                            $timeout(function() {
+                                DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
+                                DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
+                                DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
+                                DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
+                            })
                         },
                         drag: function (evt, ui) {
                             // http://stackoverflow.com/questions/8605439/jquery-draggable-div-with-zoom

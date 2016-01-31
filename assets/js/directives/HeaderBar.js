@@ -2,11 +2,25 @@
 
 angular
     .module('codesketcher')
-    .directive('headerBar', function(DrawingEvents, DrawingModel, DrawingLayers, $rootScope) {
+    .directive('headerBar', function(DrawingEvents, DrawingModel, DrawingLayers, $rootScope, $uibModal) {
         return {
             controller: function($scope) {
                 $scope.drawingModel = DrawingModel
                 $scope.drawingLayers = DrawingLayers
+
+                $scope.openExportModal = function (size) {
+                    let modalInstance = $uibModal.open({
+                        animation: false,
+                        templateUrl: 'assets/js/modules/export/views/exportModal.html',
+                        controllerAs: 'ctrl',
+                        controller: 'ExportModalCtrl'
+                    })
+
+                    modalInstance.result.then(function () {
+
+                    }, function () {
+                    })
+                }
 
                 this.sendInsertRectangleEvent = () => {
                     $rootScope.$broadcast(DrawingEvents.insert.rectangle)
@@ -89,23 +103,6 @@ angular
                             </li>
                             <li><a>&nbsp;</a></li>
                             <li
-                                title="Group the currently selected objects together"
-                                class="pointer">
-                                <a>
-                                    <i class="fa fa-object-group"></i>
-                                    Group
-                                </a>
-                            </li>
-                            <li
-                                title="Ungroup the currently selected grouped objects"
-                                class="pointer">
-                                <a>
-                                    <i class="fa fa-object-ungroup"></i>
-                                    Ungroup
-                                </a>
-                            </li>
-                            <li><a>&nbsp;</a></li>
-                            <li
                                 class="pointer"
                                 title="Zoom in (cmd + =)"
                                 ng-click="drawingModel.zoomIn()">
@@ -127,15 +124,6 @@ angular
                                 ng-click="drawingModel.zoomOut()">
                                 <a style="margin-top: 14px;">
                                     <i class="fa fa-minus"></i>
-                                </a>
-                            </li>
-                            <li><a>&nbsp;</a></li>
-                            <li
-                                title="Scale currently selected object by pixels or percentage"
-                                class="pointer">
-                                <a>
-                                    <i class="fa fa-expand"></i>
-                                    Scale
                                 </a>
                             </li>
                             <li><a>&nbsp;</a></li>
@@ -173,27 +161,14 @@ angular
                                     <li><a>Layout Settings</a></li>
                                 </ul>
                             </li>
-                            <li class="pointer">
-                                <a>
-                                    <i class="fa fa-share-square-o"></i>
-                                    Share
-                                </a>
-                            </li>
                             <li><a>&nbsp;</a></li>
-                            <li class="dropdown pointer">
+                            <li
+                                ng-click="openExportModal()"
+                                class="dropdown pointer">
                                 <a class="dropdown-toggle" data-toggle="dropdown">
                                     <i class="fa fa-desktop"></i>
                                     Export <span class="caret"></span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-right">
-                                    <li><a>Image (.png)</a></li>
-                                    <li><a>HTML</a></li>
-                                    <li><a>Laravel Blade</a></li>
-                                    <li><a>AngularJS v1</a></li>
-                                    <li><a>AngularJS v2</a></li>
-                                    <li><a>ReactJS</a></li>
-                                    <li><a>VueJS</a></li>
-                                </ul>
                             </li>
                         </ul>
                     </div>

@@ -1,6 +1,7 @@
 'use strict'
 
-let $ = require('jquery'),
+let _ = require('lodash'),
+    $ = require('jquery'),
     remote = require('remote'),
     shell = remote.require('shell'),
     fs = require('fs'),
@@ -74,6 +75,7 @@ angular
         this.showSaveDialog = () => {
             dialog.showSaveDialog({
                 options: {
+                    defaultPath: '.codesketch',
                     title: 'codesketch'
                 }
             }, (data) => {
@@ -91,11 +93,13 @@ angular
             if (!this.currentSketchFilename) return this.showSaveDialog()
 
             fs.writeFile(this.currentSketchFilename, JSON.stringify(this.currentSketch), (err) => {
-                if (err) return console.log(err)
-                console.log('Sketch saved...')
-                this.flags.isDirty = false
-                $rootScope.$broadcast('sketch:saved')
-                if (!$rootScope.$$phase) $rootScope.$apply()
+                $timeout(() => {
+                    if (err) return console.log(err)
+                    console.log('Sketch saved...')
+                    this.flags.isDirty = false
+                    $rootScope.$broadcast('sketch:saved')
+                    if (!$rootScope.$$phase) $rootScope.$apply()
+                })
             })
         }
 
@@ -206,7 +210,7 @@ angular
         this.setCurrentHtmlObject = (htmlObject) => {
             this.currentHtmlObject = angular.copy(htmlObject)
             $rootScope.$broadcast(DrawingEvents.htmlObject.selected)
-            if (!$rootScope.$$phase) $rootScope.$apply()
+            $rootScope.$broadcast('elastic:adjust')
         }
 
         this.removeHtmlObject = (htmlObject) => {
@@ -214,8 +218,8 @@ angular
             let htmlObjectsCopy = _.clone(this.currentSketch.pages[pageIndex].htmlObjects)
             _.remove(htmlObjectsCopy, { id: htmlObject.id })
             this.currentSketch.pages[pageIndex].htmlObjects = htmlObjectsCopy
-            $rootScope.$broadcast(DrawingEvents.htmlObject.removed)
             this.flags.isDirty = true
+            $rootScope.$broadcast(DrawingEvents.htmlObject.removed)
         }
 
         this.createHtmlObject = (newHtmlObject) => {
@@ -223,10 +227,8 @@ angular
             let pageIndex = _.findIndex(this.currentSketch.pages, { id: this.currentPage.id })
             this.currentSketch.pages[pageIndex].htmlObjects.unshift(newHtmlObject)
             this.setCurrentPage(this.currentSketch.pages[pageIndex])
-            $rootScope.$broadcast(DrawingEvents.htmlObject.created)
             this.flags.isDirty = true
-
-            if (!$rootScope.$$phase) $rootScope.$apply()
+            $rootScope.$broadcast(DrawingEvents.htmlObject.created)
         }
 
         this.createHtmlObjectAndSetAsCurrent = (newHtmlObject) => {
@@ -241,6 +243,7 @@ angular
                 this.currentPage.htmlObjects.splice(index, 1, htmlObject)
                 this.flags.isDirty = true
                 $rootScope.$broadcast('htmlObject:updated')
+                $rootScope.$broadcast('elastic:adjust')
             })
         }
 
@@ -254,14 +257,16 @@ angular
 
         this.unlockCurrentHtmlObject = () => {
             this.currentHtmlObject.isLocked = false
-            $rootScope.$broadcast(DrawingEvents.htmlObject.unlocked)
+            this.updateHtmlObject(this.currentHtmlObject)
             this.flags.isDirty = true
+            $rootScope.$broadcast(DrawingEvents.htmlObject.unlocked)
         }
 
         this.lockCurrentHtmlObject = () => {
             this.currentHtmlObject.isLocked = true
-            $rootScope.$broadcast(DrawingEvents.htmlObject.locked)
+            this.updateHtmlObject(this.currentHtmlObject)
             this.flags.isDirty = true
+            $rootScope.$broadcast(DrawingEvents.htmlObject.locked)
         }
 
         this.openImageDialog = () => {

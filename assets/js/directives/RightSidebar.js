@@ -4,12 +4,16 @@ angular
     .module('codesketcher')
     .directive('rightSidebar', function(DrawingModel, DrawingAlign) {
         return {
+            replace: true,
             controller: function($scope) {
                 $scope.drawingModel = DrawingModel
                 $scope.drawingAlign = DrawingAlign
             },
             template: `
-            <div class="right-sidebar">
+            <div
+                class="right-sidebar"
+                resizable-handles="'w'"
+                resizable>
                 <div ng-if="!drawingModel.currentHtmlObject && drawingModel.currentPage && drawingModel.currentPage.styles">
                     <div class="sidebar-row">
                         <div class="form-column form-label">
@@ -54,6 +58,7 @@ angular
                             <div class="form-column one-half text-center">
                                 <input
                                     type="text"
+                                    colorpicker
                                     ng-change="drawingModel.updatePage(drawingModel.currentPage)"
                                     ng-model="drawingModel.currentPage.styles.background">
                                 Fill
@@ -167,7 +172,7 @@ angular
                                 ng-model="drawingModel.currentHtmlObject.styles.width">
                             Width
                         </div>
-                        <div class="form-column text-center" ng-hide="drawingModel.currentHtmlObject.type == 'text'">
+                        <div class="form-column text-center">
                             <input
                                 type="text"
                                 ng-change="drawingModel.updateHtmlObject(drawingModel.currentHtmlObject)"
@@ -346,10 +351,13 @@ angular
                                 Weight
                             </div>
                             <div class="form-column one-third text-center">
-                                <input
-                                    type="text"
+                                <select
                                     ng-change="drawingModel.updateHtmlObject(drawingModel.currentHtmlObject)"
                                     ng-model="drawingModel.currentHtmlObject.styles.textAlign">
+                                    <option value="left">left</option>
+                                    <option value="center">center</option>
+                                    <option value="right">right</option>
+                                </select>
                                 Align
                             </div>
                         </div>
