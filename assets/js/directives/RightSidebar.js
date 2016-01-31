@@ -369,7 +369,7 @@ angular
                         </div>
                         <div class="form-column full-width text-center">
                             <textarea
-                                ng-model="drawingModel.currentHtmlObject.styles.body"
+                                ng-model="drawingModel.currentHtmlObject.body"
                                 ng-change="drawingModel.updateHtmlObject(drawingModel.currentHtmlObject)"
                                 rows="6"></textarea>
                         </div>

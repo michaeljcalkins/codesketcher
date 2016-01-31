@@ -40,11 +40,11 @@ module.exports = angular
                                         ng-change="drawingModel.updateHtmlObject(drawingModel.currentHtmlObject)"
                                         msd-elastic
                                         placeholder="Write your text here..."
-                                        ng-model="htmlObject.styles.body"></textarea>
+                                        ng-model="htmlObject.body"></textarea>
                                 </div>
                                 <div
                                     ng-switch-default
-                                    ng-bind-html="ctrl.toTrusted(htmlObject.styles.body)"></div>
+                                    ng-bind-html="ctrl.toTrusted(htmlObject.body)"></div>
                             </div>
                         </div>
                     </div>

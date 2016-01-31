@@ -33,7 +33,7 @@ angular
 
         this.exportToCss = () => {
             this.exportedResult = ExportCss.process({
-
+                sketch: DrawingModel.currentSketch
             })
         }
 

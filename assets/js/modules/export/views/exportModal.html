@@ -22,7 +22,7 @@
         ng-click="ctrl.exportToAngular1()">
         AngularJS v1
     </button>
-    <button
+    <!-- <button
         class="btn btn-default"
         ng-click="ctrl.exportToAngular2()">
         AngularJS v2
@@ -36,11 +36,17 @@
         class="btn btn-default"
         ng-click="ctrl.exportToVue()">
         VueJS
-    </button>
+    </button> -->
 
     <div class="row" ng-show="ctrl.exportedResult">
         <div class="col-sm-12">
             <hr>
+
+            <button
+                ng-click="ctrl.copyExportedResult()"
+                class="btn btn-default">
+                Copy
+            </button>
 
             <div hljs hljs-source="ctrl.exportedResult"></div>
         </div>
@@ -48,9 +54,9 @@
 </div>
 <div class="modal-footer">
     <button
-        class="btn btn-warning"
+        class="btn btn-default"
         type="button"
-        ng-click="cancel()">
+        ng-click="ctrl.cancel()">
         Close
     </button>
 </div>

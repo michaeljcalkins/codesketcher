@@ -9,8 +9,11 @@ angular
                 $scope.drawingLayers = DrawingLayers
 
                 $scope.openExportModal = function (size) {
+                    if (!DrawingModel.currentSketch) return
+
                     let modalInstance = $uibModal.open({
                         animation: false,
+                        size: 'lg',
                         templateUrl: 'assets/js/modules/export/views/exportModal.html',
                         controllerAs: 'ctrl',
                         controller: 'ExportModalCtrl'
@@ -152,13 +155,7 @@ angular
                                     View <span class="caret"></span>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a>Show Pixels</a></li>
                                     <li><a>Show Rulers</a></li>
-                                    <li><a>Show Grid</a></li>
-                                    <li><a>Show Layout</a></li>
-                                    <li class="divider"></li>
-                                    <li><a>Grid Settings</a></li>
-                                    <li><a>Layout Settings</a></li>
                                 </ul>
                             </li>
                             <li><a>&nbsp;</a></li>
@@ -166,8 +163,8 @@ angular
                                 ng-click="openExportModal()"
                                 class="dropdown pointer">
                                 <a class="dropdown-toggle" data-toggle="dropdown">
-                                    <i class="fa fa-desktop"></i>
-                                    Export <span class="caret"></span>
+                                    <i class="fa fa-code"></i>
+                                    Export
                                 </a>
                             </li>
                         </ul>
