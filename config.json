@@ -1,0 +1,22 @@
+{
+  "applicationName": "electron-accelerator",
+  "electronVersion": "0.34.4",
+  "authors": "human",
+  "buildsDirectory": "./builds",
+  "releaseDirectory": "./releases",
+  "platform": "all",
+  "arch": "x64",
+  "ignorePackages": [
+    "electron-packager",
+    "grunt",
+    "grunt-contrib-clean",
+    "grunt-electron-installer",
+    "node-inspector",
+    "open",
+    "progressbar",
+    "s3"
+  ],
+  "s3BucketName": "mac-updates",
+  "s3PrefixName": "test",
+  "macUpdateUrl": "http://localhost:3000/updates"
+}

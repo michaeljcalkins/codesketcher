@@ -1,2 +1,9 @@
 node_modules
 .sass-cache
+.developer-tools
+.DS_Store
+
+builds
+node_modules
+releases
+s3.key
