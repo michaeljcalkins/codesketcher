@@ -26,20 +26,20 @@ angular
     })
 
 // Modules
-require('./assets/js/modules/export')
-require('./assets/js/modules/resizable')
+require('./js/modules/export')
+require('./js/modules/resizable')
 
 // Services
-require('./assets/js/services/DrawingModel.js')
-require('./assets/js/services/DrawingEvents.js')
-require('./assets/js/services/DrawingGuid.js')
-require('./assets/js/services/DrawingHotkeys.js')
-require('./assets/js/services/DrawingAlign.js')
-require('./assets/js/services/DrawingLayers.js')
+require('./js/services/DrawingModel.js')
+require('./js/services/DrawingEvents.js')
+require('./js/services/DrawingGuid.js')
+require('./js/services/DrawingHotkeys.js')
+require('./js/services/DrawingAlign.js')
+require('./js/services/DrawingLayers.js')
 
 // Directives
-require('./assets/js/directives/HeaderBar.js')
-require('./assets/js/directives/LeftSidebar.js')
-require('./assets/js/directives/RightSidebar.js')
-require('./assets/js/directives/DrawingCanvas.js')
-require('./assets/js/directives/HeaderTitleBar.js')
+require('./js/directives/HeaderBar.js')
+require('./js/directives/LeftSidebar.js')
+require('./js/directives/RightSidebar.js')
+require('./js/directives/DrawingCanvas.js')
+require('./js/directives/HeaderTitleBar.js')
