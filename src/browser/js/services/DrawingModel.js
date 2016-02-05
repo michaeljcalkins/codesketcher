@@ -225,12 +225,18 @@ angular
         }
 
         this.createHtmlObject = (newHtmlObject) => {
-            newHtmlObject.styles.opacity = 1
             let pageIndex = _.findIndex(this.currentSketch.pages, { id: this.currentPage.id })
             this.currentSketch.pages[pageIndex].htmlObjects.unshift(newHtmlObject)
             this.setCurrentPage(this.currentSketch.pages[pageIndex])
             this.flags.isDirty = true
             $rootScope.$broadcast(DrawingEvents.htmlObject.created)
+        }
+
+        this.duplicateCurrentHtmlObject = () => {
+            let newHtmlObject = angular.copy(this.currentHtmlObject)
+            newHtmlObject.id = guid()
+            this.createHtmlObject(newHtmlObject)
+            this.setCurrentHtmlObject(newHtmlObject)
         }
 
         this.createHtmlObjectAndSetAsCurrent = (newHtmlObject) => {

@@ -4,7 +4,6 @@ angular
     .module('codesketcher')
     .directive('rightSidebar', function(DrawingModel, DrawingAlign) {
         return {
-            replace: true,
             controller: function($scope) {
                 $scope.drawingModel = DrawingModel
                 $scope.drawingAlign = DrawingAlign
@@ -120,12 +119,21 @@ angular
                         <div class="btn-group align-object-btns">
                             <button
                                 class="btn btn-default"
+                                title="Lock current object in place"
                                 ng-class="{ active: drawingModel.currentHtmlObject.isLocked }"
                                 ng-click="drawingModel.lockCurrentHtmlObject()"><i class="fa fa-lock"></i></button>
                             <button
                                 class="btn btn-default"
+                                title="Unlock current object"
                                 ng-class="{ active: !drawingModel.currentHtmlObject.isLocked }"
                                 ng-click="drawingModel.unlockCurrentHtmlObject()"><i class="fa fa-unlock"></i></button>
+
+                            <button
+                                class="btn btn-default"
+                                title="Duplicate current object"
+                                ng-click="drawingModel.duplicateCurrentHtmlObject()">
+                                <i class="fa fa-clone"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -138,52 +146,6 @@ angular
                                 type="text"
                                 ng-change="drawingModel.updateHtmlObject(drawingModel.currentHtmlObject)"
                                 ng-model="drawingModel.currentHtmlObject.name">
-                        </div>
-                    </div>
-
-                    <div class="sidebar-row">
-                        <div class="form-column form-label">
-                            Position
-                        </div>
-                        <div class="form-column text-center">
-                            <input
-                                type="text"
-                                ng-change="drawingModel.updateHtmlObject(drawingModel.currentHtmlObject)"
-                                ng-model="drawingModel.currentHtmlObject.styles.left">
-                            X
-                        </div>
-                        <div class="form-column text-center">
-                            <input
-                                type="text"
-                                ng-change="drawingModel.updateHtmlObject(drawingModel.currentHtmlObject)"
-                                ng-model="drawingModel.currentHtmlObject.styles.top">
-                            Y
-                        </div>
-                    </div>
-
-                    <div class="sidebar-row">
-                        <div class="form-column form-label">
-                            Size
-                        </div>
-                        <div class="form-column text-center">
-                            <input
-                                type="text"
-                                ng-change="drawingModel.updateHtmlObject(drawingModel.currentHtmlObject)"
-                                ng-model="drawingModel.currentHtmlObject.styles.width">
-                            Width
-                        </div>
-                        <div class="form-column text-center">
-                            <input
-                                type="text"
-                                ng-change="drawingModel.updateHtmlObject(drawingModel.currentHtmlObject)"
-                                ng-model="drawingModel.currentHtmlObject.styles.height">
-                            Height
-                        </div>
-                    </div>
-
-                    <div class="sidebar-group">
-                        <div class="sidebar-header">
-                            Styles
                         </div>
                     </div>
 

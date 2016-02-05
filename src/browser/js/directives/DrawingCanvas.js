@@ -12,6 +12,8 @@ module.exports = angular
         return {
             template: `
             <div class="main">
+                <rulers></rulers>
+
                 <div
                     class="drawing-container"
                     ng-if="drawingModel.currentPage"

@@ -12,7 +12,7 @@ var gulp = require('gulp'),
 
 gulp.task('styles', function() {
     return sass('src/browser/sass/app.scss', { style: 'expanded' })
-        .pipe(autoprefixer('last 2 version'))
+        .pipe(autoprefixer('last 2 versions'))
         .pipe(gulp.dest('dist/css'))
         .pipe(rename({suffix: '.min'}))
         .pipe(cssnano())
@@ -21,7 +21,7 @@ gulp.task('styles', function() {
 })
 
 gulp.task('watch', ['styles'], function (cb) {
-    watch('assets/sass/**/*.scss', function () {
+    watch('src/browser/sass/**/*.scss', function () {
         gulp.run('styles')
     })
 })

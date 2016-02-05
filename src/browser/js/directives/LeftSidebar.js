@@ -4,7 +4,6 @@ angular
     .module('codesketcher')
     .directive('leftSidebar', function(DrawingModel, DrawingLayers, $timeout) {
         return {
-            replace: true,
             controller: function($scope) {
                 $scope.sortableHtmlObjectOptions = {
                     distance: 3,

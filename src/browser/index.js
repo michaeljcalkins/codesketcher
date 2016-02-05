@@ -28,6 +28,7 @@ angular
 // Modules
 require('./js/modules/export')
 require('./js/modules/resizable')
+require('./js/modules/rulers')
 
 // Services
 require('./js/services/DrawingModel')

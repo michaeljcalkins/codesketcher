@@ -1,3 +1,3 @@
 'use strict'
 
-require('./controllers/CreateProjectModalCtrl.js')
+require('./controllers/CreateProjectModalCtrl')
