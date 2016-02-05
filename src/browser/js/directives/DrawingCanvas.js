@@ -2,11 +2,13 @@
 
 var angular = require('angular'),
     _ = require('lodash'),
-    $ = require('jquery')
+    $ = require('jquery'),
+    DrawingEvents = require('../lib/DrawingEvents'),
+    guid = require('../lib/Guid')
 
 module.exports = angular
     .module('codesketcher')
-    .directive('drawingCanvas', function (DrawingModel, DrawingEvents, $rootScope, hotkeys, DrawingGuid, $timeout, $sce) {
+    .directive('drawingCanvas', function (DrawingModel, $rootScope, hotkeys, $timeout, $sce) {
         return {
             template: `
             <div class="main">
@@ -54,12 +56,12 @@ module.exports = angular
             </div>
             `,
             controllerAs: 'ctrl',
-            controller: function($scope) {
-                let createByDragging = false
-                let createAnOval = false
-                let createAText = false
-                let squareCreated = false
-                let startingPosition = null
+            controller: function() {
+                let createByDragging = false,
+                    createAnOval = false,
+                    createAText = false,
+                    squareCreated = false,
+                    startingPosition = null
 
                 $rootScope.$on(DrawingEvents.htmlObject.created, () => {
                     this.startResizable()
@@ -83,7 +85,6 @@ module.exports = angular
 
                 $rootScope.$on(DrawingEvents.insert.rectangle, () => {
                     if (!DrawingModel.currentSketch) return
-
                     createByDragging = true
                     $('.main').css('cursor', 'crosshair')
                     this.stopResizable()
@@ -150,6 +151,10 @@ module.exports = angular
                         createByDragging = true
                         $('.main').css('cursor', 'crosshair')
                         $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
+
+                        $('.main').on('mousedown', this.startNewHtmlObjectProcess)
+                        $('.main').on('mousemove', this.adjustNewHtmlObject)
+                        $('.main').on('mouseup', this.createNewHtmlObject)
                     }
                 })
 
@@ -166,6 +171,10 @@ module.exports = angular
                         createAnOval = true
                         $('.main').css('cursor', 'crosshair')
                         $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
+
+                        $('.main').on('mousedown', this.startNewHtmlObjectProcess)
+                        $('.main').on('mousemove', this.adjustNewHtmlObject)
+                        $('.main').on('mouseup', this.createNewHtmlObject)
                     }
                 })
 
@@ -182,12 +191,12 @@ module.exports = angular
                         createAText = true
                         $('.main').css('cursor', 'crosshair')
                         $('.drawing-canvas').append("<div class='drawing-canvas-screen'></div>")
+
+                        $('.main').on('mousedown', this.startNewHtmlObjectProcess)
+                        $('.main').on('mousemove', this.adjustNewHtmlObject)
+                        $('.main').on('mouseup', this.createNewHtmlObject)
                     }
                 })
-
-                $('.main').on('mousedown', this.startNewHtmlObjectProcess)
-                $('.main').on('mousemove', this.adjustNewHtmlObject)
-                $('.main').on('mouseup', this.createNewHtmlObject)
 
                 this.toTrusted = (htmlCode) => {
                     return $sce.trustAsHtml(htmlCode)
@@ -395,7 +404,7 @@ module.exports = angular
                     htmlObjectType = createAText ? 'text' : htmlObjectType
 
                     let newHtmlObject = {
-                        id: DrawingGuid.guid(),
+                        id: guid(),
                         rotation: 0,
                         type: htmlObjectType
                     }

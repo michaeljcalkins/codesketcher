@@ -7,7 +7,7 @@ ExportCss.process = (config) => {
 
     config.sketch.pages.forEach(function(page, key) {
         page.htmlObjects.forEach(function(htmlObject, key) {
-            let cssRuleName = htmlObject.name.replace(/\s+/g, '-').toLowerCase()
+            let cssRuleName = _.get(htmlObject, 'name', `Unnamed ${htmlObject.type} ${key}`).replace(/\s+/g, '-').toLowerCase()
 
             cssResult += `.${cssRuleName} {\n`
             for (var style in htmlObject.styles) {

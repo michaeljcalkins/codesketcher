@@ -1,8 +1,10 @@
 'use strict'
 
+let DrawingEvents = require('../lib/DrawingEvents')
+
 angular
     .module('codesketcher')
-    .service('DrawingLayers', function(DrawingModel, DrawingEvents, $rootScope, $timeout) {
+    .service('DrawingLayers', function(DrawingModel, $rootScope, $timeout) {
         $rootScope.$on(DrawingEvents.htmlObject.created, () => {
             this.updateLayerPositions()
         })

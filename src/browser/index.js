@@ -30,16 +30,17 @@ require('./js/modules/export')
 require('./js/modules/resizable')
 
 // Services
-require('./js/services/DrawingModel.js')
-require('./js/services/DrawingEvents.js')
-require('./js/services/DrawingGuid.js')
-require('./js/services/DrawingHotkeys.js')
-require('./js/services/DrawingAlign.js')
-require('./js/services/DrawingLayers.js')
+require('./js/services/DrawingModel')
+require('./js/services/DrawingHotkeys')
+require('./js/services/DrawingAlign')
+require('./js/services/DrawingLayers')
 
 // Directives
-require('./js/directives/HeaderBar.js')
-require('./js/directives/LeftSidebar.js')
-require('./js/directives/RightSidebar.js')
-require('./js/directives/DrawingCanvas.js')
-require('./js/directives/HeaderTitleBar.js')
+require('./js/directives/HeaderBar')
+require('./js/directives/LeftSidebar')
+require('./js/directives/RightSidebar')
+require('./js/directives/DrawingCanvas')
+require('./js/directives/HeaderTitleBar')
+
+// Filters
+require('./js/modules/camelToTitleCase')

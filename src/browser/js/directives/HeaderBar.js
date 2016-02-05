@@ -1,20 +1,22 @@
 'use strict'
 
+let DrawingEvents = require('../lib/DrawingEvents')
+
 angular
     .module('codesketcher')
-    .directive('headerBar', function(DrawingEvents, DrawingModel, DrawingLayers, $rootScope, $uibModal) {
+    .directive('headerBar', function(DrawingModel, DrawingLayers, $rootScope, $uibModal) {
         return {
             controller: function($scope) {
                 $scope.drawingModel = DrawingModel
                 $scope.drawingLayers = DrawingLayers
 
-                $scope.openExportModal = function (size) {
+                $scope.openExportModal = function () {
                     if (!DrawingModel.currentSketch) return
 
                     let modalInstance = $uibModal.open({
                         animation: false,
                         size: 'lg',
-                        templateUrl: 'assets/js/modules/export/views/exportModal.html',
+                        templateUrl: './js/modules/export/views/exportModal.html',
                         controllerAs: 'ctrl',
                         controller: 'ExportModalCtrl'
                     })
@@ -133,7 +135,7 @@ angular
                             <li
                                 class="pointer"
                                 title="Scale layer"
-                                uib-popover-template="'assets/js/directives/views/scalePopover.html'"
+                                uib-popover-template="'src/browser/js/directives/views/scalePopover.html'"
                                 popover-placement="bottom"
                                 popover-title="Scale Layer">
                                 <a>
@@ -175,8 +177,8 @@ angular
                                 ng-click="openExportModal()"
                                 class="dropdown pointer">
                                 <a class="dropdown-toggle" data-toggle="dropdown">
-                                    <i class="fa fa-code"></i>
-                                    Build
+                                    <i class="fa fa-upload"></i>
+                                    Export
                                 </a>
                             </li>
                         </ul>

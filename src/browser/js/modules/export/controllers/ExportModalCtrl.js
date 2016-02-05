@@ -1,6 +1,7 @@
 'use strict'
 
-let ExportImage = require('../lib/Image'),
+let ExportApp = require('../lib/App'),
+    ExportImage = require('../lib/Image'),
     ExportHtml = require('../lib/Html'),
     ExportCss = require('../lib/Css'),
     ExportAngular1 = require('../lib/Angular1'),
@@ -17,6 +18,12 @@ angular
 
         this.cancel = function () {
             $uibModalInstance.dismiss('cancel')
+        }
+
+        this.exportEntireApp = () => {
+            ExportApp.process({
+                sketch: DrawingModel.currentSketch
+            })
         }
 
         this.exportToImage = () => {

@@ -7,11 +7,13 @@ let _ = require('lodash'),
     fs = require('fs'),
     sizeOf = require('image-size'),
     BrowserWindow = remote.require('browser-window'),
-    dialog = remote.require('dialog')
+    dialog = remote.require('dialog'),
+    DrawingEvents = require('../lib/DrawingEvents'),
+    guid = require('../lib/Guid')
 
 angular
     .module('codesketcher')
-    .service('DrawingModel', function($rootScope, $http, $timeout, DrawingGuid, DrawingEvents) {
+    .service('DrawingModel', function($rootScope, $http, $timeout) {
         this.currentHtmlObject = null
         this.currentPage = null
         this.currentSketch = null
@@ -57,7 +59,7 @@ angular
             this.currentSketch = {
                 pages: [
                     {
-                        id: DrawingGuid.guid(),
+                        id: guid(),
                         name: 'New Page',
                         styles: {
                             width: '1200px',
@@ -153,7 +155,7 @@ angular
 
         this.createPage = () => {
             this.currentSketch.pages.push({
-                id: DrawingGuid.guid(),
+                id: guid(),
                 name: "",
                 htmlObjects: [],
                 styles: {
@@ -167,7 +169,7 @@ angular
         }
 
         this.createPageAndSetAsCurrent = () => {
-            let id = DrawingGuid.guid()
+            let id = guid()
             this.currentSketch.pages.push({
                 id: id,
                 name: "",
@@ -292,7 +294,7 @@ angular
 
         this.addImageHtmlObject = (base64Image, width, height) => {
             let newHtmlObject = {
-                id: DrawingGuid.guid(),
+                id: guid(),
                 rotation: 0,
                 imageSrc: base64Image,
                 type: 'image',

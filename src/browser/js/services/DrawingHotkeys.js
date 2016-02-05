@@ -2,7 +2,7 @@
 
 angular
     .module('codesketcher')
-    .service('DrawingHotkeys', function(hotkeys, DrawingModel) {
+    .service('DrawingHotkeys', function(hotkeys, DrawingModel, $uibModal) {
         hotkeys.add({
             combo: 'down',
             description: 'Move current html object down 1 pixel.',
