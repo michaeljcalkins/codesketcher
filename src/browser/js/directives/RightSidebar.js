@@ -149,7 +149,7 @@ angular
                         </div>
                     </div>
 
-                    <div class="sidebar-group" ng-repeat="(styleName, styleValue) in drawingModel.currentHtmlObject.styles track by $index">
+                    <div class="sidebar-group" ng-repeat="(styleName, styleValue) in drawingModel.currentHtmlObject.styles track by $index | orderBy:styleName">
                         <div class="sidebar-row">
                             <div class="form-column one-half form-label">
                                 {{ styleName | camelToTitleCase }}
