@@ -21,8 +21,8 @@ angular
     .config(function($compileProvider) {
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image/);
     })
-    .controller('AppCtrl', function(DrawingHotkeys) {
-
+    .controller('AppCtrl', function(DrawingHotkeys, DrawingModel) {
+        DrawingModel.loadLastOpenedSketch()
     })
 
 // Modules
@@ -36,12 +36,14 @@ require('./js/services/DrawingHotkeys')
 require('./js/services/DrawingAlign')
 require('./js/services/DrawingLayers')
 
-// Directives
-require('./js/directives/HeaderBar')
-require('./js/directives/LeftSidebar')
-require('./js/directives/RightSidebar')
-require('./js/directives/DrawingCanvas')
-require('./js/directives/HeaderTitleBar')
+// Components
+require('./js/components/HeaderBar')
+require('./js/components/LeftSidebar')
+require('./js/components/RightSidebar')
+require('./js/components/DrawingCanvas')
+require('./js/components/HeaderTitleBar')
+require('./js/components/HtmlObject')
+require('./js/components/Draggable')
 
 // Filters
 require('./js/modules/camelToTitleCase')

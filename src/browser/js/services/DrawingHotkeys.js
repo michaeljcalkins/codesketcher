@@ -83,6 +83,8 @@ angular
             combo: 'left',
             description: 'Move current html object left 1 pixel.',
             callback: (evt) => {
+                if (!_.has(DrawingModel, 'currentHtmlObject.styles.left')) return
+
                 let numberOfPixelsToMove = 1
                 var intLeft = +DrawingModel.currentHtmlObject.styles.left.slice(0, -2)
                 DrawingModel.currentHtmlObject.styles.left = Math.round(intLeft - numberOfPixelsToMove) + 'px'
@@ -95,6 +97,8 @@ angular
             combo: 'shift+left',
             description: 'Move current html object left 10 pixels.',
             callback: (evt) => {
+                if (!_.has(DrawingModel, 'currentHtmlObject.styles.left')) return
+
                 let numberOfPixelsToMove = 10
                 var intLeft = +DrawingModel.currentHtmlObject.styles.left.slice(0, -2)
                 DrawingModel.currentHtmlObject.styles.left = Math.round(intLeft - numberOfPixelsToMove) + 'px'
@@ -107,6 +111,8 @@ angular
             combo: 'up',
             description: 'Move current html object up 1 pixel.',
             callback: (evt) => {
+                if (!_.has(DrawingModel, 'currentHtmlObject.styles.top')) return
+
                 let numberOfPixelsToMove = 1
                 var intTop = +DrawingModel.currentHtmlObject.styles.top.slice(0, -2)
                 DrawingModel.currentHtmlObject.styles.top = Math.round(intTop - numberOfPixelsToMove) + 'px'
@@ -119,6 +125,8 @@ angular
             combo: 'shift+up',
             description: 'Move current html object up 10 pixels.',
             callback: (evt) => {
+                if (!_.has(DrawingModel, 'currentHtmlObject.styles.top')) return
+
                 let numberOfPixelsToMove = 10
                 var intTop = +DrawingModel.currentHtmlObject.styles.top.slice(0, -2)
                 DrawingModel.currentHtmlObject.styles.top = Math.round(intTop - numberOfPixelsToMove) + 'px'
@@ -131,6 +139,8 @@ angular
             combo: 'right',
             description: 'Move current html object right 1 pixel.',
             callback: (evt) => {
+                if (!_.has(DrawingModel, 'currentHtmlObject.styles.left')) return
+
                 let numberOfPixelsToMove = 1
                 var intLeft = +DrawingModel.currentHtmlObject.styles.left.slice(0, -2)
                 DrawingModel.currentHtmlObject.styles.left = Math.round(intLeft + numberOfPixelsToMove) + 'px'
@@ -143,6 +153,8 @@ angular
             combo: 'shift+right',
             description: 'Move current html object right 10 pixels.',
             callback: (evt) => {
+                if (!_.has(DrawingModel, 'currentHtmlObject.styles.left')) return
+
                 let numberOfPixelsToMove = 10
                 var intLeft = +DrawingModel.currentHtmlObject.styles.left.slice(0, -2)
                 DrawingModel.currentHtmlObject.styles.left = Math.round(intLeft + numberOfPixelsToMove) + 'px'
@@ -155,8 +167,10 @@ angular
             combo: 'shift+down',
             description: 'Move current html object down 10 pixels.',
             callback: (evt) => {
+                if (!_.has(DrawingModel, 'currentHtmlObject.styles.top')) return
+
                 let numberOfPixelsToMove = 10
-                var intTop = +DrawingModel.currentHtmlObject.styles.top.slice(0, -2)
+                let intTop = +DrawingModel.currentHtmlObject.styles.top.slice(0, -2)
                 DrawingModel.currentHtmlObject.styles.top = Math.round(intTop + numberOfPixelsToMove) + 'px'
                 DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
                 evt.preventDefault()

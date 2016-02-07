@@ -13,7 +13,7 @@ let _ = require('lodash'),
 
 angular
     .module('codesketcher')
-    .service('DrawingModel', function($rootScope, $http, $timeout) {
+    .service('DrawingModel', function($rootScope, $http, $timeout, localStorageService) {
         this.currentHtmlObject = null
         this.currentPage = null
         this.currentSketch = null
@@ -41,15 +41,28 @@ angular
             }, (data) => {
                 if (!data) return
 
-                let dataString = fs.readFileSync(data[0])
-                this.currentSketch = eval('(' + dataString.toString() + ')')
-                this.currentSketchFilename = data[0]
-                this.currentHtmlObject = null
-                this.currentPage = null
-                this.setLastObjects()
-                $rootScope.$broadcast('sketch:loaded')
-                document.title = 'Code Sketcher | ' + this.currentSketchFilename
+                this.openSketchFile(data[0])
             })
+        }
+
+        this.openSketchFile = (filename) => {
+            let dataString = fs.readFileSync(filename)
+            this.currentSketch = eval('(' + dataString.toString() + ')')
+            this.currentSketchFilename = filename
+            this.currentHtmlObject = null
+            this.currentPage = null
+            localStorageService.set('lastOpenedSketchFilename', filename)
+            this.setLastObjects()
+            $rootScope.$broadcast('sketch:loaded')
+            document.title = 'Code Sketcher | ' + filename
+        }
+
+        this.loadLastOpenedSketch = () => {
+            if (!localStorageService.get('lastOpenedSketchFilename')) return
+
+            let filename = localStorageService.get('lastOpenedSketchFilename')
+            console.log('Opening last opened sketch', filename)
+            this.openSketchFile(filename)
         }
 
         this.newCurrentSketch = () => {
