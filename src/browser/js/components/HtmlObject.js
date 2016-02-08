@@ -13,14 +13,6 @@ angular
                     if (!wasMoved) return
                     this.htmlObject.styles.left = x + 'px'
                     this.htmlObject.styles.top = y + 'px'
-                },
-                drag: function (evt, newX, newY, startX, startY, cb) {
-                    // http://stackoverflow.com/questions/8605439/jquery-draggable-div-with-zoom
-                    DrawingModel.currentZoom = DrawingModel.currentZoom || 1
-                    var factor = (1 / DrawingModel.currentZoom) - 1
-                    newY += ~~((newY - startY) * factor)
-                    newX += ~~((newX - startX) * factor)
-                    cb(newX, newY)
                 }
             }
         },

@@ -51,7 +51,7 @@ angular
                          <li
                             ng-repeat="page in $ctrl.drawingModel.currentSketch.pages track by $index"
                             ng-class="{
-                                active: $ctrl.drawingModel.currentPage && drawingModel.currentPage.id == page.id
+                                active: $ctrl.drawingModel.currentPage && $ctrl.drawingModel.currentPage.id == page.id
                             }"
                             ng-click="$ctrl.drawingModel.setCurrentPage(page)">
                             <a>{{ page.name || "Unamed page" }}</a>

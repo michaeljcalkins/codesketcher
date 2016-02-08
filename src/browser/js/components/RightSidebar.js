@@ -154,6 +154,50 @@ angular
 
                 <div class="sidebar-group">
                     <div class="sidebar-header">
+                        Position
+                    </div>
+                    <div class="sidebar-row">
+                        <div class="form-column one-half text-center">
+                            <input
+                                type="text"
+                                ng-change="$ctrl.drawingModel.updateHtmlObject($ctrl.drawingModel.currentHtmlObject)"
+                                ng-model="$ctrl.drawingModel.currentHtmlObject.styles.left">
+                            X
+                        </div>
+                        <div class="form-column one-half text-center">
+                            <input
+                                type="text"
+                                ng-change="$ctrl.drawingModel.updateHtmlObject($ctrl.drawingModel.currentHtmlObject)"
+                                ng-model="$ctrl.drawingModel.currentHtmlObject.styles.top">
+                            Y
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-group">
+                    <div class="sidebar-header">
+                        Size
+                    </div>
+                    <div class="sidebar-row">
+                        <div class="form-column one-half text-center">
+                            <input
+                                type="text"
+                                ng-change="$ctrl.drawingModel.updateHtmlObject($ctrl.drawingModel.currentHtmlObject)"
+                                ng-model="$ctrl.drawingModel.currentHtmlObject.styles.width">
+                            Width
+                        </div>
+                        <div class="form-column one-half text-center">
+                            <input
+                                type="text"
+                                ng-change="$ctrl.drawingModel.updateHtmlObject($ctrl.drawingModel.currentHtmlObject)"
+                                ng-model="$ctrl.drawingModel.currentHtmlObject.styles.height">
+                            Height
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-group">
+                    <div class="sidebar-header">
                         Styles
                     </div>
                     <div

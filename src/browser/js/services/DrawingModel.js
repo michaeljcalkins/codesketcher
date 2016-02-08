@@ -138,7 +138,7 @@ angular
         this.zoomIn = () => {
             if (this.currentZoom >= 4 || !this.currentSketch) return
 
-            this.currentZoom = (parseFloat(this.currentZoom) + .1).toFixed(1)
+            this.currentZoom = (parseFloat(this.currentZoom) + .15).toFixed(2)
             $(".drawing-canvas").animate({
                 zoom: this.currentZoom
             }, 'medium')
@@ -147,7 +147,7 @@ angular
         this.zoomOut = () => {
             if (this.currentZoom <= .2 || !this.currentSketch) return
 
-            this.currentZoom = (parseFloat(this.currentZoom) - .1).toFixed(1)
+            this.currentZoom = (parseFloat(this.currentZoom) - .15).toFixed(2)
             $(".drawing-canvas").animate({
                 zoom: this.currentZoom
             }, 'medium')

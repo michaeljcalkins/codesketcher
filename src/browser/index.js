@@ -44,6 +44,7 @@ require('./js/components/DrawingCanvas')
 require('./js/components/HeaderTitleBar')
 require('./js/components/HtmlObject')
 require('./js/components/Draggable')
+require('./js/components/ScalePopover')
 
 // Filters
 require('./js/modules/camelToTitleCase')

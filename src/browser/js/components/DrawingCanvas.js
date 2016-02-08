@@ -125,125 +125,6 @@ module.exports = angular
                 return $sce.trustAsHtml(htmlCode)
             }
 
-            this.disableDraggable = () => {
-                $('.html-object').draggable('disable')
-            }
-
-            this.disableResizable = () => {
-                $('.html-object').resizable('disable')
-            }
-
-            this.enableResizable = () => {
-                $('.current-html-object').resizable('enable')
-            }
-
-            this.enableDraggable = () => {
-                $('.current-html-object').draggable('enable')
-            }
-
-            this.stopResizable = () => {
-                try {
-                    $('.current-html-object').resizable('destroy')
-                } catch(e) {
-                    console.log(e)
-                }
-            }
-
-            this.stopDraggable = () => {
-                try {
-                    $('.current-html-object').draggable('destroy')
-                } catch(e) {
-                    console.log(e)
-                }
-            }
-
-            this.startResizable = () => {
-                $('.rectangle-html-object').resizable({
-                    handles: 'all',
-                    disabled: true,
-                    stop: (evt, ui) => {
-                        $timeout(function() {
-                            DrawingModel.currentHtmlObject.styles.height = Math.round($('.current-html-object').outerHeight()) + 'px'
-                            DrawingModel.currentHtmlObject.styles.width = Math.round($('.current-html-object').outerWidth()) + 'px'
-                            DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
-                            DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
-
-                            if (DrawingModel.currentHtmlObject.type === 'text') {
-                                DrawingModel.currentHtmlObject.styles.height = 'auto'
-                            }
-
-                            DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
-                            DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
-                        })
-                    },
-                    resize: function(evt, ui) {
-                        DrawingModel.currentZoom = DrawingModel.currentZoom || 1
-                        let factor = (1 / DrawingModel.currentZoom) - 1
-                        ui.size.width += Math.round(($('.current-html-object').outerWidth() - ui.originalSize.width) * factor)
-                        ui.size.height += Math.round(($('.current-html-object').outerHeight() - ui.originalSize.height) * factor)
-                        ui.position.top += Math.round((ui.position.top - ui.originalPosition.top) * factor)
-                        ui.position.left += Math.round((ui.position.left - ui.originalPosition.left) * factor)
-                    }
-                })
-
-                $('.text-html-object').resizable({
-                    handles: 'all',
-                    disabled: true,
-                    stop: (evt, ui) => {
-                        $timeout(function() {
-                            DrawingModel.currentHtmlObject.styles.height = Math.round($('.current-html-object').outerHeight()) + 'px'
-                            DrawingModel.currentHtmlObject.styles.width = Math.round($('.current-html-object').outerWidth()) + 'px'
-                            DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
-                            DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
-
-                            if (DrawingModel.currentHtmlObject.type === 'text') {
-                                DrawingModel.currentHtmlObject.styles.height = 'auto'
-                            }
-
-                            DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
-                            DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
-                        })
-                    },
-                    resize: function(evt, ui) {
-                        DrawingModel.currentZoom = DrawingModel.currentZoom || 1
-                        let factor = (1 / DrawingModel.currentZoom) - 1
-                        ui.size.width += Math.round(($('.current-html-object').outerWidth() - ui.originalSize.width) * factor)
-                        ui.size.height += Math.round(($('.current-html-object').outerHeight() - ui.originalSize.height) * factor)
-                        ui.position.top += Math.round((ui.position.top - ui.originalPosition.top) * factor)
-                        ui.position.left += Math.round((ui.position.left - ui.originalPosition.left) * factor)
-                    }
-                })
-
-                $('.image-html-object').resizable({
-                    handles: 'all',
-                    disabled: true,
-                    aspectRatio: true,
-                    stop: (evt, ui) => {
-                        $timeout(function() {
-                            DrawingModel.currentHtmlObject.styles.height = Math.round($('.current-html-object').outerHeight()) + 'px'
-                            DrawingModel.currentHtmlObject.styles.width = Math.round($('.current-html-object').outerWidth()) + 'px'
-                            DrawingModel.currentHtmlObject.styles.left = Math.round(ui.position.left) + 'px'
-                            DrawingModel.currentHtmlObject.styles.top = Math.round(ui.position.top) + 'px'
-
-                            if (DrawingModel.currentHtmlObject.type === 'text') {
-                                DrawingModel.currentHtmlObject.styles.height = 'auto'
-                            }
-
-                            DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
-                            DrawingModel.setCurrentHtmlObject(DrawingModel.currentHtmlObject)
-                        })
-                    },
-                    resize: function(evt, ui) {
-                        DrawingModel.currentZoom = DrawingModel.currentZoom || 1
-                        let factor = (1 / DrawingModel.currentZoom) - 1
-                        ui.size.width += Math.round(($('.current-html-object').outerWidth() - ui.originalSize.width) * factor)
-                        ui.size.height += Math.round(($('.current-html-object').outerHeight() - ui.originalSize.height) * factor)
-                        ui.position.top += Math.round((ui.position.top - ui.originalPosition.top) * factor)
-                        ui.position.left += Math.round((ui.position.left - ui.originalPosition.left) * factor)
-                    }
-                })
-            }
-
             this.startNewHtmlObjectProcess = (evt) => {
                 if (!createByDragging) return
 
@@ -270,7 +151,6 @@ module.exports = angular
                         top: factor * startingPosition.y
                     })
                 $('.drawing-canvas').append(newDiv)
-                this.startResizable()
 
                 squareCreated = true
             }

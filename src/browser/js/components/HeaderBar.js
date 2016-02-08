@@ -134,7 +134,7 @@ angular
                         <li
                             class="pointer"
                             title="Scale layer"
-                            uib-popover-template="'src/browser/js/directives/views/scalePopover.html'"
+                            uib-popover-template="'./js/components/views/scalePopover.html'"
                             popover-placement="bottom"
                             popover-title="Scale Layer">
                             <a>
