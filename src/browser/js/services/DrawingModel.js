@@ -238,9 +238,14 @@ angular
         }
 
         this.createHtmlObject = (newHtmlObject) => {
-            let pageIndex = _.findIndex(this.currentSketch.pages, { id: this.currentPage.id })
-            this.currentSketch.pages[pageIndex].htmlObjects.unshift(newHtmlObject)
-            this.setCurrentPage(this.currentSketch.pages[pageIndex])
+            if (!this.currentHtmlObject) {
+                let pageIndex = _.findIndex(this.currentSketch.pages, { id: this.currentPage.id })
+                this.currentSketch.pages[pageIndex].htmlObjects.unshift(newHtmlObject)
+            } else {
+                this.currentHtmlObject.htmlObjects = this.currentHtmlObject.htmlObjects || []
+                this.currentHtmlObject.htmlObjects.unshift(newHtmlObject)
+            }
+
             this.flags.isDirty = true
             $rootScope.$broadcast(DrawingEvents.htmlObject.created)
         }
@@ -266,6 +271,7 @@ angular
                 $rootScope.$broadcast('htmlObject:updated')
                 $rootScope.$broadcast('elastic:adjust')
             })
+            if (!$rootScope.$$phase) $rootScope.$apply()
         }
 
         this.updatePage = (page) => {
@@ -341,3 +347,16 @@ angular
             $rootScope.$broadcast(DrawingEvents.htmlObject.created)
         }
     })
+    .directive('ngEnter', function () {
+        return function (scope, element, attrs) {
+            element.bind("keydown keypress", function (event) {
+                if(event.which === 13) {
+                    scope.$apply(function (){
+                        scope.$eval(attrs.ngEnter);
+                    });
+
+                    event.preventDefault();
+                }
+            });
+        };
+    });

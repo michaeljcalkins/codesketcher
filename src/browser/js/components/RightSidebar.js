@@ -6,9 +6,18 @@ angular
         controller: function(DrawingModel, DrawingAlign) {
             this.drawingModel = DrawingModel
             this.drawingAlign = DrawingAlign
+            this.newStyleName = ''
+            this.newStyleValue = ''
 
-            this.hasCurrentHtmlObject = function() {
+            this.hasCurrentHtmlObject = () => {
                 return _.has(this.drawingModel, 'currentHtmlObject.styles')
+            }
+
+            this.createStyleProperty = () => {
+                DrawingModel.currentHtmlObject.styles[this.newStyleName] = this.newStyleValue
+                DrawingModel.updateHtmlObject(DrawingModel.currentHtmlObject)
+                this.newStyleName = ''
+                this.newStyleValue = ''
             }
         },
         template: `
@@ -79,59 +88,6 @@ angular
                 <div class="sidebar-row">
                     <div class="btn-group align-object-btns">
                         <button
-                            title="Align selected objects left"
-                            class="btn btn-default"
-                            ng-click="$ctrl.drawingAlign.alignCurrentHtmlObjectLeft()">
-                            <i class="glyphicon glyphicon-object-align-left"></i>
-                        </button>
-                        <button
-                            title="Align selected objects centered vertically"
-                            class="btn btn-default"
-                            ng-click="$ctrl.drawingAlign.alignCurrentHtmlObjectVertically()">
-                            <i class="glyphicon glyphicon-object-align-vertical"></i>
-                        </button>
-                        <button
-                            title="Align selected objects right"
-                            class="btn btn-default"
-                            ng-click="$ctrl.drawingAlign.alignCurrentHtmlObjectRight()">
-                            <i class="glyphicon glyphicon-object-align-right"></i>
-                        </button>
-
-                        <button
-                            title="Align selected objects to the top"
-                            class="btn btn-default"
-                            ng-click="$ctrl.drawingAlign.alignCurrentHtmlObjectTop()">
-                            <i class="glyphicon glyphicon-object-align-top"></i>
-                        </button>
-                        <button
-                            title="Align selected objects centered horizontally"
-                            class="btn btn-default"
-                            ng-click="$ctrl.drawingAlign.alignCurrentHtmlObjectHorizontally()">
-                            <i class="glyphicon glyphicon-object-align-horizontal"></i>
-                        </button>
-                        <button
-                            title="Align selected objects to the bottom"
-                            class="btn btn-default"
-                            ng-click="$ctrl.drawingAlign.alignCurrentHtmlObjectBottom()">
-                            <i class="glyphicon glyphicon-object-align-bottom"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="sidebar-row">
-                    <div class="btn-group align-object-btns">
-                        <button
-                            class="btn btn-default"
-                            title="Lock current object in place"
-                            ng-class="{ active: $ctrl.drawingModel.currentHtmlObject.isLocked }"
-                            ng-click="$ctrl.drawingModel.lockCurrentHtmlObject()"><i class="fa fa-lock"></i></button>
-                        <button
-                            class="btn btn-default"
-                            title="Unlock current object"
-                            ng-class="{ active: !$ctrl.drawingModel.currentHtmlObject.isLocked }"
-                            ng-click="$ctrl.drawingModel.unlockCurrentHtmlObject()"><i class="fa fa-unlock"></i></button>
-
-                        <button
                             class="btn btn-default"
                             title="Duplicate current object"
                             ng-click="$ctrl.drawingModel.duplicateCurrentHtmlObject()">
@@ -154,44 +110,12 @@ angular
 
                 <div class="sidebar-group">
                     <div class="sidebar-header">
-                        Position
+                        Classes
                     </div>
                     <div class="sidebar-row">
-                        <div class="form-column one-half text-center">
+                        <div class="form-column full-width text-center">
                             <input
-                                type="text"
-                                ng-change="$ctrl.drawingModel.updateHtmlObject($ctrl.drawingModel.currentHtmlObject)"
-                                ng-model="$ctrl.drawingModel.currentHtmlObject.styles.left">
-                            X
-                        </div>
-                        <div class="form-column one-half text-center">
-                            <input
-                                type="text"
-                                ng-change="$ctrl.drawingModel.updateHtmlObject($ctrl.drawingModel.currentHtmlObject)"
-                                ng-model="$ctrl.drawingModel.currentHtmlObject.styles.top">
-                            Y
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sidebar-group">
-                    <div class="sidebar-header">
-                        Size
-                    </div>
-                    <div class="sidebar-row">
-                        <div class="form-column one-half text-center">
-                            <input
-                                type="text"
-                                ng-change="$ctrl.drawingModel.updateHtmlObject($ctrl.drawingModel.currentHtmlObject)"
-                                ng-model="$ctrl.drawingModel.currentHtmlObject.styles.width">
-                            Width
-                        </div>
-                        <div class="form-column one-half text-center">
-                            <input
-                                type="text"
-                                ng-change="$ctrl.drawingModel.updateHtmlObject($ctrl.drawingModel.currentHtmlObject)"
-                                ng-model="$ctrl.drawingModel.currentHtmlObject.styles.height">
-                            Height
+                                type="text">
                         </div>
                     </div>
                 </div>
@@ -200,19 +124,35 @@ angular
                     <div class="sidebar-header">
                         Styles
                     </div>
-                    <div
-                        class="sidebar-row"
-                        ng-repeat="(styleName, styleValue) in $ctrl.drawingModel.currentHtmlObject.styles track by $index">
                     <div class="sidebar-row">
-                        <div class="form-column one-half form-label">
-                            {{ styleName | camelToTitleCase }}
+                        <div class="form-column one-half text-center">
+                            <input
+                                ng-enter="$ctrl.createStyleProperty()"
+                                type="text"
+                                ng-model="$ctrl.newStyleName">
+                            Name
                         </div>
                         <div class="form-column one-half text-center">
                             <input
+                                ng-enter="$ctrl.createStyleProperty()"
                                 type="text"
-                                ng-change="$ctrl.drawingModel.updateHtmlObject($ctrl.drawingModel.currentHtmlObject)"
-                                ng-model="$ctrl.drawingModel.currentHtmlObject.styles[styleName]">
+                                ng-model="$ctrl.newStyleValue">
+                            Value
                         </div>
+                    </div>
+                </div>
+
+                <div
+                    class="sidebar-row"
+                    ng-repeat="(styleName, styleValue) in $ctrl.drawingModel.currentHtmlObject.styles track by $index">
+                    <div class="form-column one-half form-label">
+                        {{ styleName }}
+                    </div>
+                    <div class="form-column one-half text-center">
+                        <input
+                            type="text"
+                            ng-change="$ctrl.drawingModel.updateHtmlObject($ctrl.drawingModel.currentHtmlObject)"
+                            ng-model="$ctrl.drawingModel.currentHtmlObject.styles[styleName]">
                     </div>
                 </div>
             </div>

@@ -8,18 +8,10 @@ angular
         },
         controller: function(DrawingModel, $timeout) {
             this.drawingModel = DrawingModel
-            this.draggableOptions = {
-                stop: (evt, x, y, startX, startY, wasMoved) => {
-                    if (!wasMoved) return
-                    this.htmlObject.styles.left = x + 'px'
-                    this.htmlObject.styles.top = y + 'px'
-                }
-            }
         },
         replace: true,
         template: `
         <div
-            draggable="$ctrl.draggableOptions"
             class="html-object"
             ng-mousedown="$ctrl.drawingModel.setCurrentHtmlObject($ctrl.htmlObject)"
             ng-click="$ctrl.drawingModel.setCurrentHtmlObject($ctrl.htmlObject)"
@@ -38,16 +30,10 @@ angular
                 <div ng-switch-when="image">
                     <img ng-src="data:image;base64,{{ $ctrl.htmlObject.imageSrc }}" style="height: 100%; width: 100%;">
                 </div>
-                <div ng-switch-when="text">
-                    <textarea
-                        ng-change="$ctrl.drawingModel.updateHtmlObject($ctrl.drawingModel.currentHtmlObject)"
-                        msd-elastic
-                        placeholder="Write your text here..."
-                        ng-model="$ctrl.htmlObject.body"></textarea>
-                </div>
                 <div
                     ng-switch-default
                     ng-bind-html="$ctrl.toTrusted($ctrl.htmlObject.body)"></div>
+                <div ng-repeat="subHtmlObject in htmlObject.htmlObjects"></div>
             </div>
         </div>
         `

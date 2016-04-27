@@ -2,7 +2,7 @@
 
 angular
     .module('codesketcher')
-    .directive('draggable', function($document) {
+    .directive('draggable', function($document, DrawingModel) {
         return {
             restrict: 'A',
             scope: {
