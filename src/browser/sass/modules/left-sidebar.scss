@@ -1,18 +1,18 @@
-/**
- * Left Sidebar
- */
 .left-sidebar {
-    box-sizing: content-box;
-    position: fixed;
-    top: 85px;
-    bottom: 0;
-    left: 0;
-    padding: 0 20px;
-    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
     background-color: #E7E7E7;
     border-right: 1px solid #B8B8B8;
-    width: 160px;
+    bottom: 0;
+    box-sizing: content-box;
+    left: 0;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    position: fixed;
+    top: 85px;
+    width: 300px;
     z-index: 2;
+
+    .sidebar-group:first-child .pane-header {
+      border-top: 0;
+    }
 
     .ui-resizable-handle.ui-resizable-e {
         width: 6px;
@@ -24,8 +24,7 @@
     }
 }
 
-
-.left-sidebar .panel-left-sidebar {
+.panel-sidebar {
     margin: 0 -20px 30px;
     box-shadow: none;
     border-radius: 0;
@@ -33,29 +32,29 @@
     border: 0;
 }
 
-.left-sidebar .panel-left-sidebar .panel-body {
+.panel-sidebar .panel-body {
     border: 0 !important;
 }
 
-.left-sidebar .panel-left-sidebar ul {
+.panel-sidebar ul {
     margin: 0;
     padding: 0;
 }
 
-.left-sidebar .panel-left-sidebar ul li {
+.panel-sidebar ul li {
     margin: 0;
     padding: 0;
 }
 
-.left-sidebar .panel-left-sidebar ul li a {
+.panel-sidebar ul li a {
     padding: 5px 15px;
 }
 
-.left-sidebar .panel-left-sidebar ul li.active {
+.panel-sidebar ul li.active {
     background: #6d9ee1;
 }
 
-.left-sidebar .panel-left-sidebar .panel-heading {
+.panel-sidebar .panel-heading {
     background: #f3f3f3;
     border-radius: 0;
     padding: 0 10px;
@@ -65,14 +64,13 @@
     height: 30px;
 }
 
-.left-sidebar .panel-left-sidebar .panel-body {
+.panel-sidebar .panel-body {
     border-radius: 0;
     font-size: 12px;
     margin: 0;
     border-bottom: 1px solid #ddd;
     padding: 0;
 }
-
 
 /* Sidebar navigation */
 .nav-sidebar {
