@@ -52,8 +52,49 @@ SongRow.defaultProps = {
 }
 `
 
+const altComponentString = `
+import React, { PureComponent, PropTypes } from 'react'
+
+export default class HudHealth extends PureComponent {
+  static propTypes = {
+    health: PropTypes.number.isRequired
+  }
+
+  static defaultProps = {
+    health: 0
+  }
+
+  render () {
+    return (
+      <div className='hud-health hud-item'>{ this.props.health }</div>
+    )
+  }
+}
+`
+
+const functionalComponentString = `
+import React, { PropTypes } from 'react'
+
+export default function HudSettingsButton ({
+  onButtonClick
+}) {
+  return (
+    <div
+      className='hud-change-weapons-button hud-item'
+      onClick={onButtonClick}
+    >
+      Weapons
+    </div>
+  )
+}
+
+HudSettingsButton.propTypes = {
+  onButtonClick: PropTypes.func.isRequired
+}
+`
+
 describe('getPropertyFragments', function () {
-  it('Parse property fragments', function () {
+  it('Parse property fragments defined below', function () {
     const fragments = getPropertyFragments(componentString, 'SongRow')
     assert.equal(fragments[0].name, 'artistName')
     assert.equal(fragments[0].type, 'string')
@@ -63,5 +104,21 @@ describe('getPropertyFragments', function () {
     assert.equal(fragments[1].type, 'string')
     assert.equal(fragments[1].default, 'Blood Brothers')
     assert.equal(fragments[1].required, true)
+  })
+
+  it('Parse property fragments defined in class', function () {
+    const fragments = getPropertyFragments(altComponentString, 'HudHealth')
+    assert.equal(fragments[0].name, 'health')
+    assert.equal(fragments[0].type, 'number')
+    assert.equal(fragments[0].default, 0)
+    assert.equal(fragments[0].required, true)
+  })
+
+  it('Parse functional property fragments defined in a functional', function () {
+    const fragments = getPropertyFragments(functionalComponentString, 'HudSettingsButton')
+    assert.equal(fragments[0].name, 'onButtonClick')
+    assert.equal(fragments[0].type, 'func')
+    assert.equal(fragments[0].default, '')
+    assert.equal(fragments[0].required, true)
   })
 })

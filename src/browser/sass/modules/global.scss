@@ -1,5 +1,5 @@
 html, body {
-  font-family: Lato, 'Helvetica Neue', Arial, sans-serif;
+  font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
   text-rendering: optimizelegibility;
 }
 
@@ -8,12 +8,8 @@ html {
 }
 
 body {
-  padding-top: 60px;
+  padding-top: 85px;
   background: #f2f2f2;
-}
-
-.pointer {
-  cursor: pointer;
 }
 
 .ui-resizable-handle {
@@ -77,6 +73,7 @@ body {
 
 .one-fifth { width: 20% }
 .one-fourth { width: 25% }
+.three-fourths { width: 75% }
 .full-width { width: 100%; }
 .one-half { width: 50%; }
 .two-thirds { width: 66.66%; }
@@ -95,5 +92,9 @@ body {
 
 .h100 { height: 100% }
 .h75 { height: 75% }
+.h70 { height: 70% }
 .h50 { height: 50% }
+.h30 { height: 30% }
 .h25 { height: 25% }
+
+.w50 { width: 50% }

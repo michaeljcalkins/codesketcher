@@ -52,12 +52,38 @@ SongRow.defaultProps = {
 }
 `
 
+const functionalComponentString = `
+import React, { PropTypes } from 'react'
+
+export default function HudChangeWeaponsButton ({
+  onButtonClick
+}) {
+  return (
+    <div
+      className='hud-change-weapons-button hud-item'
+      onClick={onButtonClick}
+    >
+      Weapons
+    </div>
+  )
+}
+
+HudChangeWeaponsButton.propTypes = {
+  onButtonClick: PropTypes.func.isRequired
+}
+`
+
 describe('getConstructorFragment', function () {
-  it('Parse constructor function fragment', function () {
+  it('Parse class constructor function fragment', function () {
     const constructorFragment = getConstructorFragment(componentString, 'SongRow')
     assert.equal(constructorFragment, `constructor (props) {
     super(props)
     autobind(this)
   }`)
+  })
+
+  it('Parse function constructor function fragment', function () {
+    const constructorFragment = getConstructorFragment(functionalComponentString, 'HudChangeWeaponsButton')
+    assert.equal(constructorFragment, '')
   })
 })

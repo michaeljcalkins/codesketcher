@@ -52,8 +52,29 @@ SongRow.defaultProps = {
 }
 `
 
+const functionalComponentString = `
+import React, { PropTypes } from 'react'
+
+export default function HudChangeWeaponsButton ({
+  onButtonClick
+}) {
+  return (
+    <div
+      className='hud-change-weapons-button hud-item'
+      onClick={onButtonClick}
+    >
+      Weapons
+    </div>
+  )
+}
+
+HudChangeWeaponsButton.propTypes = {
+  onButtonClick: PropTypes.func.isRequired
+}
+`
+
 describe('getImportFragments', function () {
-  it('Parse import fragments', function () {
+  it('Parse class component import fragments', function () {
     const importFragments = getImportFragments(componentString)
     assert.equal(importFragments[0].variables, 'React, { Component, PropTypes }')
     assert.equal(importFragments[0].from, 'react')
@@ -61,5 +82,11 @@ describe('getImportFragments', function () {
     assert.equal(importFragments[1].from, 'react-autobind')
     assert.equal(importFragments[2].variables, '{ has, get }')
     assert.equal(importFragments[2].from, 'lodash')
+  })
+
+  it('Parse function component import fragments', function () {
+    const importFragments = getImportFragments(functionalComponentString)
+    assert.equal(importFragments[0].variables, 'React, { PropTypes }')
+    assert.equal(importFragments[0].from, 'react')
   })
 })

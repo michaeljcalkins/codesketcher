@@ -4,11 +4,22 @@ module.exports = function (componentString, componentName) {
   modifiedString = modifiedString.replace(/(.*COMPONENT_NAME.propTypes = {\s+)([\s\S]*?)(\s+}.*)/g, '')
   modifiedString = modifiedString.replace(/(.*COMPONENT_NAME.defaultProps = {\s+)([\s\S]*?)(\s+}.*)/g, '')
   modifiedString = modifiedString.replace(/(.*import\s+)([\s\S]*?)(\s+'.*)/g, '')
+
+  if (modifiedString.match(/(.*export default function\s+)/g)) {
+    return modifiedString
+      .replace(/(.*export default function COMPONENT_NAME\s+)/g, '')
+      .replace(/(.*export default function\s+)/g, '')
+      .trim()
+  }
+
   modifiedString = modifiedString.replace(/(.*export default class COMPONENT_NAME extends Component {\s+)/g, '').trim().slice(0, -1)
 
   var functionFragments = []
   // Find instances of function declartions
   var matches = modifiedString.match(/.+ \(.*\) {/g)
+
+  if (!matches) return false
+
   // Go through each instance and build a string of the function
   matches.forEach(function (match) {
     var functionIndex = modifiedString.indexOf(match)
