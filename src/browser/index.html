@@ -115,7 +115,7 @@
       </div>
       <div class="pane-row">
         <div class="form-column full-width">
-          <input type="text" placeholder="Filter Components" />
+          <input type="text" placeholder="Filter Components" class="components-filter" />
         </div>
       </div>
       <div class="pane-row">
@@ -206,6 +206,7 @@
     var componentInstance = null
     var compiledComponent = null
     var renderComponentString = null
+    var componentFilepathContents = []
 
     function sharedStart(array){
       var A= array.concat().sort(),
@@ -222,6 +223,7 @@
       recursive(filepath, function (err, files) {
         // Files is an array of filename
         var stringSegmentToBeRemoved = sharedStart(files)
+        componentFilepathContents = []
 
         $('.component-filepaths-container').children().remove()
         files.forEach(function (filepath) {
@@ -229,6 +231,14 @@
 
           var uniqueFilepath = filepath.replace(stringSegmentToBeRemoved, '')
           var filename = path.basename(filepath)
+
+          componentFilepathContents.push(`
+            <p class="mb1 ft12 pointer" data-filepath="${filepath}">
+              <strong>${filename}</strong>
+              <br />
+              <span class="ft11">${uniqueFilepath}</span>
+            </p>
+          `)
 
           $('.component-filepaths-container')
             .append(`
@@ -239,6 +249,8 @@
               </p>
             `)
         })
+
+        componentsFilterContents = $('.component-filepaths-container').html()
 
         $('.component-filepaths-container p').on('click', function () {
           var componentFilepath = $(this).data('filepath')
@@ -400,9 +412,46 @@
           </div>
         </div>
       `)
+
       autosize(document.querySelectorAll('textarea'))
       $('input, textarea').on('keyup', function () {
         debouncedRenderComponent()
+      })
+    })
+
+    $('.components-filter').on('keyup', function () {
+      $('.component-filepaths-container p').off()
+      var searchTerm = $(this).val().toLowerCase()
+
+      $('.component-filepaths-container').html('')
+      componentFilepathContents.forEach(function (contents) {
+        if (contents.toLowerCase().indexOf(searchTerm) === -1 && searchTerm.length > 0) return
+
+        $('.component-filepaths-container')
+          .append(contents)
+      })
+
+      $('.component-filepaths-container p').on('click', function () {
+        var componentFilepath = $(this).data('filepath')
+        var filename = path.basename(componentFilepath)
+        var contents = fs.readFileSync(componentFilepath, {encoding: 'utf-8'})
+        var openedComponentName = filename.replace('.js', '').replace('.jsx', '')
+
+        editor.setValue(contents)
+
+        var importStrings = getImportStrings(contents)
+        importStrings.forEach(function(importString) {
+          if (importString.match(/from(.*)("|')react/g)) return
+
+          var openFilepath = dialog.showOpenDialog({
+            properties: ['openDirectory']
+          })
+          if (!openFilepath) return
+
+          cachedImportFilepaths[importString] = openFilepath[0]
+        })
+
+        renderComponent()
       })
     })
 

@@ -30,45 +30,48 @@ var _react2 = _interopRequireDefault(_react);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var HudTimer = function (_PureComponent) {
-  (0, _inherits3.default)(HudTimer, _PureComponent);
+var HudAmmo = function (_PureComponent) {
+  (0, _inherits3.default)(HudAmmo, _PureComponent);
 
-  function HudTimer() {
-    (0, _classCallCheck3.default)(this, HudTimer);
-    return (0, _possibleConstructorReturn3.default)(this, (HudTimer.__proto__ || (0, _getPrototypeOf2.default)(HudTimer)).apply(this, arguments));
+  function HudAmmo() {
+    (0, _classCallCheck3.default)(this, HudAmmo);
+    return (0, _possibleConstructorReturn3.default)(this, (HudAmmo.__proto__ || (0, _getPrototypeOf2.default)(HudAmmo)).apply(this, arguments));
   }
 
-  (0, _createClass3.default)(HudTimer, [{
-    key: 'getRemainingTimeText',
-    value: function getRemainingTimeText(secondsRemaining) {
-      if (secondsRemaining <= 0) return '0:00';
-
-      var minutes = Math.floor(secondsRemaining / 60);
-      var seconds = secondsRemaining - minutes * 60;
-      seconds = ('0' + seconds).substr(-2);
-
-      return minutes + ':' + seconds;
+  (0, _createClass3.default)(HudAmmo, [{
+    key: 'renderAmmo',
+    value: function renderAmmo(ammo, isReloading, isSwitching) {
+      if (isSwitching) return _react2.default.createElement('i', { className: 'switching-weapon' });
+      if (isReloading) return _react2.default.createElement('i', { className: 'reloading-weapon' });
+      return ammo;
     }
   }, {
     key: 'render',
     value: function render() {
-      var secondsRemaining = this.props.secondsRemaining;
+      var _props = this.props,
+          ammo = _props.ammo,
+          isReloading = _props.isReloading,
+          isSwitching = _props.isSwitching;
 
 
       return _react2.default.createElement(
         'div',
-        { className: 'hud-timer hud-item' },
-        this.getRemainingTimeText(secondsRemaining)
+        { className: 'hud-ammo hud-item' },
+        this.renderAmmo(ammo, isReloading, isSwitching)
       );
     }
   }]);
-  return HudTimer;
+  return HudAmmo;
 }(_react.PureComponent);
 
-HudTimer.propTypes = {
-  secondsRemaining: _react.PropTypes.number.isRequired
+HudAmmo.propTypes = {
+  ammo: _react.PropTypes.number.isRequired,
+  isReloading: _react.PropTypes.bool,
+  isSwitching: _react.PropTypes.bool
 };
-HudTimer.defaultProps = {
-  secondsRemaining: 0
+HudAmmo.defaultProps = {
+  ammo: 0,
+  isReloading: false,
+  isSwitching: false
 };
-exports.default = HudTimer;
+exports.default = HudAmmo;
