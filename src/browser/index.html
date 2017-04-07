@@ -353,6 +353,12 @@
           React.createElement(transpiledReactComponent, componentPropValues),
           componentPreviewElement
         )
+
+        $('#component-preview').find('img').each(function() {
+          var imgSrc = $(this).attr('src')
+          var newImgSrc = path.join(basePathForImages, imgSrc)
+          $(this).attr('src', newImgSrc)
+        })
       }
       catch (e) {
         console.error(e)
