@@ -24,7 +24,7 @@ var _inherits2 = require('babel-runtime/helpers/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = require('react');
+var _react = require('/Users/michaelcalkins/Code/musicbed/node_modules/react');
 
 var _react2 = _interopRequireDefault(_react);
 

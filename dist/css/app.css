@@ -236,6 +236,10 @@ ul.navbar-nav {
   width: 18%;
 }
 
+.CodeMirror {
+  height: 100% !important;
+}
+
 .left-sidebar {
   background-color: #E7E7E7;
   bottom: 0;
