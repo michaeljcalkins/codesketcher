@@ -6442,7 +6442,7 @@ node-pre-gyp@^0.6.29, node-pre-gyp@^0.6.5:
     tar "^2.2.1"
     tar-pack "^3.4.0"
 
-node-sass@^4.0.0:
+node-sass@^4.0.0, node-sass@^4.5.2:
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/node-sass/-/node-sass-4.5.2.tgz#4012fa2bd129b1d6365117e88d9da0500d99da64"
   dependencies:
@@ -8033,6 +8033,10 @@ sass-loader@^5.0.0:
     loader-utils "^0.2.15"
     lodash.tail "^4.1.1"
     pify "^2.3.0"
+
+sass.js@^0.10.4:
+  version "0.10.4"
+  resolved "https://registry.yarnpkg.com/sass.js/-/sass.js-0.10.4.tgz#c07e0b675f2fac831a06f405f219b913a4b70d66"
 
 sax@0.4.2:
   version "0.4.2"

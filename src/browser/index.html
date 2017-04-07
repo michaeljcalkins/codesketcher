@@ -16,8 +16,6 @@
 
   <!-- Custom CSS -->
   <link href="css/app.min.css" rel="stylesheet">
-
-  <style id="styles-preview"></style>
 </head>
 <body class="sketch-styles">
   <nav class="navbar navbar-default navbar-fixed-top">
@@ -31,78 +29,17 @@
               Open
             </a>
           </li>
-          <li class="dropdown pointer">
-            <a class="dropdown-toggle" data-toggle="dropdown">
+          <li class="pointer">
+            <a>
               <i class="fa fa-plus-square"></i>
-              Create <span class="caret"></span>
+              Create
             </a>
-            <ul class="dropdown-menu">
-              <li id="create-component-class" title="Create a component class (React.Component)">
-                <a>Component Class</a>
-              </li>
-              <li id="create-component-function" title="Create a component function">
-                <a>Component Function</a>
-              </li>
-              <li class="divider"></li>
-              <li id="create-component-class" title="Create a redux component class (React.Component)">
-                <a>Redux Component Class</a>
-              </li>
-              <li id="create-component-function" title="Create a redux component function">
-                <a>Redux Component Function</a>
-              </li>
-              <li class="divider"></li>
-              <li id="create-component-class" title="Create a mobx component class (React.Component)">
-                <a>Mobx Component Class</a>
-              </li>
-              <li id="create-component-function" title="Create a mobx component function">
-                <a>Mobx Component Function</a>
-              </li>
-            </ul>
           </li>
           <li>
             <a id="save-file">
               <i class="fa fa-save"></i>
               Save
             </a>
-          </li>
-          <li style="width: 50px;"></li>
-          <li class="dropdown pointer">
-            <a class="dropdown-toggle" data-toggle="dropdown">
-              <i class="fa fa-code"></i>
-              Code Examples <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li><a href="#">constructor</a></li>
-              <li><a href="#">componentWillMount</a></li>
-              <li><a href="#">componentDidMount</a></li>
-              <li role="separator" class="divider"></li>
-              <li><a href="#">componentWillReceiveProps</a></li>
-              <li><a href="#">shouldComponentUpdate</a></li>
-              <li><a href="#">componentWillUpdate</a></li>
-              <li><a href="#">componentDidUpdate</a></li>
-              <li><a href="#">componentWillUnmount</a></li>
-              <li role="separator" class="divider"></li>
-              <li id="create-component-class" title="Create a component class (React.Component)">
-                <a>Component Class</a>
-              </li>
-              <li id="create-component-function" title="Create a component function">
-                <a>Component Function</a>
-              </li>
-              <li class="divider"></li>
-              <li id="create-component-class" title="Create a redux component class (React.Component)">
-                <a>Redux Component Class</a>
-              </li>
-              <li id="create-component-function" title="Create a redux component function">
-                <a>Redux Component Function</a>
-              </li>
-              <li class="divider"></li>
-              <li id="create-component-class" title="Create a mobx component class (React.Component)">
-                <a>Mobx Component Class</a>
-              </li>
-              <li id="create-component-function" title="Create a mobx component function">
-                <a>Mobx Component Function</a>
-              </li>
-            </ul>
           </li>
         </ul>
       </div>
@@ -140,7 +77,12 @@
       <div class="pane-header">
         Component Preview
       </div>
-      <div class="align-middle" id="component-preview" style="position: absolute; top: 33px; left: 0;bottom: 0; right: 0;"></div>
+      <div style="position: absolute; top: 33px; left: 0; bottom: 0; right: 0;">
+        <div style="position: absolute; top: 0; left: 0; bottom: 0; right: 0;">
+          <style scoped contain id="component-styles"></style>
+          <div class="align-middle" id="component-preview" style="position: absolute; top: 33px; left: 0; bottom: 0; right: 0;"></div>
+        </div>
+      </div>
     </div>
     <div class="sidebar-group bgw" style="position: absolute; bottom: 20%; left: 0; right: 0; height: 20%;">
       <div class="pane-header">
@@ -160,7 +102,7 @@
           <input type="text" placeholder="http://localhost:3000/images" class="base-path-for-images" value="https://rangersteve.io" />
 
           <span class="form-label">Included CSS File</span>
-          <input type="text" placeholder="http://localhost:3000/css/app.css" />
+          <input type="text" placeholder="http://localhost:3000/css/app.css" class="included-css-file" value="https://rangersteve.io/css/app.css" />
         </div>
       </div>
     </div>
@@ -172,6 +114,7 @@
   <script>!function(e,t){if("function"==typeof define&&define.amd)define(["exports","module"],t);else if("undefined"!=typeof exports&&"undefined"!=typeof module)t(exports,module);else{var n={exports:{}};t(n.exports,n),e.autosize=n.exports}}(this,function(e,t){"use strict";function n(e){function t(){var t=window.getComputedStyle(e,null);"vertical"===t.resize?e.style.resize="none":"both"===t.resize&&(e.style.resize="horizontal"),s="content-box"===t.boxSizing?-(parseFloat(t.paddingTop)+parseFloat(t.paddingBottom)):parseFloat(t.borderTopWidth)+parseFloat(t.borderBottomWidth),isNaN(s)&&(s=0),l()}function n(t){var n=e.style.width;e.style.width="0px",e.offsetWidth,e.style.width=n,e.style.overflowY=t}function o(e){for(var t=[];e&&e.parentNode&&e.parentNode instanceof Element;)e.parentNode.scrollTop&&t.push({node:e.parentNode,scrollTop:e.parentNode.scrollTop}),e=e.parentNode;return t}function r(){var t=e.style.height,n=o(e),r=document.documentElement&&document.documentElement.scrollTop;e.style.height="auto";var i=e.scrollHeight+s;return 0===e.scrollHeight?void(e.style.height=t):(e.style.height=i+"px",u=e.clientWidth,n.forEach(function(e){e.node.scrollTop=e.scrollTop}),void(r&&(document.documentElement.scrollTop=r)))}function l(){r();var t=Math.round(parseFloat(e.style.height)),o=window.getComputedStyle(e,null),i=Math.round(parseFloat(o.height));if(i!==t?"visible"!==o.overflowY&&(n("visible"),r(),i=Math.round(parseFloat(window.getComputedStyle(e,null).height))):"hidden"!==o.overflowY&&(n("hidden"),r(),i=Math.round(parseFloat(window.getComputedStyle(e,null).height))),a!==i){a=i;var l=d("autosize:resized");try{e.dispatchEvent(l)}catch(e){}}}if(e&&e.nodeName&&"TEXTAREA"===e.nodeName&&!i.has(e)){var s=null,u=e.clientWidth,a=null,p=function(){e.clientWidth!==u&&l()},c=function(t){window.removeEventListener("resize",p,!1),e.removeEventListener("input",l,!1),e.removeEventListener("keyup",l,!1),e.removeEventListener("autosize:destroy",c,!1),e.removeEventListener("autosize:update",l,!1),Object.keys(t).forEach(function(n){e.style[n]=t[n]}),i.delete(e)}.bind(e,{height:e.style.height,resize:e.style.resize,overflowY:e.style.overflowY,overflowX:e.style.overflowX,wordWrap:e.style.wordWrap});e.addEventListener("autosize:destroy",c,!1),"onpropertychange"in e&&"oninput"in e&&e.addEventListener("keyup",l,!1),window.addEventListener("resize",p,!1),e.addEventListener("input",l,!1),e.addEventListener("autosize:update",l,!1),e.style.overflowX="hidden",e.style.wordWrap="break-word",i.set(e,{destroy:c,update:l}),t()}}function o(e){var t=i.get(e);t&&t.destroy()}function r(e){var t=i.get(e);t&&t.update()}var i="function"==typeof Map?new Map:function(){var e=[],t=[];return{has:function(t){return e.indexOf(t)>-1},get:function(n){return t[e.indexOf(n)]},set:function(n,o){e.indexOf(n)===-1&&(e.push(n),t.push(o))},delete:function(n){var o=e.indexOf(n);o>-1&&(e.splice(o,1),t.splice(o,1))}}}(),d=function(e){return new Event(e,{bubbles:!0})};try{new Event("test")}catch(e){d=function(e){var t=document.createEvent("Event");return t.initEvent(e,!0,!1),t}}var l=null;"undefined"==typeof window||"function"!=typeof window.getComputedStyle?(l=function(e){return e},l.destroy=function(e){return e},l.update=function(e){return e}):(l=function(e,t){return e&&Array.prototype.forEach.call(e.length?e:[e],function(e){return n(e,t)}),e},l.destroy=function(e){return e&&Array.prototype.forEach.call(e.length?e:[e],o),e},l.update=function(e){return e&&Array.prototype.forEach.call(e.length?e:[e],r),e}),t.exports=l});</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
+  <!-- <script src="https://cdn.rawgit.com/thingsinjars/jQuery-Scoped-CSS-plugin/master/jquery.scoped.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/javascript/javascript.min.js"></script>
   <script src="http://codemirror.net/mode/xml/xml.js"></script>
@@ -195,17 +138,18 @@
     //   })(console[verb].bind(console), verb, log)
     // })
 
+    var Sass = require('sass.js')
     var _ = require('lodash')
     var getImportStrings = require('./js/getImportStrings')
     var replaceFromWithPath = require('./js/replaceFromWithPath')
     var recursive = require('recursive-readdir');
     var fs = require('fs')
     var path = require('path')
-    var fs = require('fs')
     var babel = require("babel-core")
     var ReactDOM = require('react-dom')
     var React = require('react')
     var dialog = require('electron').remote.dialog
+    var request = require('request')
 
     var editor = CodeMirror(document.getElementById('editor'), {
       lineNumbers: true,
@@ -216,6 +160,7 @@
       theme: 'monokai'
     })
 
+    var basePathForImages = $('.base-path-for-images').val()
     var cachedProjectFilepaths = JSON.parse(window.localStorage.getItem('cachedProjectFilepaths')) || {}
     var isFunctionComponent = false
     var cachedImportFilepaths = {}
@@ -226,12 +171,154 @@
     var compiledComponent = null
     var renderComponentString = null
     var componentFilepathContents = []
+    var includedCss = null
 
     function sharedStart (array){
       var A = array.concat().sort(),
       a1 = A[0], a2 = A[A.length-1], L= a1.length, i= 0;
       while(i < L && a1.charAt(i) === a2.charAt(i)) i++;
       return a1.substring(0, i);
+    }
+
+    function stopListening () {
+      console.log('stop')
+      $(document).add('*').off()
+      autosize.destroy(document.querySelectorAll('textarea'))
+    }
+
+    function startListening () {
+      console.log('start')
+
+      autosize(document.querySelectorAll('textarea'))
+
+      $('input, textarea').on('keyup', function () {
+        debouncedRenderComponent()
+      })
+
+      $('.component-filepaths-container p').on('click', function () {
+        var componentFilepath = $(this).data('filepath')
+        openComponentFile(componentFilepath)
+      })
+
+      $('.included-css-file').on('keyup', function () {
+        request.get($(this).val(), function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            includedCss = `#component-preview{${body}}`
+
+            var result = Sass.compile(includedCss, function (result) {
+              var css = result.text
+              if (basePathForImages) {
+                var matches = css.match(/(\/.*?\.\w{3})/img)
+                matches.forEach(function(match) {
+                  console.log(match)
+                  try {
+                    css = css.replace(new RegExp(match, 'g'), path.join(basePathForImages, match))
+                  } catch (e) {
+                    console.error('Could not match', match)
+                  }
+                })
+              }
+
+              console.log(result)
+              $('#component-styles').html(css)
+              debouncedRenderComponent()
+            });
+          }
+        })
+      })
+
+      $('.open-project-directory').on('click', function () {
+        var path = dialog.showOpenDialog({
+          properties: ['openDirectory']
+        })
+        if (!path) return
+
+        openProjectDirectory(path[0])
+      })
+
+      $('#open-file').on('click', function() {
+        var openFilepath = dialog.showOpenDialog({
+          properties: ['openFile']
+        })
+        if (!openFilepath) return
+
+        componentFilepath = openFilepath[0]
+
+        $('input,textarea').val('')
+        $('input').attr('checked', false)
+
+        var filename = path.basename(componentFilepath)
+        var contents = fs.readFileSync(componentFilepath, {encoding: 'utf-8'})
+        var openedComponentName = filename.replace('.js', '').replace('.jsx', '')
+
+        editor.setValue(contents)
+
+        var importStrings = getImportStrings(contents)
+        importStrings.forEach(function(importString) {
+          if (cachedProjectFilepaths[currentWorkingDirectory][importString]) return
+
+          var openFilepath = dialog.showOpenDialog({
+            properties: ['openFile', 'openDirectory']
+          })
+          if (!openFilepath) return
+
+          cachedProjectFilepaths[currentWorkingDirectory][importString] = openFilepath[0]
+        })
+
+        debouncedRenderComponent()
+        startListening()
+      })
+
+      $('#save-file').on('click', function() {
+        var path = require('path')
+        var fs = require('fs')
+
+        if (!componentFilepath) {
+          var app = require('electron')
+          var newFilepath = dialog.showSaveDialog()
+
+          if (!newFilepath) return
+          componentFilepath = newFilepath[0]
+        }
+
+        fs.writeFileSync(componentFilepath, compiledComponent)
+      })
+
+      /**
+       * Create property data fields
+       */
+      $('.add-property-seed-data').on('click', function() {
+        stopListening()
+        $('.component-properties-seed-data-container').append(`
+          <div class="pane-row component-property-seed-data-container">
+            <div class="form-column one-fourth">
+              <input type="text" placeholder="Key" value="" />
+            </div>
+            <div class="form-column one-half">
+              <textarea placeholder="Value"></textarea>
+            </div>
+            <div class="form-column one-fourth">
+              <button class="btn btn-default btn-xs pull-right"><i class="fa fa-remove"></i></button>
+            </div>
+          </div>
+        `)
+        startListening()
+      })
+
+      /**
+       * Filter components
+       */
+      $('.components-filter').on('keyup', function () {
+        stopListening()
+        var searchTerm = $(this).val().toLowerCase()
+        $('.component-filepaths-container').html('')
+        componentFilepathContents.forEach(function (contents) {
+          if (contents.toLowerCase().indexOf(searchTerm) === -1 && searchTerm.length > 0) return
+
+          $('.component-filepaths-container').append(contents)
+        })
+        startListening()
+      })
     }
 
     function openComponentFile (filepath) {
@@ -247,6 +334,7 @@
         cachedProjectFilepaths[currentWorkingDirectory] = cachedProjectFilepaths[currentWorkingDirectory] || {}
         if (cachedProjectFilepaths[currentWorkingDirectory][importString]) return
 
+        console.log(importString)
         var openFilepath = dialog.showOpenDialog({
           properties: ['openFile', 'openDirectory']
         })
@@ -257,14 +345,14 @@
 
       window.localStorage.setItem('cachedProjectFilepaths', JSON.stringify(cachedProjectFilepaths))
 
-      renderComponent()
+      debouncedRenderComponent()
     }
 
     function openProjectDirectory (directoryPath) {
+      stopListening()
+
       window.localStorage.setItem('lastOpenedDirectory', directoryPath)
       currentWorkingDirectory = directoryPath
-
-      $('.component-filepaths-container div').off()
 
       recursive(directoryPath, function (err, files) {
         // Files is an array of filename
@@ -298,18 +386,14 @@
 
         componentsFilterContents = $('.component-filepaths-container').html()
 
-        $('.component-filepaths-container p').on('click', function () {
-          var componentFilepath = $(this).data('filepath')
-          openComponentFile(componentFilepath)
-        })
+        startListening()
       })
     }
 
     var debouncedRenderComponent = _.debounce(renderComponent, 300)
     function renderComponent () {
       compiledComponent = editor.getValue()
-      var basePathForImages = $('.base-path-for-images').val()
-      console.log(basePathForImages)
+      basePathForImages = $('.base-path-for-images').val()
 
       try {
         renderComponentString = compiledComponent
@@ -346,7 +430,7 @@
           var key = $(this).find('div:first-child input').val()
           var value = $(this).find('div:nth-child(2) textarea').val()
           if (value.length === 0) return
-          componentPropValues[key] = eval('(' + value + ')')
+          componentPropValues[key] = eval('(' + value + ')') // eslint-disable-line
         })
 
         componentInstance = ReactDOM.render(
@@ -365,122 +449,8 @@
       }
     }
 
-    // editor.getSession().on('change', function(e) {
-    //   debouncedRenderComponent()
-    // })
-
     editor.on('change', function(e) {
       debouncedRenderComponent()
-    })
-
-    $('.open-project-directory').on('click', function () {
-      var path = dialog.showOpenDialog({
-        properties: ['openDirectory']
-      })
-      if (!path) return
-
-      openProjectDirectory(path[0])
-    })
-
-    $('#open-file').on('click', function() {
-      var openFilepath = dialog.showOpenDialog({
-        properties: ['openFile']
-      })
-      if (!openFilepath) return
-
-      autosize.destroy(document.querySelectorAll('textarea'));
-      $('input, textarea').off('keyup')
-
-      componentFilepath = openFilepath[0]
-
-      $('input,textarea').val('')
-      $('input').attr('checked', false)
-
-      var filename = path.basename(componentFilepath)
-      var contents = fs.readFileSync(componentFilepath, {encoding: 'utf-8'})
-      var openedComponentName = filename.replace('.js', '').replace('.jsx', '')
-
-      editor.setValue(contents)
-
-      var importStrings = getImportStrings(contents)
-      importStrings.forEach(function(importString) {
-        if (cachedProjectFilepaths[currentWorkingDirectory][importString]) return
-
-        var openFilepath = dialog.showOpenDialog({
-          properties: ['openFile', 'openDirectory']
-        })
-        if (!openFilepath) return
-
-        cachedProjectFilepaths[currentWorkingDirectory][importString] = openFilepath[0]
-      })
-
-      renderComponent()
-      autosize(document.querySelectorAll('textarea'))
-      $('input, textarea').on('keyup', function () {
-        debouncedRenderComponent()
-      })
-    })
-
-    $('#save-file').on('click', function() {
-      var path = require('path')
-      var fs = require('fs')
-
-      if (!componentFilepath) {
-        var app = require('electron')
-        var newFilepath = dialog.showSaveDialog()
-
-        if (!newFilepath) return
-        componentFilepath = newFilepath[0]
-      }
-
-      fs.writeFileSync(componentFilepath, compiledComponent)
-    })
-
-    /**
-     * Create property data fields
-     */
-    $('.add-property-seed-data').on('click', function() {
-      autosize.destroy(document.querySelectorAll('textarea'));
-      $('input, textarea').off('keyup')
-
-      $('.component-properties-seed-data-container').append(`
-        <div class="pane-row component-property-seed-data-container">
-          <div class="form-column one-fourth">
-            <input type="text" placeholder="Key" value="" />
-          </div>
-          <div class="form-column one-half">
-            <textarea placeholder="Value"></textarea>
-          </div>
-          <div class="form-column one-fourth">
-            <button class="btn btn-default btn-xs pull-right"><i class="fa fa-remove"></i></button>
-          </div>
-        </div>
-      `)
-
-      autosize(document.querySelectorAll('textarea'))
-      $('input, textarea').on('keyup', function () {
-        debouncedRenderComponent()
-      })
-    })
-
-    /**
-     * Filter components
-     */
-    $('.components-filter').on('keyup', function () {
-      $('.component-filepaths-container p').off()
-      var searchTerm = $(this).val().toLowerCase()
-
-      $('.component-filepaths-container').html('')
-      componentFilepathContents.forEach(function (contents) {
-        if (contents.toLowerCase().indexOf(searchTerm) === -1 && searchTerm.length > 0) return
-
-        $('.component-filepaths-container').append(contents)
-      })
-
-      $('.component-filepaths-container p').on('click', function () {
-        var componentFilepath = $(this).data('filepath')
-        openComponentFile(componentFilepath)
-      })
     })
 
     var lastOpenedDirectory = window.localStorage.getItem('lastOpenedDirectory')
