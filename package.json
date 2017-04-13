@@ -1,11 +1,12 @@
 {
-  "name": "CodeSketcher",
+  "name": "ReactEcho",
+  "private": true,
   "version": "0.0.0",
   "main": "src/main.js",
-  "manifestUrl": "https://raw.githubusercontent.com/michaeljcalkins/codesketcher-updates/master/package.json",
   "scripts": {
     "test": "NODE_ENV=test mocha --require babel-core/register src/browser/js/**/*.test.js",
     "test-watch": "nodemon -q -x 'npm test'",
+    "watch": "nodemon --ignore 'src/**.js' -q -x 'gulp && babel resources/js --out-dir src/browser/js --presets=latest,react --plugins=transform-class-properties,transform-es2015-classes,transform-runtime,transform-object-rest-spread --ignore test.js'",
     "start": "electron ."
   },
   "standard": {
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-react": "^6.23.0",
     "chai": "^1.9.1",
     "chokidar": "^0.8.2",
@@ -68,13 +70,13 @@
     "highlight.js": "^9.1.0",
     "image-size": "^0.4.0",
     "jquery": "^2.2.0",
-    "laravel-mix": "^0.8.8",
     "lodash": "^4.0.0",
     "ncp": "^0.5.1",
     "node-sass": "^4.5.2",
     "react": "^15.4.2",
     "react-autobind": "^1.0.6",
     "react-dom": "^15.4.2",
+    "react-hotkeys": "^0.9.0",
     "react-redux": "^5.0.3",
     "recursive-readdir": "^2.1.1",
     "request": "^2.79.0",

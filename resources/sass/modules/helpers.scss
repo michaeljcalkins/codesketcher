@@ -41,7 +41,41 @@
 
 .ff-bangers { font-family: Bangers, Arial; }
 
-.text-stroke { text-shadow: -1px -1px 0 #504F4D, 1px -1px 0 #504F4D, -1px 1px 0 #504F4D, 1px 1px 0 #504F4D; }
+.text-stroke {
+  text-shadow: -1px -1px 0 #504F4D,
+    1px -1px 0 #504F4D,
+    -1px 1px 0 #504F4D,
+    1px 1px 0 #504F4D;
+}
+
+.one-fifth { width: 20% }
+.one-fourth { width: 25% }
+.three-fourths { width: 75% }
+.full-width { width: 100%; }
+.one-half { width: 50%; }
+.two-thirds { width: 66.66%; }
+.one-third { width: 33.33%; }
+
+.align-middle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bt0 { border-top: none }
+.br1 { border-right: 1px solid #B8B8B8; }
+
+.h100 { height: 100% }
+.h75 { height: 75% }
+.h70 { height: 70% }
+.h50 { height: 50% }
+.h30 { height: 30% }
+.h25 { height: 25% }
+
+.w50 { width: 50% }
+.w40 { width: 40% }
+.w45 { width: 45% }
+.w10 { width: 10% }
 
 .db { display: block }
 .pos-rel { position: relative }

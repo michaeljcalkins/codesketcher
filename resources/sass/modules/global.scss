@@ -71,30 +71,16 @@ body {
     margin-top: 3px;
 }
 
-.one-fifth { width: 20% }
-.one-fourth { width: 25% }
-.three-fourths { width: 75% }
-.full-width { width: 100%; }
-.one-half { width: 50%; }
-.two-thirds { width: 66.66%; }
-.one-third { width: 33.33%; }
-
-.align-middle {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+#component-preview {
+  position: absolute;
+  top: 33px;
+  left: 0;
+  bottom: 0;
+  right: 0;
 }
 
-.mr1 { margin-right: 5px }
 
-.bt0 { border-top: none }
-.br1 { border-right: 1px solid #B8B8B8; }
 
-.h100 { height: 100% }
-.h75 { height: 75% }
-.h70 { height: 70% }
-.h50 { height: 50% }
-.h30 { height: 30% }
-.h25 { height: 25% }
 
-.w50 { width: 50% }
+
+
