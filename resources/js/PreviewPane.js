@@ -14,13 +14,14 @@ export default class PreviewPane extends React.Component {
       onSetPropertySeed
     } = this.props
 
-    return propertySeeds.map((property, key) => {
+    return propertySeeds.map((propertySeed, key) => {
       return (
-        <tr className='pane-row bt0' key={'property-seed-' + key}>
+        <tr className='pane-row bt0' key={'property-seed-' + propertySeed.id}>
           <td className='form-column w45'>
             <input
               type='text'
               placeholder='Key'
+              defaultValue={propertySeed.key}
               onChange={(e) => onSetPropertySeed(e, key, 'key')}
             />
           </td>
@@ -28,6 +29,7 @@ export default class PreviewPane extends React.Component {
             <input
               type='text'
               placeholder='Value'
+              defaultValue={propertySeed.value}
               onChange={(e) => onSetPropertySeed(e, key, 'value')}
             />
           </td>

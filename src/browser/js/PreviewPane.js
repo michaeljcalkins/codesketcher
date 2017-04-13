@@ -55,16 +55,17 @@ var PreviewPane = function (_React$Component) {
           onSetPropertySeed = _props.onSetPropertySeed;
 
 
-      return propertySeeds.map(function (property, key) {
+      return propertySeeds.map(function (propertySeed, key) {
         return _react2.default.createElement(
           'tr',
-          { className: 'pane-row bt0', key: 'property-seed-' + key },
+          { className: 'pane-row bt0', key: 'property-seed-' + propertySeed.id },
           _react2.default.createElement(
             'td',
             { className: 'form-column w45' },
             _react2.default.createElement('input', {
               type: 'text',
               placeholder: 'Key',
+              defaultValue: propertySeed.key,
               onChange: function onChange(e) {
                 return onSetPropertySeed(e, key, 'key');
               }
@@ -76,6 +77,7 @@ var PreviewPane = function (_React$Component) {
             _react2.default.createElement('input', {
               type: 'text',
               placeholder: 'Value',
+              defaultValue: propertySeed.value,
               onChange: function onChange(e) {
                 return onSetPropertySeed(e, key, 'value');
               }

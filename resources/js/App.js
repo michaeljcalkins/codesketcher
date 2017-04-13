@@ -311,9 +311,13 @@ export default class App extends React.Component {
   handleAddPropertySeed () {
     const { propertySeeds } = this.state
 
+    let newPropertySeeds = [ {
+      id: Date.now()
+    }, ...propertySeeds]
+
     this.setState({
-      propertySeeds: [{}, ...propertySeeds]
-    })
+      propertySeeds: newPropertySeeds
+    }, () => this.debouncedRenderComponent())
   }
 
   handleSetPropertySeed (e, key, propName) {

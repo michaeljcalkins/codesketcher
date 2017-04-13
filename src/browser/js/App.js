@@ -411,17 +411,25 @@ var App = function (_React$Component) {
   }, {
     key: 'handleAddPropertySeed',
     value: function handleAddPropertySeed() {
+      var _this9 = this;
+
       var propertySeeds = this.state.propertySeeds;
 
 
+      var newPropertySeeds = [{
+        id: Date.now()
+      }].concat((0, _toConsumableArray3.default)(propertySeeds));
+
       this.setState({
-        propertySeeds: [{}].concat((0, _toConsumableArray3.default)(propertySeeds))
+        propertySeeds: newPropertySeeds
+      }, function () {
+        return _this9.debouncedRenderComponent();
       });
     }
   }, {
     key: 'handleSetPropertySeed',
     value: function handleSetPropertySeed(e, key, propName) {
-      var _this9 = this;
+      var _this10 = this;
 
       var propertySeeds = this.state.propertySeeds;
 
@@ -432,13 +440,13 @@ var App = function (_React$Component) {
       this.setState({
         propertySeeds: newPropertySeeds
       }, function () {
-        return _this9.debouncedRenderComponent();
+        return _this10.debouncedRenderComponent();
       });
     }
   }, {
     key: 'handleRemovePropertySeed',
     value: function handleRemovePropertySeed(key) {
-      var _this10 = this;
+      var _this11 = this;
 
       var propertySeeds = this.state.propertySeeds;
 
@@ -450,7 +458,7 @@ var App = function (_React$Component) {
       this.setState({
         propertySeeds: newPropertySeeds
       }, function () {
-        return _this10.debouncedRenderComponent();
+        return _this11.debouncedRenderComponent();
       });
     }
   }, {
