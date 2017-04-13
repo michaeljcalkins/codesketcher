@@ -6,7 +6,7 @@
   "scripts": {
     "test": "NODE_ENV=test mocha --require babel-core/register src/browser/js/**/*.test.js",
     "test-watch": "nodemon -q -x 'npm test'",
-    "watch": "nodemon --ignore 'src/**.js' -q -x 'gulp && babel resources/js --out-dir src/browser/js --presets=latest,react --plugins=transform-class-properties,transform-es2015-classes,transform-runtime,transform-object-rest-spread --ignore test.js'",
+    "watch": "nodemon --ignore 'src/**.js' -q -x 'gulp && babel resources/js --out-dir src/browser/js --presets=latest,react --plugins=transform-object-rest-spread,transform-class-properties,transform-es2015-classes,transform-runtime --ignore test.js'",
     "start": "electron ."
   },
   "standard": {

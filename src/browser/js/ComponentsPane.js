@@ -101,13 +101,13 @@ var ComponentsPane = function (_React$Component) {
 
       return _react2.default.createElement(
         'div',
-        { className: 'file-sidebar' },
+        { className: 'pane pane-components' },
         _react2.default.createElement(
           'div',
-          { className: 'sidebar-group' },
+          { className: 'pane-group' },
           _react2.default.createElement(
             'div',
-            { className: 'pane-header bt0' },
+            { className: 'pane-header' },
             'Components',
             _react2.default.createElement(
               'button',
@@ -120,16 +120,20 @@ var ComponentsPane = function (_React$Component) {
           ),
           _react2.default.createElement(
             'div',
-            { className: 'pane-row' },
+            { className: 'pane-body' },
             _react2.default.createElement(
               'div',
-              { className: 'form-column full-width' },
-              _react2.default.createElement('input', {
-                type: 'text',
-                ref: 'searchTerm',
-                placeholder: 'Filter Components',
-                onChange: this.handleSearchTermInput
-              })
+              { className: 'pane-row' },
+              _react2.default.createElement(
+                'div',
+                { className: 'form-column full-width' },
+                _react2.default.createElement('input', {
+                  type: 'text',
+                  ref: 'searchTerm',
+                  placeholder: 'Filter Components',
+                  onChange: this.handleSearchTermInput
+                })
+              )
             )
           ),
           _react2.default.createElement(

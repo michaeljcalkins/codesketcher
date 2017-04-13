@@ -3,12 +3,7 @@ html, body {
   text-rendering: optimizelegibility;
 }
 
-html {
-  overflow-x: hidden;
-}
-
 body {
-  padding-top: 85px;
   background: #f2f2f2;
 }
 
@@ -16,77 +11,16 @@ body {
   width: 10px;
 }
 
-.pane-row {
-  clear: both;
-  float: left;
-  width: 100%;
-}
-
-.pane-header {
-  background: #f8f8f8;
-  border-bottom: 1px solid #B8B8B8;
-  border-top: 1px solid #B8B8B8;
-  clear: both;
-  font-size: 11px;
-  font-weight: bold;
-  padding: 8px 5px;
-  width: 100%;
-}
-.pane-header button {
-  margin-top: -4px;
-  width: 25px;
-}
-
-.form-column {
-  float: left;
-  font-size: 10px;
-  width: 33%;
-  padding: 5px;
-}
-
-.form-label {
-  line-height: 23px;
-  font-size: 11px;
-}
-
-.form-column input,
-.form-column textarea {
-  border: 1px solid #b6b6b6;
-  font-size: 11px;
-  padding: 3px 3px;
-  margin-bottom: 2px;
-  margin-top: 2px;
-  width: 100%;
-}
-
-.form-column label.checkbox {
-  cursor: pointer;
-  line-height: 16px;
-  margin: 5px 0 0;
-  padding-left: 15px;
-}
-
-.form-column input[type="range"] {
-  margin-top: 3px;
-}
-
-#component-preview {
+/**
+ * Header
+ */
+.navbar {
   position: absolute;
-  top: 33px;
-  left: 0;
-  bottom: 0;
+  top: 0;
   right: 0;
+  left: 0;
 }
 
-.sub-header {
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-/*
-* Top navigation
-* Hide default border to remove 1px line.
-*/
 .navbar-fixed-top {
   border: 0;
 }
@@ -164,33 +98,197 @@ ul.navbar-nav {
   color: #000;
 }
 
-.file-sidebar {
+/**
+ * Pane
+ */
+.pane .pane-group {
+  background: transparent;
+  border-radius: 0;
+  border: 0;
+  bottom: 0;
+  box-shadow: none;
+  left: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.pane .pane-group:first-child .pane-header {
+  border-top: 0;
+}
+
+.pane-group .pane-body {
+  border: 0 !important;
+}
+
+.pane-group ul {
+  margin: 0;
+  padding: 0;
+}
+
+.pane-group ul li {
+  margin: 0;
+  padding: 0;
+}
+
+.pane-group ul li a {
+  padding: 5px 15px;
+}
+
+.pane-group ul li.active {
+  background: #6d9ee1;
+}
+
+.pane-header {
+  background: #f8f8f8;
+  border-bottom: 1px solid #B8B8B8;
+  border-top: 1px solid #B8B8B8;
+  clear: both;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 8px 5px;
+  width: 100%;
+}
+.pane-header button {
+  margin-top: -4px;
+  width: 25px;
+}
+
+.pane-body {
+  border-radius: 0;
+  font-size: 12px;
+  margin: 0;
+  border-bottom: 1px solid #ddd;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.pane-row {
+  clear: both;
+  float: left;
+  width: 100%;
+}
+
+.form-column {
+  float: left;
+  font-size: 10px;
+  width: 33%;
+  padding: 5px;
+}
+
+.form-label {
+  line-height: 23px;
+  font-size: 11px;
+}
+
+.form-column input,
+.form-column textarea {
+  border: 1px solid #b6b6b6;
+  font-size: 11px;
+  padding: 3px 3px;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  width: 100%;
+}
+
+.form-column label.checkbox {
+  cursor: pointer;
+  line-height: 16px;
+  margin: 5px 0 0;
+  padding-left: 15px;
+}
+
+.form-column input[type="range"] {
+  margin-top: 3px;
+}
+
+/**
+ * Editor Pane
+ */
+.pane-components {
+  position: absolute;
   left: 0;
   bottom: 0;
-  top: 0;
+  top: 85px;
   width: 18%;
 }
 
-.CodeMirror {
-  height: 100% !important;
-}
-
-.left-sidebar {
+/**
+ * Preview Pane
+ */
+.pane-preview {
   background-color: #E7E7E7;
   bottom: 0;
-  box-sizing: content-box;
-  left: 18%;
-  overflow-y: auto;
-  /* Scrollable contents if viewport is shorter than content. */
-  position: fixed;
+  display: block;
+  position: absolute;
+  right: 0;
   top: 85px;
   width: 41%;
   z-index: 2;
 }
-.left-sidebar .sidebar-group:first-child .pane-header {
+.pane-preview .ui-resizable-handle.ui-resizable-w {
+  width: 6px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  cursor: col-resize;
+}
+.pane-preview .pane-group-preview {
+  height: 50%;
+  top: 0;
+}
+.pane-preview .pane-group-prop-editor {
+  height: 25%;
+  top: 50%;
+}
+.pane-preview .pane-group-settings {
+  height: 25%;
+  top: 75%;
+}
+
+.align-object-btns {
+  background: #f3f3f3;
+  width: 100%;
+  border-bottom: 1px solid #B8B8B8;
+}
+
+.align-object-btns button.btn-default {
+  background: #f3f3f3;
+  border: 0;
+  border-radius: 0;
+  width: 16.8%;
+}
+
+#component-preview {
+  background: #fff;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 33px;
+}
+
+/**
+ * Editor Pane
+ */
+.pane-editor {
+  background-color: #E7E7E7;
+  bottom: 0;
+  box-sizing: content-box;
+  left: 18%;
+  right: 41%;
+  position: absolute;
+  top: 85px;
+  width: 41%;
+  z-index: 2;
+}
+.pane-editor .pane-group:first-child .pane-header {
   border-top: 0;
 }
-.left-sidebar .ui-resizable-handle.ui-resizable-e {
+.pane-editor .ui-resizable-handle.ui-resizable-e {
   width: 6px;
   position: absolute;
   top: 0;
@@ -199,52 +297,8 @@ ul.navbar-nav {
   cursor: col-resize;
 }
 
-.panel-sidebar {
-  margin: 0 -20px 30px;
-  box-shadow: none;
-  border-radius: 0;
-  background: transparent;
-  border: 0;
-}
-
-.panel-sidebar .panel-body {
-  border: 0 !important;
-}
-
-.panel-sidebar ul {
-  margin: 0;
-  padding: 0;
-}
-
-.panel-sidebar ul li {
-  margin: 0;
-  padding: 0;
-}
-
-.panel-sidebar ul li a {
-  padding: 5px 15px;
-}
-
-.panel-sidebar ul li.active {
-  background: #6d9ee1;
-}
-
-.panel-sidebar .panel-heading {
-  background: #f3f3f3;
-  border-radius: 0;
-  padding: 0 10px;
-  line-height: 30px;
-  font-size: 12px;
-  border-bottom: 1px solid #b8b8b8;
-  height: 30px;
-}
-
-.panel-sidebar .panel-body {
-  border-radius: 0;
-  font-size: 12px;
-  margin: 0;
-  border-bottom: 1px solid #ddd;
-  padding: 0;
+.CodeMirror {
+  height: 100% !important;
 }
 
 /* Sidebar navigation */
@@ -268,74 +322,6 @@ ul.navbar-nav {
 .nav-sidebar > .active > a:focus {
   color: #fff;
   background-color: #428bca;
-}
-
-.right-sidebar {
-  background-color: #E7E7E7;
-  bottom: 0;
-  display: block;
-  overflow-y: auto;
-  /* Scrollable contents if viewport is shorter than content. */
-  position: fixed;
-  right: 0;
-  top: 85px;
-  width: 41%;
-  z-index: 2;
-}
-.right-sidebar .sidebar-group:first-child .pane-header {
-  border-top: 0;
-}
-.right-sidebar .ui-resizable-handle.ui-resizable-w {
-  width: 6px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  cursor: col-resize;
-}
-
-.right-sidebar[style] {
-  left: auto !important;
-}
-
-.align-object-btns {
-  background: #f3f3f3;
-  width: 100%;
-  border-bottom: 1px solid #B8B8B8;
-}
-
-.align-object-btns button.btn-default {
-  background: #f3f3f3;
-  border: 0;
-  border-radius: 0;
-  width: 16.8%;
-}
-
-#component-preview {
-  background: #fff;
-}
-
-#console-container p {
-  font-size: 12px;
-  padding: 2px 4px;
-  margin: 0;
-}
-
-.console-log {
-  border-bottom: 1px solid #f3f3f3;
-  background: white;
-}
-
-.console-warn {
-  background: #FFFBE6;
-  border-bottom: 1px solid #FFF5C2;
-  color: #684911;
-}
-
-.console-error {
-  background: #FEEFEF;
-  border-bottom: 1px solid #FDD8D8;
-  color: #F93D3E;
 }
 
 .bgw {

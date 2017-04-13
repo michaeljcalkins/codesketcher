@@ -70,10 +70,10 @@ var EditorPane = function (_React$Component) {
 
       return _react2.default.createElement(
         'div',
-        { className: 'left-sidebar' },
+        { className: 'pane pane-editor' },
         _react2.default.createElement(
           'div',
-          { className: 'sidebar-group h100 pos-rel' },
+          { className: 'pane-group h100 pos-rel' },
           _react2.default.createElement(
             'div',
             { className: 'pane-header' },

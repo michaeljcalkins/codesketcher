@@ -45,9 +45,9 @@ export default class ComponentsPane extends React.Component {
     const { onOpenComponentOrDirectory } = this.props
 
     return (
-      <div className='file-sidebar'>
-        <div className='sidebar-group'>
-          <div className='pane-header bt0'>
+      <div className='pane pane-components'>
+        <div className='pane-group'>
+          <div className='pane-header'>
             Components
             <button
               className='btn btn-default btn-xs pull-right mr1'
@@ -56,14 +56,16 @@ export default class ComponentsPane extends React.Component {
               <i className='fa fa-folder' />
             </button>
           </div>
-          <div className='pane-row'>
-            <div className='form-column full-width'>
-              <input
-                type='text'
-                ref='searchTerm'
-                placeholder='Filter Components'
-                onChange={this.handleSearchTermInput}
-                  />
+          <div className='pane-body'>
+            <div className='pane-row'>
+              <div className='form-column full-width'>
+                <input
+                  type='text'
+                  ref='searchTerm'
+                  placeholder='Filter Components'
+                  onChange={this.handleSearchTermInput}
+                />
+              </div>
             </div>
           </div>
           <div className='pane-row'>

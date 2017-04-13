@@ -49,7 +49,10 @@ var PreviewPane = function (_React$Component) {
   (0, _createClass3.default)(PreviewPane, [{
     key: 'renderPropertyDataFields',
     value: function renderPropertyDataFields() {
-      var propertySeeds = this.props.propertySeeds;
+      var _props = this.props,
+          propertySeeds = _props.propertySeeds,
+          onRemovePropertySeed = _props.onRemovePropertySeed,
+          onSetPropertySeed = _props.onSetPropertySeed;
 
 
       return propertySeeds.map(function (property, key) {
@@ -59,19 +62,37 @@ var PreviewPane = function (_React$Component) {
           _react2.default.createElement(
             'td',
             { className: 'form-column w45' },
-            _react2.default.createElement('input', { type: 'text', placeholder: 'Key' })
+            _react2.default.createElement('input', {
+              type: 'text',
+              placeholder: 'Key',
+              onChange: function onChange(e) {
+                return onSetPropertySeed(e, key, 'key');
+              }
+            })
           ),
           _react2.default.createElement(
             'td',
             { className: 'form-column w45' },
-            _react2.default.createElement('input', { type: 'text', placeholder: 'Value' })
+            _react2.default.createElement('input', {
+              type: 'text',
+              placeholder: 'Value',
+              onChange: function onChange(e) {
+                return onSetPropertySeed(e, key, 'value');
+              }
+            })
           ),
           _react2.default.createElement(
             'td',
             { className: 'form-column w10' },
             _react2.default.createElement(
               'button',
-              { className: 'btn btn-default btn-xs pull-right', style: { marginTop: '2px' } },
+              {
+                className: 'btn btn-default btn-xs pull-right',
+                onClick: function onClick() {
+                  return onRemovePropertySeed(key);
+                },
+                style: { marginTop: '2px' }
+              },
               _react2.default.createElement('i', { className: 'fa fa-remove' })
             )
           )
@@ -81,18 +102,18 @@ var PreviewPane = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var _props = this.props,
-          onSetBasePathForImages = _props.onSetBasePathForImages,
-          onSetIncludedCss = _props.onSetIncludedCss,
-          onAddPropertySeed = _props.onAddPropertySeed;
+      var _props2 = this.props,
+          onSetBasePathForImages = _props2.onSetBasePathForImages,
+          onSetIncludedCss = _props2.onSetIncludedCss,
+          onAddPropertySeed = _props2.onAddPropertySeed;
 
 
       return _react2.default.createElement(
         'div',
-        { className: 'right-sidebar' },
+        { className: 'pane pane-preview' },
         _react2.default.createElement(
           'div',
-          { className: 'sidebar-group bgw', style: { position: 'absolute', left: 0, top: 0, right: 0, height: '60%' } },
+          { className: 'pane-group pane-group-preview' },
           _react2.default.createElement(
             'div',
             { className: 'pane-header' },
@@ -100,7 +121,7 @@ var PreviewPane = function (_React$Component) {
           ),
           _react2.default.createElement(
             'div',
-            { style: { position: 'absolute', top: '33px', left: 0, bottom: 0, right: 0 } },
+            { className: 'pane-body' },
             _react2.default.createElement(
               'div',
               { style: { position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 } },
@@ -111,7 +132,7 @@ var PreviewPane = function (_React$Component) {
         ),
         _react2.default.createElement(
           'div',
-          { className: 'sidebar-group bgw', style: { position: 'absolute', overflowY: 'scroll', bottom: '20%', left: 0, right: 0, height: '20%' } },
+          { className: 'pane-group pane-group-prop-editor' },
           _react2.default.createElement(
             'div',
             { className: 'pane-header' },
@@ -127,7 +148,7 @@ var PreviewPane = function (_React$Component) {
           ),
           _react2.default.createElement(
             'div',
-            { className: 'component-properties-seed-data-container' },
+            { className: 'pane-body' },
             _react2.default.createElement(
               'table',
               { className: 'table' },
@@ -141,7 +162,7 @@ var PreviewPane = function (_React$Component) {
         ),
         _react2.default.createElement(
           'div',
-          { className: 'sidebar-group bgw', style: { position: 'absolute', bottom: 0, left: 0, right: 0, height: '20%' } },
+          { className: 'pane-group pane-group-settings' },
           _react2.default.createElement(
             'div',
             { className: 'pane-header' },
@@ -149,32 +170,36 @@ var PreviewPane = function (_React$Component) {
           ),
           _react2.default.createElement(
             'div',
-            { className: 'pane-row' },
+            { className: 'pane-body' },
             _react2.default.createElement(
               'div',
-              { className: 'form-column full-width' },
+              { className: 'pane-row' },
               _react2.default.createElement(
-                'span',
-                { className: 'form-label' },
-                'Base Path For Images'
-              ),
-              _react2.default.createElement('input', {
-                type: 'text',
-                placeholder: 'http://localhost:3000/images',
-                defaultValue: 'https://rangersteve.io',
-                onChange: onSetBasePathForImages
-              }),
-              _react2.default.createElement(
-                'span',
-                { className: 'form-label' },
-                'Included CSS File'
-              ),
-              _react2.default.createElement('input', {
-                type: 'text',
-                placeholder: 'http://localhost:3000/css/app.css',
-                defaultValue: 'https://rangersteve.io/css/app.css',
-                onChange: onSetIncludedCss
-              })
+                'div',
+                { className: 'form-column full-width' },
+                _react2.default.createElement(
+                  'span',
+                  { className: 'form-label' },
+                  'Base Path For Images'
+                ),
+                _react2.default.createElement('input', {
+                  type: 'text',
+                  placeholder: 'http://localhost:3000/images',
+                  defaultValue: 'https://rangersteve.io',
+                  onChange: onSetBasePathForImages
+                }),
+                _react2.default.createElement(
+                  'span',
+                  { className: 'form-label' },
+                  'Included CSS File'
+                ),
+                _react2.default.createElement('input', {
+                  type: 'text',
+                  placeholder: 'http://localhost:3000/css/app.css',
+                  defaultValue: 'https://rangersteve.io/css/app.css',
+                  onChange: onSetIncludedCss
+                })
+              )
             )
           )
         )

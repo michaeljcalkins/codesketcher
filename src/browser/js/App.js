@@ -269,13 +269,14 @@ var App = function (_React$Component) {
           editor = _state3.editor,
           basePathForImages = _state3.basePathForImages,
           activeDirectory = _state3.activeDirectory,
+          propertySeeds = _state3.propertySeeds,
           cachedDirectoryImports = _state3.cachedDirectoryImports,
           componentInstance = _state3.componentInstance;
 
 
       var renderComponentString = editor.getValue();
 
-      if (!renderComponentString) return;
+      if (!renderComponentString) return console.error(renderComponentString);
 
       this.setState({ componentString: renderComponentString });
 
@@ -305,12 +306,11 @@ var App = function (_React$Component) {
 
         // Get seed data for properties if there is any
         var componentPropValues = {};
-        $('.component-properties-seed-data-container .pane-row').each(function (el) {
-          var key = $(this).find('div:first-child input').val();
-          var value = $(this).find('div:nth-child(2) textarea').val();
-          if (value.length === 0) return;
-          componentPropValues[key] = eval('(' + value + ')'); // eslint-disable-line
+        propertySeeds.forEach(function (propertySeed) {
+          if (!propertySeed.value || propertySeed.value.length === 0) return;
+          componentPropValues[propertySeed.key] = eval('(' + propertySeed.value + ')'); // eslint-disable-line
         });
+        console.log('componentPropValues', componentPropValues);
 
         this.setState({
           componentInstance: _reactDom2.default.render(_react2.default.createElement(transpiledReactComponent, componentPropValues), componentPreviewElement)
@@ -361,7 +361,6 @@ var App = function (_React$Component) {
       }, function () {
         window.localStorage.setItem('basePathForImages', _this6.state.basePathForImages);
         _this6.handleIncludedCssChange();
-        _this6.debouncedRenderComponent();
       });
     }
   }, {
@@ -374,7 +373,6 @@ var App = function (_React$Component) {
       }, function () {
         window.localStorage.setItem('includedCss', _this7.state.includedCss);
         _this7.handleIncludedCssChange();
-        _this7.debouncedRenderComponent();
       });
     }
   }, {
@@ -421,6 +419,41 @@ var App = function (_React$Component) {
       });
     }
   }, {
+    key: 'handleSetPropertySeed',
+    value: function handleSetPropertySeed(e, key, propName) {
+      var _this9 = this;
+
+      var propertySeeds = this.state.propertySeeds;
+
+
+      var newPropertySeeds = [].concat((0, _toConsumableArray3.default)(propertySeeds));
+      _.set(newPropertySeeds, '[' + key + '][' + propName + ']', e.target.value);
+
+      this.setState({
+        propertySeeds: newPropertySeeds
+      }, function () {
+        return _this9.debouncedRenderComponent();
+      });
+    }
+  }, {
+    key: 'handleRemovePropertySeed',
+    value: function handleRemovePropertySeed(key) {
+      var _this10 = this;
+
+      var propertySeeds = this.state.propertySeeds;
+
+
+      var newPropertySeeds = propertySeeds.filter(function (propertySeed, index) {
+        return key !== index;
+      });
+
+      this.setState({
+        propertySeeds: newPropertySeeds
+      }, function () {
+        return _this10.debouncedRenderComponent();
+      });
+    }
+  }, {
     key: 'render',
     value: function render() {
       var _state5 = this.state,
@@ -452,6 +485,8 @@ var App = function (_React$Component) {
           onSetBasePathForImages: this.handleSetBasePathForImages,
           onSetIncludedCss: this.handleSetIncludedCss,
           onAddPropertySeed: this.handleAddPropertySeed,
+          onRemovePropertySeed: this.handleRemovePropertySeed,
+          onSetPropertySeed: this.handleSetPropertySeed,
           propertySeeds: propertySeeds
         })
       );

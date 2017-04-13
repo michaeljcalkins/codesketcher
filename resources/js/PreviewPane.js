@@ -8,19 +8,35 @@ export default class PreviewPane extends React.Component {
   }
 
   renderPropertyDataFields () {
-    const { propertySeeds } = this.props
+    const {
+      propertySeeds,
+      onRemovePropertySeed,
+      onSetPropertySeed
+    } = this.props
 
     return propertySeeds.map((property, key) => {
       return (
         <tr className='pane-row bt0' key={'property-seed-' + key}>
           <td className='form-column w45'>
-            <input type='text' placeholder='Key' />
+            <input
+              type='text'
+              placeholder='Key'
+              onChange={(e) => onSetPropertySeed(e, key, 'key')}
+            />
           </td>
           <td className='form-column w45'>
-            <input type='text' placeholder='Value' />
+            <input
+              type='text'
+              placeholder='Value'
+              onChange={(e) => onSetPropertySeed(e, key, 'value')}
+            />
           </td>
           <td className='form-column w10'>
-            <button className='btn btn-default btn-xs pull-right' style={{ marginTop: '2px' }}>
+            <button
+              className='btn btn-default btn-xs pull-right'
+              onClick={() => onRemovePropertySeed(key)}
+              style={{ marginTop: '2px' }}
+            >
               <i className='fa fa-remove' />
             </button>
           </td>
@@ -37,19 +53,19 @@ export default class PreviewPane extends React.Component {
     } = this.props
 
     return (
-      <div className='right-sidebar'>
-        <div className='sidebar-group bgw' style={{ position: 'absolute', left: 0, top: 0, right: 0, height: '60%' }}>
+      <div className='pane pane-preview'>
+        <div className='pane-group pane-group-preview'>
           <div className='pane-header'>
             Component Preview
           </div>
-          <div style={{ position: 'absolute', top: '33px', left: 0, bottom: 0, right: 0 }}>
+          <div className='pane-body'>
             <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 }}>
               <style id='component-styles' />
               <div className='align-middle' id='component-preview' />
             </div>
           </div>
         </div>
-        <div className='sidebar-group bgw' style={{ position: 'absolute', overflowY: 'scroll', bottom: '20%', left: 0, right: 0, height: '20%' }}>
+        <div className='pane-group pane-group-prop-editor'>
           <div className='pane-header'>
             Prop Editor
             <button
@@ -59,7 +75,7 @@ export default class PreviewPane extends React.Component {
               +
             </button>
           </div>
-          <div className='component-properties-seed-data-container'>
+          <div className='pane-body'>
             <table className='table'>
               <tbody>
                 {this.renderPropertyDataFields()}
@@ -67,27 +83,29 @@ export default class PreviewPane extends React.Component {
             </table>
           </div>
         </div>
-        <div className='sidebar-group bgw' style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '20%' }}>
+        <div className='pane-group pane-group-settings'>
           <div className='pane-header'>
             Environment Settings
           </div>
-          <div className='pane-row'>
-            <div className='form-column full-width'>
-              <span className='form-label'>Base Path For Images</span>
-              <input
-                type='text'
-                placeholder='http://localhost:3000/images'
-                defaultValue='https://rangersteve.io'
-                onChange={onSetBasePathForImages}
-              />
+          <div className='pane-body'>
+            <div className='pane-row'>
+              <div className='form-column full-width'>
+                <span className='form-label'>Base Path For Images</span>
+                <input
+                  type='text'
+                  placeholder='http://localhost:3000/images'
+                  defaultValue='https://rangersteve.io'
+                  onChange={onSetBasePathForImages}
+                />
 
-              <span className='form-label'>Included CSS File</span>
-              <input
-                type='text'
-                placeholder='http://localhost:3000/css/app.css'
-                defaultValue='https://rangersteve.io/css/app.css'
-                onChange={onSetIncludedCss}
-              />
+                <span className='form-label'>Included CSS File</span>
+                <input
+                  type='text'
+                  placeholder='http://localhost:3000/css/app.css'
+                  defaultValue='https://rangersteve.io/css/app.css'
+                  onChange={onSetIncludedCss}
+                />
+              </div>
             </div>
           </div>
         </div>

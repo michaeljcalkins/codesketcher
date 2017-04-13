@@ -25,8 +25,8 @@ export default class EditorPane extends React.Component {
     const { componentFilepath } = this.props
 
     return (
-      <div className='left-sidebar'>
-        <div className='sidebar-group h100 pos-rel'>
+      <div className='pane pane-editor'>
+        <div className='pane-group h100 pos-rel'>
           <div className='pane-header'>
             Editor {componentFilepath && '- ' + componentFilepath.uniqueFilepath}
           </div>

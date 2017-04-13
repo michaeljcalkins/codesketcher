@@ -176,13 +176,14 @@ export default class App extends React.Component {
       editor,
       basePathForImages,
       activeDirectory,
+      propertySeeds,
       cachedDirectoryImports,
       componentInstance
     } = this.state
 
     let renderComponentString = editor.getValue()
 
-    if (!renderComponentString) return
+    if (!renderComponentString) return console.error(renderComponentString)
 
     this.setState({ componentString: renderComponentString })
 
@@ -217,12 +218,11 @@ export default class App extends React.Component {
 
       // Get seed data for properties if there is any
       var componentPropValues = {}
-      $('.component-properties-seed-data-container .pane-row').each(function (el) {
-        var key = $(this).find('div:first-child input').val()
-        var value = $(this).find('div:nth-child(2) textarea').val()
-        if (value.length === 0) return
-            componentPropValues[key] = eval('(' + value + ')') // eslint-disable-line
+      propertySeeds.forEach(function (propertySeed) {
+        if (!propertySeed.value || propertySeed.value.length === 0) return
+        componentPropValues[propertySeed.key] = eval('(' + propertySeed.value + ')') // eslint-disable-line
       })
+      console.log('componentPropValues', componentPropValues)
 
       this.setState({
         componentInstance: ReactDOM.render(
@@ -269,7 +269,6 @@ export default class App extends React.Component {
     }, () => {
       window.localStorage.setItem('basePathForImages', this.state.basePathForImages)
       this.handleIncludedCssChange()
-      this.debouncedRenderComponent()
     })
   }
 
@@ -279,7 +278,6 @@ export default class App extends React.Component {
     }, () => {
       window.localStorage.setItem('includedCss', this.state.includedCss)
       this.handleIncludedCssChange()
-      this.debouncedRenderComponent()
     })
   }
 
@@ -318,6 +316,27 @@ export default class App extends React.Component {
     })
   }
 
+  handleSetPropertySeed (e, key, propName) {
+    const { propertySeeds } = this.state
+
+    let newPropertySeeds = [ ...propertySeeds ]
+    _.set(newPropertySeeds, `[${key}][${propName}]`, e.target.value)
+
+    this.setState({
+      propertySeeds: newPropertySeeds
+    }, () => this.debouncedRenderComponent())
+  }
+
+  handleRemovePropertySeed (key) {
+    const { propertySeeds } = this.state
+
+    let newPropertySeeds = propertySeeds.filter((propertySeed, index) => key !== index)
+
+    this.setState({
+      propertySeeds: newPropertySeeds
+    }, () => this.debouncedRenderComponent())
+  }
+
   render () {
     const {
       componentFilepaths,
@@ -345,6 +364,8 @@ export default class App extends React.Component {
           onSetBasePathForImages={this.handleSetBasePathForImages}
           onSetIncludedCss={this.handleSetIncludedCss}
           onAddPropertySeed={this.handleAddPropertySeed}
+          onRemovePropertySeed={this.handleRemovePropertySeed}
+          onSetPropertySeed={this.handleSetPropertySeed}
           propertySeeds={propertySeeds}
         />
       </div>
