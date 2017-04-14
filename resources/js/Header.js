@@ -8,7 +8,11 @@ export default class Header extends React.Component {
   }
 
   render () {
-    const { onOpenComponentOrDirectory } = this.props
+    const {
+      onOpenComponentOrDirectory,
+      onNewComponent,
+      onSaveComponent
+    } = this.props
 
     return (
       <nav className='navbar navbar-default navbar-fixed-top'>
@@ -16,23 +20,23 @@ export default class Header extends React.Component {
         <div className='container-fluid'>
           <div id='navbar' className='navbar-collapse collapse'>
             <ul className='nav navbar-nav text-center'>
-              <li>
-                <a onClick={onOpenComponentOrDirectory}>
+              <li className='pointer' onClick={onOpenComponentOrDirectory}>
+                <a>
                   <i className='fa fa-folder' />
                   Open
                 </a>
               </li>
-              <li className='pointer'>
+              <li className='pointer' onClick={onNewComponent}>
                 <a>
                   <i className='fa fa-plus-square' />
-                  Create
+                  New
                 </a>
               </li>
-              <li>
-                <a id='save-file'>
+              <li className='pointer' onClick={onSaveComponent}>
+                <a>
                   <i className='fa fa-save' />
-                      Save
-                    </a>
+                  Save
+                </a>
               </li>
             </ul>
           </div>

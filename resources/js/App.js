@@ -33,11 +33,12 @@ export default class App extends React.Component {
 
     this.state = {
       basePathForImages: window.localStorage.getItem('basePathForImages'),
-      activeactiveComponentFilepath: null,
+      activeComponentFilepath: null,
       activeDirectory: window.localStorage.getItem('activeDirectory'),
       cachedDirectoryImports: cachedDirectoryImports,
       componentFilepaths: [],
       componentString: null,
+      isDirty: false,
       activeComponentFilepathContents: [],
       componentInstance: null,
       editor: null,
@@ -81,6 +82,17 @@ export default class App extends React.Component {
     })
   }
 
+  handleNewComponent () {
+    const { editor } = this.state
+
+    editor.setValue('')
+
+    this.setState({
+      activeComponentFilepath: null,
+      componentString: null
+    })
+  }
+
   handleSaveComponent () {
     const { activeComponentFilepath, editor } = this.state
 
@@ -91,10 +103,12 @@ export default class App extends React.Component {
 
       if (!newFilepath) return
       this.setState({
-        activeComponentFilepath: newFilepath[0]
+        activeComponentFilepath: newFilepath
       })
 
-      return fs.writeFile(newFilepath[0], componentString)
+      fs.writeFileSync(newFilepath, componentString)
+      this.handleOpenComponent(newFilepath)
+      return
     }
 
     fs.writeFile(activeComponentFilepath, componentString)
@@ -345,15 +359,16 @@ export default class App extends React.Component {
     const {
       componentFilepaths,
       activeComponentFilepath,
-      propertySeeds
+      propertySeeds,
+      isDirty
     } = this.state
-
-    const componentFilepath = _.first(componentFilepaths.filter(componentFilepath => componentFilepath.filepath === activeComponentFilepath))
 
     return (
       <div>
         <Header
           onOpenComponentOrDirectory={this.handleOpenComponentOrDirectory}
+          onSaveComponent={this.handleSaveComponent}
+          onNewComponent={this.handleNewComponent}
         />
         <ComponentsPane
           onOpenComponent={this.handleOpenComponent}
@@ -361,8 +376,9 @@ export default class App extends React.Component {
           componentFilepaths={componentFilepaths}
         />
         <EditorPane
+          isDirty={isDirty}
           onCreateEditor={this.handleCreateEditor}
-          componentFilepath={componentFilepath}
+          activeComponentFilepath={activeComponentFilepath}
         />
         <PreviewPane
           onSetBasePathForImages={this.handleSetBasePathForImages}

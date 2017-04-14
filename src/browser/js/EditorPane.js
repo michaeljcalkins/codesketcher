@@ -32,6 +32,14 @@ var _reactAutobind = require('react-autobind');
 
 var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
+
+var _classnames = require('classnames');
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var EditorPane = function (_React$Component) {
@@ -65,8 +73,16 @@ var EditorPane = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var componentFilepath = this.props.componentFilepath;
+      var _props = this.props,
+          activeComponentFilepath = _props.activeComponentFilepath,
+          isDirty = _props.isDirty;
 
+
+      var componentBasename = _path2.default.basename(activeComponentFilepath);
+      var paneHeaderClasses = (0, _classnames2.default)('pane-header', {
+        // 'bgg': !isDirty,
+        // 'bgr': isDirty
+      });
 
       return _react2.default.createElement(
         'div',
@@ -76,9 +92,9 @@ var EditorPane = function (_React$Component) {
           { className: 'pane-group h100 pos-rel' },
           _react2.default.createElement(
             'div',
-            { className: 'pane-header' },
+            { className: paneHeaderClasses },
             'Editor ',
-            componentFilepath && '- ' + componentFilepath.uniqueFilepath
+            activeComponentFilepath && '- ' + componentBasename
           ),
           _react2.default.createElement('div', { className: 'pane-row', id: 'editor', style: { position: 'absolute', top: '32px', left: 0, bottom: 0, right: 0 } })
         )

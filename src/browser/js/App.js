@@ -104,11 +104,12 @@ var App = function (_React$Component) {
 
     _this.state = {
       basePathForImages: window.localStorage.getItem('basePathForImages'),
-      activeactiveComponentFilepath: null,
+      activeComponentFilepath: null,
       activeDirectory: window.localStorage.getItem('activeDirectory'),
       cachedDirectoryImports: cachedDirectoryImports,
       componentFilepaths: [],
       componentString: null,
+      isDirty: false,
       activeComponentFilepathContents: [],
       componentInstance: null,
       editor: null,
@@ -162,6 +163,19 @@ var App = function (_React$Component) {
       });
     }
   }, {
+    key: 'handleNewComponent',
+    value: function handleNewComponent() {
+      var editor = this.state.editor;
+
+
+      editor.setValue('');
+
+      this.setState({
+        activeComponentFilepath: null,
+        componentString: null
+      });
+    }
+  }, {
     key: 'handleSaveComponent',
     value: function handleSaveComponent() {
       var _state = this.state,
@@ -176,10 +190,12 @@ var App = function (_React$Component) {
 
         if (!newFilepath) return;
         this.setState({
-          activeComponentFilepath: newFilepath[0]
+          activeComponentFilepath: newFilepath
         });
 
-        return fs.writeFile(newFilepath[0], componentString);
+        fs.writeFileSync(newFilepath, componentString);
+        this.handleOpenComponent(newFilepath);
+        return;
       }
 
       fs.writeFile(activeComponentFilepath, componentString);
@@ -467,18 +483,17 @@ var App = function (_React$Component) {
       var _state5 = this.state,
           componentFilepaths = _state5.componentFilepaths,
           activeComponentFilepath = _state5.activeComponentFilepath,
-          propertySeeds = _state5.propertySeeds;
+          propertySeeds = _state5.propertySeeds,
+          isDirty = _state5.isDirty;
 
-
-      var componentFilepath = _.first(componentFilepaths.filter(function (componentFilepath) {
-        return componentFilepath.filepath === activeComponentFilepath;
-      }));
 
       return _react2.default.createElement(
         'div',
         null,
         _react2.default.createElement(_Header2.default, {
-          onOpenComponentOrDirectory: this.handleOpenComponentOrDirectory
+          onOpenComponentOrDirectory: this.handleOpenComponentOrDirectory,
+          onSaveComponent: this.handleSaveComponent,
+          onNewComponent: this.handleNewComponent
         }),
         _react2.default.createElement(_ComponentsPane2.default, {
           onOpenComponent: this.handleOpenComponent,
@@ -486,8 +501,9 @@ var App = function (_React$Component) {
           componentFilepaths: componentFilepaths
         }),
         _react2.default.createElement(_EditorPane2.default, {
+          isDirty: isDirty,
           onCreateEditor: this.handleCreateEditor,
-          componentFilepath: componentFilepath
+          activeComponentFilepath: activeComponentFilepath
         }),
         _react2.default.createElement(_PreviewPane2.default, {
           onSetBasePathForImages: this.handleSetBasePathForImages,

@@ -49,7 +49,10 @@ var Header = function (_React$Component) {
   (0, _createClass3.default)(Header, [{
     key: 'render',
     value: function render() {
-      var onOpenComponentOrDirectory = this.props.onOpenComponentOrDirectory;
+      var _props = this.props,
+          onOpenComponentOrDirectory = _props.onOpenComponentOrDirectory,
+          onNewComponent = _props.onNewComponent,
+          onSaveComponent = _props.onSaveComponent;
 
 
       return _react2.default.createElement(
@@ -67,30 +70,30 @@ var Header = function (_React$Component) {
               { className: 'nav navbar-nav text-center' },
               _react2.default.createElement(
                 'li',
-                null,
+                { className: 'pointer', onClick: onOpenComponentOrDirectory },
                 _react2.default.createElement(
                   'a',
-                  { onClick: onOpenComponentOrDirectory },
+                  null,
                   _react2.default.createElement('i', { className: 'fa fa-folder' }),
                   'Open'
                 )
               ),
               _react2.default.createElement(
                 'li',
-                { className: 'pointer' },
+                { className: 'pointer', onClick: onNewComponent },
                 _react2.default.createElement(
                   'a',
                   null,
                   _react2.default.createElement('i', { className: 'fa fa-plus-square' }),
-                  'Create'
+                  'New'
                 )
               ),
               _react2.default.createElement(
                 'li',
-                null,
+                { className: 'pointer', onClick: onSaveComponent },
                 _react2.default.createElement(
                   'a',
-                  { id: 'save-file' },
+                  null,
                   _react2.default.createElement('i', { className: 'fa fa-save' }),
                   'Save'
                 )
