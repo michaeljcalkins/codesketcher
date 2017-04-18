@@ -7,11 +7,15 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = function (_ref) {
   var src = _ref.src;
 
+  var styles = {
+    marginBottom: '15px',
+    float: 'right'
+  };
+
   return _react2.default.createElement(
     'div',
-    null,
-    'test',
-    _react2.default.createElement('img', { src: src, width: '100' })
+    { style: styles },
+    _react2.default.createElement('img', { src: src, width: '150' })
   );
 };
 

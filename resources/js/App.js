@@ -51,7 +51,7 @@ export default class App extends React.Component {
       watcher: null
     }
 
-    this.debouncedRenderComponent = _.debounce(this.renderComponent, 300)
+    this.debouncedRenderComponent = _.debounce(this.renderComponent, 500)
   }
 
   componentWillMount () {
@@ -158,7 +158,7 @@ export default class App extends React.Component {
             }
           })
           .on('unlink', path => {
-            if (this.state.filesInActiveDirectory.indexOf(path) === -1) {
+            if (this.state.filesInActiveDirectory.indexOf(path) > -1) {
               this.setState({
                 filesInActiveDirectory
               })
@@ -294,8 +294,11 @@ export default class App extends React.Component {
         fs.writeFileSync('storage/components/' + newFromFragment, babelResult.code)
 
         const normalizedNewFromFragment = path.normalize(__dirname + '/../../../storage/components/' + newFromFragment)
+        delete require.cache[require.resolve(normalizedNewFromFragment)]
         renderComponentString = renderComponentString.replace(fromFragment, normalizedNewFromFragment)
       })
+
+      console.log(renderComponentString)
 
       let babelResult = babel.transform(renderComponentString, {
         presets: ['latest', 'react'],

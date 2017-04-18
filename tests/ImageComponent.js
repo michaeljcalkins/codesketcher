@@ -3,10 +3,14 @@ import React from 'react'
 export default function ({
   src
 }) {
+  const styles = {
+		marginBottom: '15px',
+    float: 'right'
+  }
+  
 	return (
-    <div>
-      test
-	  	<img src={src} width='100' /> 
+    <div style={styles}>
+      <img src={src} width="150" />
     </div>
   )
 }

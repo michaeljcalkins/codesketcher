@@ -5,8 +5,10 @@ import ImageComponent from './ImageComponent'
 import NameComponent from './NameComponent'
 
 export default function ({
-	profileUrl,
-  name
+	src,
+  name,
+  phone,
+  job
 }) {
   const styles = {
     background: '#3498db',
@@ -14,18 +16,24 @@ export default function ({
     fontFamily: 'Lucida Grande',
     color: 'white',
     display: 'inline-block',
-    height: '300px',
+    height: '170px',
     margin: '1rem',
+    padding: '15px',
     position: 'relative',
-    textAlign: 'center',
+    textAlign: 'left',
     width: '300px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)'
   }
   
 	return (      
   	<div style={styles}>
-      <ImageComponent src={profileUrl} />
-			<NameComponent name={name} />
+      <ImageComponent style={styles.image} src={src} />
+			<NameComponent 
+        style={styles.name} 
+        name={name} 
+        phone={phone}
+        job={job}
+      />
     </div>
   )
 }

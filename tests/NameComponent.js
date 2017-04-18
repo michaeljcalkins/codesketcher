@@ -1,15 +1,19 @@
 import React from 'react'
 
 export default function ({
-  name
+  name,
+  phone,
+  job
 }) {
   const styles = {
-    
+		float: 'left'
   }
   
 	return ( 
     <div style={styles}>
-      {name}
+      {name}<br />
+      {phone}<br />
+      {job}
     </div>
   )
 }

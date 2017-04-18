@@ -5,14 +5,22 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 exports.default = function (_ref) {
-  var name = _ref.name;
+  var name = _ref.name,
+      phone = _ref.phone,
+      job = _ref.job;
 
-  var styles = {};
+  var styles = {
+    float: 'left'
+  };
 
   return _react2.default.createElement(
     'div',
     { style: styles },
-    name
+    name,
+    _react2.default.createElement('br', null),
+    phone,
+    _react2.default.createElement('br', null),
+    job
   );
 };
 

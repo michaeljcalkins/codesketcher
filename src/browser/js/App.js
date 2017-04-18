@@ -131,7 +131,7 @@ var App = function (_React$Component) {
       watcher: null
     };
 
-    _this.debouncedRenderComponent = _.debounce(_this.renderComponent, 300);
+    _this.debouncedRenderComponent = _.debounce(_this.renderComponent, 500);
     return _this;
   }
 
@@ -255,7 +255,7 @@ var App = function (_React$Component) {
               _this4.handleOpenDirectory(newActiveDirectory);
             }
           }).on('unlink', function (path) {
-            if (_this4.state.filesInActiveDirectory.indexOf(path) === -1) {
+            if (_this4.state.filesInActiveDirectory.indexOf(path) > -1) {
               _this4.setState({
                 filesInActiveDirectory: filesInActiveDirectory
               });
@@ -381,8 +381,11 @@ var App = function (_React$Component) {
           fs.writeFileSync('storage/components/' + newFromFragment, babelResult.code);
 
           var normalizedNewFromFragment = path.normalize(__dirname + '/../../../storage/components/' + newFromFragment);
+          delete require.cache[require.resolve(normalizedNewFromFragment)];
           renderComponentString = renderComponentString.replace(fromFragment, normalizedNewFromFragment);
         });
+
+        console.log(renderComponentString);
 
         var babelResult = babel.transform(renderComponentString, {
           presets: ['latest', 'react'],
