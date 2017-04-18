@@ -6,7 +6,7 @@
   "scripts": {
     "test": "NODE_ENV=test mocha --require babel-core/register src/browser/js/**/*.test.js",
     "test-watch": "nodemon -q -x 'npm test'",
-    "watch": "nodemon --ignore 'src/**.js' -q -x 'gulp && babel resources/js --out-dir src/browser/js --presets=latest,react --plugins=transform-object-rest-spread,transform-class-properties,transform-es2015-classes,transform-runtime --ignore test.js'",
+    "watch": "nodemon --ignore 'src/**.js' --watch 'resources/**/*.*' -q -x 'babel resources/js --out-dir src/browser/js --presets=latest,react --plugins=transform-object-rest-spread,transform-class-properties,transform-es2015-classes,transform-runtime --ignore test.js && gulp'",
     "start": "electron ."
   },
   "standard": {
@@ -22,7 +22,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-react": "^6.23.0",
     "chai": "^1.9.1",
-    "chokidar": "^0.8.2",
+    "chokidar": "^1.6.1",
     "del": "^2.2.0",
     "electron-builder": "^2.6.0",
     "electron-packager": "^5.0.2",
@@ -66,6 +66,8 @@
     "change-case": "^2.3.1",
     "classnames": "^2.2.5",
     "del": "^2.2.0",
+    "electron-json-storage": "^3.0.4",
+    "electron-settings": "^3.0.14",
     "fstream": "^1.0.8",
     "highlight.js": "^9.1.0",
     "image-size": "^0.4.0",

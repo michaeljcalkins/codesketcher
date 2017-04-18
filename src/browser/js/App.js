@@ -52,6 +52,10 @@ var _reactAutobind = require('react-autobind');
 
 var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
+var _chokidar = require('chokidar');
+
+var _chokidar2 = _interopRequireDefault(_chokidar);
+
 var _Header = require('./Header');
 
 var _Header2 = _interopRequireDefault(_Header);
@@ -59,6 +63,10 @@ var _Header2 = _interopRequireDefault(_Header);
 var _ComponentsPane = require('./ComponentsPane');
 
 var _ComponentsPane2 = _interopRequireDefault(_ComponentsPane);
+
+var _EnvironmentSettingsPane = require('./EnvironmentSettingsPane');
+
+var _EnvironmentSettingsPane2 = _interopRequireDefault(_EnvironmentSettingsPane);
 
 var _EditorPane = require('./EditorPane');
 
@@ -72,11 +80,14 @@ var _getSharedStartingString = require('./lib/getSharedStartingString');
 
 var _getSharedStartingString2 = _interopRequireDefault(_getSharedStartingString);
 
+var _getImportStrings = require('./lib/getImportStrings');
+
+var _getImportStrings2 = _interopRequireDefault(_getImportStrings);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Sass = require('sass.js');
 var _ = require('lodash');
-var getImportStrings = require('./lib/getImportStrings');
 var replaceFromWithPath = require('./lib/replaceFromWithPath');
 var recursive = require('recursive-readdir');
 var fs = require('fs');
@@ -109,13 +120,15 @@ var App = function (_React$Component) {
       cachedDirectoryImports: cachedDirectoryImports,
       componentFilepaths: [],
       componentString: null,
+      filesInActiveDirectory: [],
       isDirty: false,
       activeComponentFilepathContents: [],
       componentInstance: null,
       editor: null,
       includedCss: window.localStorage.getItem('includedCss'),
       propertySeeds: [],
-      renderComponentString: null
+      renderComponentString: null,
+      watcher: null
     };
 
     _this.debouncedRenderComponent = _.debounce(_this.renderComponent, 300);
@@ -210,18 +223,45 @@ var App = function (_React$Component) {
         // Files is an array of filename
         var stringSegmentToBeRemoved = (0, _getSharedStartingString2.default)(files);
         var newComponentFilepaths = [];
+        var filesInActiveDirectory = [];
 
         files.forEach(function (filepath) {
           if (!filepath.match(/(\.js|\.jsx)/g)) return;
 
           var uniqueFilepath = filepath.replace(stringSegmentToBeRemoved, '');
           var filename = path.basename(filepath);
+          filesInActiveDirectory.push(filepath);
 
           newComponentFilepaths.push({
             filename: filename,
             uniqueFilepath: uniqueFilepath,
             filepath: filepath
           });
+        });
+
+        if (_this4.state.watcher) {
+          _this4.state.watcher.close();
+        }
+
+        _this4.setState({
+          watcher: _chokidar2.default.watch(newActiveDirectory, {
+            ignored: /(^|[\/\\])\../,
+            persistent: true
+          }).on('add', function (path) {
+            if (_this4.state.filesInActiveDirectory.indexOf(path) === -1) {
+              _this4.setState({
+                filesInActiveDirectory: filesInActiveDirectory
+              });
+              _this4.handleOpenDirectory(newActiveDirectory);
+            }
+          }).on('unlink', function (path) {
+            if (_this4.state.filesInActiveDirectory.indexOf(path) === -1) {
+              _this4.setState({
+                filesInActiveDirectory: filesInActiveDirectory
+              });
+              _this4.handleOpenDirectory(newActiveDirectory);
+            }
+          })
         });
 
         _this4.handleSetComponentFilepaths(newComponentFilepaths);
@@ -253,7 +293,6 @@ var App = function (_React$Component) {
           cachedDirectoryImports = _state2.cachedDirectoryImports;
 
 
-      var filename = path.basename(filepath);
       var contents = fs.readFileSync(filepath, { encoding: 'utf-8' });
 
       editor.setValue(contents);
@@ -262,18 +301,34 @@ var App = function (_React$Component) {
         activeComponentFilepath: filepath
       });
 
-      var importStrings = getImportStrings(contents);
+      var importStrings = (0, _getImportStrings2.default)(contents);
+
       importStrings.forEach(function (importString) {
-        if (cachedDirectoryImports[activeDirectory] && cachedDirectoryImports[activeDirectory][importString]) return;
+        if (_.has(cachedDirectoryImports, '[' + activeDirectory + '][' + importString + ']')) return;
 
         console.log(importString);
+
+        var usedPotentialLocation = false;
+
+        var importFragments = importString.split(' from ');
+        var fromFragment = _.get(importFragments, '[1]').replace(/'/g, '').trim();
+        var potentialImportLocation = path.join(activeDirectory, fromFragment + '.js');
+
+        try {
+          if (fs.lstatSync(potentialImportLocation).isFile()) {
+            _this5.handleAddCachedDirectoryImports(activeDirectory, importString, potentialImportLocation);
+            usedPotentialLocation = true;
+          }
+        } catch (e) {}
+
+        if (usedPotentialLocation) return;
 
         var selectedFilepath = dialog.showOpenDialog({
           properties: ['openFile', 'openDirectory']
         });
         if (!selectedFilepath) return;
 
-        _this5.handleAddCachedDirectoryImports(activeDirectory, importString, selectedFilepath[0]);
+        _this5.handleAddCachedDirectoryImports(activeDirectory, importString, _.get(selectedFilepath, '[0]'));
       });
 
       this.debouncedRenderComponent();
@@ -298,8 +353,35 @@ var App = function (_React$Component) {
 
       try {
         (0, _keys2.default)(_.get(cachedDirectoryImports, '[' + activeDirectory + ']', {})).forEach(function (key) {
-          var newImportString = replaceFromWithPath(key, _.get(cachedDirectoryImports, '[' + activeDirectory + '][' + key + ']'));
+          var newImportString = replaceFromWithPath(key, cachedDirectoryImports[activeDirectory][key]);
           renderComponentString = renderComponentString.replace(key, newImportString);
+        });
+
+        // Find all imports
+        var importStrings = (0, _getImportStrings2.default)(renderComponentString);
+
+        // Loop through them
+        importStrings.forEach(function (importString) {
+          // if not node_modules transpile them and cache them
+          if (importString.match('node_modules')) return;
+
+          var cachedFilepath = importString.replace(/\//g, '-');
+
+          var importFragments = importString.split(' from ');
+          var fromFragment = importFragments[1].replace(/'/g, '').trim();
+          var newFromFragment = fromFragment.replace(/\//g, '-');
+          var importedComponentString = fs.readFileSync(fromFragment);
+
+          // Replace import in renderComponentString with path to cached file
+          var babelResult = babel.transform(importedComponentString, {
+            presets: ['latest', 'react'],
+            plugins: ['transform-class-properties', 'transform-es2015-classes', 'transform-runtime', 'transform-object-rest-spread']
+          });
+
+          fs.writeFileSync('storage/components/' + newFromFragment, babelResult.code);
+
+          var normalizedNewFromFragment = path.normalize(__dirname + '/../../../storage/components/' + newFromFragment);
+          renderComponentString = renderComponentString.replace(fromFragment, normalizedNewFromFragment);
         });
 
         var babelResult = babel.transform(renderComponentString, {
@@ -307,11 +389,12 @@ var App = function (_React$Component) {
           plugins: ['transform-class-properties', 'transform-es2015-classes', 'transform-runtime', 'transform-object-rest-spread']
         });
 
-        fs.writeFileSync('temp-component.js', babelResult.code);
+        fs.writeFileSync('storage/app/temp-component.js', babelResult.code);
 
         // Clear the node require cache and reload the file
-        delete require.cache[require.resolve('../../../temp-component.js')];
-        var transpiledReactComponent = require('../../../temp-component.js').default;
+        var tempComponentFilepath = '../../../storage/app/temp-component.js';
+        delete require.cache[require.resolve(tempComponentFilepath)];
+        var transpiledReactComponent = require(tempComponentFilepath).default;
 
         // Container for the react component
         var componentPreviewElement = document.getElementById('component-preview');
@@ -326,7 +409,6 @@ var App = function (_React$Component) {
           if (!propertySeed.value || propertySeed.value.length === 0) return;
           componentPropValues[propertySeed.key] = eval('(' + propertySeed.value + ')'); // eslint-disable-line
         });
-        console.log('componentPropValues', componentPropValues);
 
         this.setState({
           componentInstance: _reactDom2.default.render(_react2.default.createElement(transpiledReactComponent, componentPropValues), componentPreviewElement)
@@ -348,7 +430,8 @@ var App = function (_React$Component) {
 
 
       var newCachedDirectoryImports = (0, _extends3.default)({}, cachedDirectoryImports);
-      _.set(newCachedDirectoryImports, '[' + activeDirectory + '][' + importString + ']', newFilepath);
+      newCachedDirectoryImports[activeDirectory] = newCachedDirectoryImports[activeDirectory] || {};
+      newCachedDirectoryImports[activeDirectory][importString] = newFilepath;
 
       this.setState({
         cachedDirectoryImports: newCachedDirectoryImports
@@ -495,24 +578,34 @@ var App = function (_React$Component) {
           onSaveComponent: this.handleSaveComponent,
           onNewComponent: this.handleNewComponent
         }),
-        _react2.default.createElement(_ComponentsPane2.default, {
-          onOpenComponent: this.handleOpenComponent,
-          onOpenComponentOrDirectory: this.handleOpenComponentOrDirectory,
-          componentFilepaths: componentFilepaths
-        }),
+        _react2.default.createElement(
+          'div',
+          { className: 'pane pane-components' },
+          _react2.default.createElement(_ComponentsPane2.default, {
+            onOpenComponent: this.handleOpenComponent,
+            onOpenComponentOrDirectory: this.handleOpenComponentOrDirectory,
+            componentFilepaths: componentFilepaths
+          }),
+          _react2.default.createElement(_EnvironmentSettingsPane2.default, {
+            onSetBasePathForImages: this.handleSetBasePathForImages,
+            onSetIncludedCss: this.handleSetIncludedCss
+          })
+        ),
         _react2.default.createElement(_EditorPane2.default, {
           isDirty: isDirty,
           onCreateEditor: this.handleCreateEditor,
           activeComponentFilepath: activeComponentFilepath
         }),
-        _react2.default.createElement(_PreviewPane2.default, {
-          onSetBasePathForImages: this.handleSetBasePathForImages,
-          onSetIncludedCss: this.handleSetIncludedCss,
-          onAddPropertySeed: this.handleAddPropertySeed,
-          onRemovePropertySeed: this.handleRemovePropertySeed,
-          onSetPropertySeed: this.handleSetPropertySeed,
-          propertySeeds: propertySeeds
-        })
+        _react2.default.createElement(
+          'div',
+          { className: 'pane pane-preview' },
+          _react2.default.createElement(_PreviewPane2.default, {
+            onAddPropertySeed: this.handleAddPropertySeed,
+            onRemovePropertySeed: this.handleRemovePropertySeed,
+            onSetPropertySeed: this.handleSetPropertySeed,
+            propertySeeds: propertySeeds
+          })
+        )
       );
     }
   }]);

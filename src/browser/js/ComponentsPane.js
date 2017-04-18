@@ -101,39 +101,35 @@ var ComponentsPane = function (_React$Component) {
 
       return _react2.default.createElement(
         'div',
-        { className: 'pane pane-components' },
+        { className: 'pane-group pange-group-components' },
         _react2.default.createElement(
           'div',
-          { className: 'pane-group' },
+          { className: 'pane-header' },
+          'Components',
+          _react2.default.createElement(
+            'button',
+            {
+              className: 'btn btn-default btn-xs pull-right mr1',
+              onClick: onOpenComponentOrDirectory
+            },
+            _react2.default.createElement('i', { className: 'fa fa-folder' })
+          )
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'pane-body' },
           _react2.default.createElement(
             'div',
-            { className: 'pane-header' },
-            'Components',
-            _react2.default.createElement(
-              'button',
-              {
-                className: 'btn btn-default btn-xs pull-right mr1',
-                onClick: onOpenComponentOrDirectory
-              },
-              _react2.default.createElement('i', { className: 'fa fa-folder' })
-            )
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'pane-body' },
+            { className: 'pane-row' },
             _react2.default.createElement(
               'div',
-              { className: 'pane-row' },
-              _react2.default.createElement(
-                'div',
-                { className: 'form-column full-width' },
-                _react2.default.createElement('input', {
-                  type: 'text',
-                  ref: 'searchTerm',
-                  placeholder: 'Filter Components',
-                  onChange: this.handleSearchTermInput
-                })
-              )
+              { className: 'form-column full-width' },
+              _react2.default.createElement('input', {
+                type: 'text',
+                ref: 'searchTerm',
+                placeholder: 'Filter Components',
+                onChange: this.handleSearchTermInput
+              })
             )
           ),
           _react2.default.createElement(

@@ -38,10 +38,21 @@ export default class Header extends React.Component {
                   Save
                 </a>
               </li>
+              <li style={{width: '40px'}} />
+              <li className='dropdown'>
+                <a className='dropdown-toggle' data-toggle='dropdown'>
+                  <i className='fa fa-code' />
+                  Templates <span className='caret' />
+                </a>
+                <ul className='dropdown-menu'>
+                  <li><a>Class Component</a></li>
+                  <li><a>Function Component</a></li>
+                </ul>
+              </li>
             </ul>
           </div>
         </div>
       </nav>
     )
   }
-    }
+}

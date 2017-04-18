@@ -45,27 +45,25 @@ export default class ComponentsPane extends React.Component {
     const { onOpenComponentOrDirectory } = this.props
 
     return (
-      <div className='pane pane-components'>
-        <div className='pane-group'>
-          <div className='pane-header'>
-            Components
-            <button
-              className='btn btn-default btn-xs pull-right mr1'
-              onClick={onOpenComponentOrDirectory}
-            >
-              <i className='fa fa-folder' />
-            </button>
-          </div>
-          <div className='pane-body'>
-            <div className='pane-row'>
-              <div className='form-column full-width'>
-                <input
-                  type='text'
-                  ref='searchTerm'
-                  placeholder='Filter Components'
-                  onChange={this.handleSearchTermInput}
-                />
-              </div>
+      <div className='pane-group pange-group-components'>
+        <div className='pane-header'>
+          Components
+          <button
+            className='btn btn-default btn-xs pull-right mr1'
+            onClick={onOpenComponentOrDirectory}
+          >
+            <i className='fa fa-folder' />
+          </button>
+        </div>
+        <div className='pane-body'>
+          <div className='pane-row'>
+            <div className='form-column full-width'>
+              <input
+                type='text'
+                ref='searchTerm'
+                placeholder='Filter Components'
+                onChange={this.handleSearchTermInput}
+              />
             </div>
           </div>
           <div className='pane-row'>

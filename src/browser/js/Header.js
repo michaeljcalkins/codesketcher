@@ -97,6 +97,40 @@ var Header = function (_React$Component) {
                   _react2.default.createElement('i', { className: 'fa fa-save' }),
                   'Save'
                 )
+              ),
+              _react2.default.createElement('li', { style: { width: '40px' } }),
+              _react2.default.createElement(
+                'li',
+                { className: 'dropdown' },
+                _react2.default.createElement(
+                  'a',
+                  { className: 'dropdown-toggle', 'data-toggle': 'dropdown' },
+                  _react2.default.createElement('i', { className: 'fa fa-code' }),
+                  'Templates ',
+                  _react2.default.createElement('span', { className: 'caret' })
+                ),
+                _react2.default.createElement(
+                  'ul',
+                  { className: 'dropdown-menu' },
+                  _react2.default.createElement(
+                    'li',
+                    null,
+                    _react2.default.createElement(
+                      'a',
+                      null,
+                      'Class Component'
+                    )
+                  ),
+                  _react2.default.createElement(
+                    'li',
+                    null,
+                    _react2.default.createElement(
+                      'a',
+                      null,
+                      'Function Component'
+                    )
+                  )
+                )
               )
             )
           )

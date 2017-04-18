@@ -104,15 +104,12 @@ var PreviewPane = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var _props2 = this.props,
-          onSetBasePathForImages = _props2.onSetBasePathForImages,
-          onSetIncludedCss = _props2.onSetIncludedCss,
-          onAddPropertySeed = _props2.onAddPropertySeed;
+      var onAddPropertySeed = this.props.onAddPropertySeed;
 
 
       return _react2.default.createElement(
         'div',
-        { className: 'pane pane-preview' },
+        null,
         _react2.default.createElement(
           'div',
           { className: 'pane-group pane-group-preview' },
@@ -158,49 +155,6 @@ var PreviewPane = function (_React$Component) {
                 'tbody',
                 null,
                 this.renderPropertyDataFields()
-              )
-            )
-          )
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'pane-group pane-group-settings' },
-          _react2.default.createElement(
-            'div',
-            { className: 'pane-header' },
-            'Environment Settings'
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'pane-body' },
-            _react2.default.createElement(
-              'div',
-              { className: 'pane-row' },
-              _react2.default.createElement(
-                'div',
-                { className: 'form-column full-width' },
-                _react2.default.createElement(
-                  'span',
-                  { className: 'form-label' },
-                  'Base Path For Images'
-                ),
-                _react2.default.createElement('input', {
-                  type: 'text',
-                  placeholder: 'http://localhost:3000/images',
-                  defaultValue: 'https://rangersteve.io',
-                  onChange: onSetBasePathForImages
-                }),
-                _react2.default.createElement(
-                  'span',
-                  { className: 'form-label' },
-                  'Included CSS File'
-                ),
-                _react2.default.createElement('input', {
-                  type: 'text',
-                  placeholder: 'http://localhost:3000/css/app.css',
-                  defaultValue: 'https://rangersteve.io/css/app.css',
-                  onChange: onSetIncludedCss
-                })
               )
             )
           )

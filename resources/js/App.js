@@ -1,10 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import autobind from 'react-autobind'
+import chokidar from 'chokidar'
 
 var Sass = require('sass.js')
 var _ = require('lodash')
-var getImportStrings = require('./lib/getImportStrings')
 var replaceFromWithPath = require('./lib/replaceFromWithPath')
 var recursive = require('recursive-readdir')
 var fs = require('fs')
@@ -15,9 +15,11 @@ var request = require('request')
 
 import Header from './Header'
 import ComponentsPane from './ComponentsPane'
+import EnvironmentSettingsPane from './EnvironmentSettingsPane'
 import EditorPane from './EditorPane'
 import PreviewPane from './PreviewPane'
 import getSharedStartingString from './lib/getSharedStartingString'
+import getImportStrings from './lib/getImportStrings'
 
 export default class App extends React.Component {
   constructor (props) {
@@ -38,13 +40,15 @@ export default class App extends React.Component {
       cachedDirectoryImports: cachedDirectoryImports,
       componentFilepaths: [],
       componentString: null,
+      filesInActiveDirectory: [],
       isDirty: false,
       activeComponentFilepathContents: [],
       componentInstance: null,
       editor: null,
       includedCss: window.localStorage.getItem('includedCss'),
       propertySeeds: [],
-      renderComponentString: null
+      renderComponentString: null,
+      watcher: null
     }
 
     this.debouncedRenderComponent = _.debounce(this.renderComponent, 300)
@@ -120,18 +124,47 @@ export default class App extends React.Component {
       // Files is an array of filename
       var stringSegmentToBeRemoved = getSharedStartingString(files)
       let newComponentFilepaths = []
+      let filesInActiveDirectory = []
 
       files.forEach(function (filepath) {
         if (!filepath.match(/(\.js|\.jsx)/g)) return
 
         var uniqueFilepath = filepath.replace(stringSegmentToBeRemoved, '')
         var filename = path.basename(filepath)
+        filesInActiveDirectory.push(filepath)
 
         newComponentFilepaths.push({
           filename,
           uniqueFilepath,
           filepath
         })
+      })
+
+      if (this.state.watcher) {
+        this.state.watcher.close()
+      }
+
+      this.setState({
+        watcher: chokidar.watch(newActiveDirectory, {
+          ignored: /(^|[\/\\])\../,
+          persistent: true
+        })
+          .on('add', path => {
+            if (this.state.filesInActiveDirectory.indexOf(path) === -1) {
+              this.setState({
+                filesInActiveDirectory
+              })
+              this.handleOpenDirectory(newActiveDirectory)
+            }
+          })
+          .on('unlink', path => {
+            if (this.state.filesInActiveDirectory.indexOf(path) === -1) {
+              this.setState({
+                filesInActiveDirectory
+              })
+              this.handleOpenDirectory(newActiveDirectory)
+            }
+          })
       })
 
       this.handleSetComponentFilepaths(newComponentFilepaths)
@@ -159,7 +192,6 @@ export default class App extends React.Component {
       cachedDirectoryImports
     } = this.state
 
-    var filename = path.basename(filepath)
     var contents = fs.readFileSync(filepath, {encoding: 'utf-8'})
 
     editor.setValue(contents)
@@ -169,17 +201,41 @@ export default class App extends React.Component {
     })
 
     var importStrings = getImportStrings(contents)
+
     importStrings.forEach(importString => {
-      if (cachedDirectoryImports[activeDirectory] && cachedDirectoryImports[activeDirectory][importString]) return
+      if (_.has(cachedDirectoryImports, `[${activeDirectory}][${importString}]`)) return
 
       console.log(importString)
 
-      var selectedFilepath = dialog.showOpenDialog({
+      let usedPotentialLocation = false
+
+      const importFragments = importString.split(' from ')
+      const fromFragment = _.get(importFragments, '[1]').replace(/'/g, '').trim()
+      const potentialImportLocation = path.join(activeDirectory, fromFragment + '.js')
+
+      try {
+        if (fs.lstatSync(potentialImportLocation).isFile()) {
+          this.handleAddCachedDirectoryImports(
+            activeDirectory,
+            importString,
+            potentialImportLocation
+          )
+          usedPotentialLocation = true
+        }
+      } catch (e) {}
+
+      if (usedPotentialLocation) return
+
+      const selectedFilepath = dialog.showOpenDialog({
         properties: ['openFile', 'openDirectory']
       })
       if (!selectedFilepath) return
 
-      this.handleAddCachedDirectoryImports(activeDirectory, importString, selectedFilepath[0])
+      this.handleAddCachedDirectoryImports(
+        activeDirectory,
+        importString,
+        _.get(selectedFilepath, '[0]')
+      )
     })
 
     this.debouncedRenderComponent()
@@ -202,9 +258,43 @@ export default class App extends React.Component {
     this.setState({ componentString: renderComponentString })
 
     try {
-      Object.keys(_.get(cachedDirectoryImports, `[${activeDirectory}]`, {})).forEach(function (key) {
-        var newImportString = replaceFromWithPath(key, _.get(cachedDirectoryImports, `[${activeDirectory}][${key}]`))
-        renderComponentString = renderComponentString.replace(key, newImportString)
+      Object
+        .keys(_.get(cachedDirectoryImports, `[${activeDirectory}]`, {}))
+        .forEach(function (key) {
+          var newImportString = replaceFromWithPath(key, cachedDirectoryImports[activeDirectory][key])
+          renderComponentString = renderComponentString.replace(key, newImportString)
+        })
+
+      // Find all imports
+      const importStrings = getImportStrings(renderComponentString)
+
+      // Loop through them
+      importStrings.forEach(importString => {
+        // if not node_modules transpile them and cache them
+        if (importString.match('node_modules')) return
+
+        const cachedFilepath = importString.replace(/\//g, '-')
+
+        let importFragments = importString.split(' from ')
+        let fromFragment = importFragments[1].replace(/'/g, '').trim()
+        let newFromFragment = fromFragment.replace(/\//g, '-')
+        let importedComponentString = fs.readFileSync(fromFragment)
+
+        // Replace import in renderComponentString with path to cached file
+        let babelResult = babel.transform(importedComponentString, {
+          presets: ['latest', 'react'],
+          plugins: [
+            'transform-class-properties',
+            'transform-es2015-classes',
+            'transform-runtime',
+            'transform-object-rest-spread'
+          ]
+        })
+
+        fs.writeFileSync('storage/components/' + newFromFragment, babelResult.code)
+
+        const normalizedNewFromFragment = path.normalize(__dirname + '/../../../storage/components/' + newFromFragment)
+        renderComponentString = renderComponentString.replace(fromFragment, normalizedNewFromFragment)
       })
 
       let babelResult = babel.transform(renderComponentString, {
@@ -217,11 +307,12 @@ export default class App extends React.Component {
         ]
       })
 
-      fs.writeFileSync('temp-component.js', babelResult.code)
+      fs.writeFileSync('storage/app/temp-component.js', babelResult.code)
 
       // Clear the node require cache and reload the file
-      delete require.cache[require.resolve('../../../temp-component.js')]
-      var transpiledReactComponent = require('../../../temp-component.js').default
+      const tempComponentFilepath = '../../../storage/app/temp-component.js'
+      delete require.cache[require.resolve(tempComponentFilepath)]
+      var transpiledReactComponent = require(tempComponentFilepath).default
 
       // Container for the react component
       var componentPreviewElement = document.getElementById('component-preview')
@@ -236,7 +327,6 @@ export default class App extends React.Component {
         if (!propertySeed.value || propertySeed.value.length === 0) return
         componentPropValues[propertySeed.key] = eval('(' + propertySeed.value + ')') // eslint-disable-line
       })
-      console.log('componentPropValues', componentPropValues)
 
       this.setState({
         componentInstance: ReactDOM.render(
@@ -259,7 +349,8 @@ export default class App extends React.Component {
     const { cachedDirectoryImports } = this.state
 
     let newCachedDirectoryImports = { ...cachedDirectoryImports }
-    _.set(newCachedDirectoryImports, `[${activeDirectory}][${importString}]`, newFilepath)
+    newCachedDirectoryImports[activeDirectory] = newCachedDirectoryImports[activeDirectory] || {}
+    newCachedDirectoryImports[activeDirectory][importString] = newFilepath
 
     this.setState({
       cachedDirectoryImports: newCachedDirectoryImports
@@ -308,7 +399,10 @@ export default class App extends React.Component {
             var matches = css.match(/(\/.*?\.\w{3})/img)
             matches.forEach(function (match) {
               try {
-                css = css.replace(new RegExp(match, 'g'), path.join(basePathForImages, match))
+                css = css.replace(
+                  new RegExp(match, 'g'),
+                  path.join(basePathForImages, match)
+                )
               } catch (e) {
                 console.error('Could not match', match)
               }
@@ -370,24 +464,30 @@ export default class App extends React.Component {
           onSaveComponent={this.handleSaveComponent}
           onNewComponent={this.handleNewComponent}
         />
-        <ComponentsPane
-          onOpenComponent={this.handleOpenComponent}
-          onOpenComponentOrDirectory={this.handleOpenComponentOrDirectory}
-          componentFilepaths={componentFilepaths}
-        />
+        <div className='pane pane-components'>
+          <ComponentsPane
+            onOpenComponent={this.handleOpenComponent}
+            onOpenComponentOrDirectory={this.handleOpenComponentOrDirectory}
+            componentFilepaths={componentFilepaths}
+          />
+          <EnvironmentSettingsPane
+            onSetBasePathForImages={this.handleSetBasePathForImages}
+            onSetIncludedCss={this.handleSetIncludedCss}
+          />
+        </div>
         <EditorPane
           isDirty={isDirty}
           onCreateEditor={this.handleCreateEditor}
           activeComponentFilepath={activeComponentFilepath}
         />
-        <PreviewPane
-          onSetBasePathForImages={this.handleSetBasePathForImages}
-          onSetIncludedCss={this.handleSetIncludedCss}
-          onAddPropertySeed={this.handleAddPropertySeed}
-          onRemovePropertySeed={this.handleRemovePropertySeed}
-          onSetPropertySeed={this.handleSetPropertySeed}
-          propertySeeds={propertySeeds}
-        />
+        <div className='pane pane-preview'>
+          <PreviewPane
+            onAddPropertySeed={this.handleAddPropertySeed}
+            onRemovePropertySeed={this.handleRemovePropertySeed}
+            onSetPropertySeed={this.handleSetPropertySeed}
+            propertySeeds={propertySeeds}
+          />
+        </div>
       </div>
     )
   }

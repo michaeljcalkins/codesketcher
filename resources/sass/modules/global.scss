@@ -11,6 +11,19 @@ body {
   width: 10px;
 }
 
+.align-object-btns {
+  background: #f3f3f3;
+  width: 100%;
+  border-bottom: 1px solid #B8B8B8;
+}
+
+.align-object-btns button.btn-default {
+  background: #f3f3f3;
+  border: 0;
+  border-radius: 0;
+  width: 16.8%
+}
+
 /**
  * Header
  */
@@ -91,7 +104,6 @@ ul.navbar-nav {
   color: #000;
 }
 
-
 /**
  * Pane
  */
@@ -100,14 +112,12 @@ ul.navbar-nav {
     background: transparent;
     border-radius: 0;
     border: 0;
-    bottom: 0;
     box-shadow: none;
     left: 0;
     overflow-x: hidden;
     overflow-y: auto;
     position: absolute;
     right: 0;
-    top: 0;
   }
 
   .pane-group:first-child .pane-header {
@@ -203,12 +213,35 @@ ul.navbar-nav {
 }
 
 /**
- * Editor Pane
+ * Pane Groups
+ */
+.pange-group-components {
+  height: 75%;
+  top: 0;
+}
+
+.pane-group-settings {
+  height: 25%;
+  top: 75%;
+}
+
+.pane-group-preview {
+  height: 75%;
+  top: 0;
+}
+
+.pane-group-prop-editor {
+  height: 25%;
+  top: 75%;
+}
+
+/**
+ * Components Pane
  */
 .pane-components {
-  position: absolute;
-  left: 0;
   bottom: 0;
+  left: 0;
+  position: absolute;
   top: 85px;
   width: 18%;
 }
@@ -234,34 +267,6 @@ ul.navbar-nav {
     bottom: 0;
     cursor: col-resize;
   }
-
-  .pane-group-preview {
-    height: 50%;
-    top: 0;
-  }
-
-  .pane-group-prop-editor {
-    height: 25%;
-    top: 50%;
-  }
-
-  .pane-group-settings {
-    height: 25%;
-    top: 75%;
-  }
-}
-
-.align-object-btns {
-  background: #f3f3f3;
-  width: 100%;
-  border-bottom: 1px solid #B8B8B8;
-}
-
-.align-object-btns button.btn-default {
-  background: #f3f3f3;
-  border: 0;
-  border-radius: 0;
-  width: 16.8%
 }
 
 #component-preview {
@@ -324,10 +329,3 @@ ul.navbar-nav {
   color: #fff;
   background-color: #428bca;
 }
-
-
-
-
-
-
-

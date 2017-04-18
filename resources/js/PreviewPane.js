@@ -49,13 +49,11 @@ export default class PreviewPane extends React.Component {
 
   render () {
     const {
-      onSetBasePathForImages,
-      onSetIncludedCss,
       onAddPropertySeed
     } = this.props
 
     return (
-      <div className='pane pane-preview'>
+      <div>
         <div className='pane-group pane-group-preview'>
           <div className='pane-header'>
             Component Preview
@@ -83,32 +81,6 @@ export default class PreviewPane extends React.Component {
                 {this.renderPropertyDataFields()}
               </tbody>
             </table>
-          </div>
-        </div>
-        <div className='pane-group pane-group-settings'>
-          <div className='pane-header'>
-            Environment Settings
-          </div>
-          <div className='pane-body'>
-            <div className='pane-row'>
-              <div className='form-column full-width'>
-                <span className='form-label'>Base Path For Images</span>
-                <input
-                  type='text'
-                  placeholder='http://localhost:3000/images'
-                  defaultValue='https://rangersteve.io'
-                  onChange={onSetBasePathForImages}
-                />
-
-                <span className='form-label'>Included CSS File</span>
-                <input
-                  type='text'
-                  placeholder='http://localhost:3000/css/app.css'
-                  defaultValue='https://rangersteve.io/css/app.css'
-                  onChange={onSetIncludedCss}
-                />
-              </div>
-            </div>
           </div>
         </div>
       </div>
