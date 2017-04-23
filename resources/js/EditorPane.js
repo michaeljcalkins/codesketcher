@@ -10,17 +10,35 @@ export default class EditorPane extends React.Component {
   }
 
   componentDidMount () {
-    const { onCreateEditor } = this.props
+    const {
+      onCreateEditor,
+      onSaveComponent,
+      onNewComponent,
+      onOpenComponentOrDirectory
+    } = this.props
 
-    onCreateEditor(window.CodeMirror(document.getElementById('editor'), {
+    const editor = window.CodeMirror(document.getElementById('editor'), {
       lineNumbers: true,
       styleActiveLine: true,
       indentWithTabs: false,
       lineWrapping: true,
+      showInvisibles: true,
       mode: 'jsx',
       tabSize: 2,
-      theme: 'monokai'
-    }))
+      theme: 'monokai',
+      showTrailingSpace: true,
+      matchTags: true,
+      matchBrackets: true,
+      autoCloseBrackets: true
+    })
+
+    editor.setOption('extraKeys', {
+      'Cmd-S': () => onSaveComponent(),
+      'Cmd-O': () => onOpenComponentOrDirectory(),
+      'Cmd-N': () => onNewComponent()
+    })
+
+    onCreateEditor(editor)
   }
 
   render () {
@@ -29,7 +47,9 @@ export default class EditorPane extends React.Component {
       isDirty
     } = this.props
 
-    const componentBasename = path.basename(activeComponentFilepath)
+    const componentBasename = activeComponentFilepath
+      ? '- ' + path.basename(activeComponentFilepath)
+      : ''
     const paneHeaderClasses = classnames('pane-header', {
       // 'bgg': !isDirty,
       // 'bgr': isDirty
@@ -39,7 +59,7 @@ export default class EditorPane extends React.Component {
       <div className='pane pane-editor'>
         <div className='pane-group h100 pos-rel'>
           <div className={paneHeaderClasses}>
-            Editor {activeComponentFilepath && '- ' + componentBasename}
+            Editor {componentBasename}
           </div>
           <div className='pane-row' id='editor' style={{ position: 'absolute', top: '32px', left: 0, bottom: 0, right: 0 }} />
         </div>

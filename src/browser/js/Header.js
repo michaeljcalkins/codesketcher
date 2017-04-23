@@ -52,7 +52,8 @@ var Header = function (_React$Component) {
       var _props = this.props,
           onOpenComponentOrDirectory = _props.onOpenComponentOrDirectory,
           onNewComponent = _props.onNewComponent,
-          onSaveComponent = _props.onSaveComponent;
+          onSaveComponent = _props.onSaveComponent,
+          onAddTemplate = _props.onAddTemplate;
 
 
       return _react2.default.createElement(
@@ -114,20 +115,24 @@ var Header = function (_React$Component) {
                   { className: 'dropdown-menu' },
                   _react2.default.createElement(
                     'li',
-                    null,
-                    _react2.default.createElement(
-                      'a',
-                      null,
-                      'Class Component'
-                    )
-                  ),
-                  _react2.default.createElement(
-                    'li',
-                    null,
+                    { onClick: function onClick() {
+                        return onAddTemplate(0);
+                      } },
                     _react2.default.createElement(
                       'a',
                       null,
                       'Function Component'
+                    )
+                  ),
+                  _react2.default.createElement(
+                    'li',
+                    { onClick: function onClick() {
+                        return onAddTemplate(1);
+                      } },
+                    _react2.default.createElement(
+                      'a',
+                      null,
+                      'Class Component'
                     )
                   )
                 )

@@ -14,6 +14,8 @@ export default class PreviewPane extends React.Component {
       onSetPropertySeed
     } = this.props
 
+    if (!propertySeeds) return []
+
     return propertySeeds.map((propertySeed, key) => {
       return (
         <tr className='pane-row bt0' key={'property-seed-' + propertySeed.id}>

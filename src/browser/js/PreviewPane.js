@@ -55,6 +55,8 @@ var PreviewPane = function (_React$Component) {
           onSetPropertySeed = _props.onSetPropertySeed;
 
 
+      if (!propertySeeds) return [];
+
       return propertySeeds.map(function (propertySeed, key) {
         return _react2.default.createElement(
           'tr',

@@ -57,28 +57,51 @@ var EditorPane = function (_React$Component) {
   (0, _createClass3.default)(EditorPane, [{
     key: 'componentDidMount',
     value: function componentDidMount() {
-      var onCreateEditor = this.props.onCreateEditor;
+      var _props = this.props,
+          onCreateEditor = _props.onCreateEditor,
+          onSaveComponent = _props.onSaveComponent,
+          onNewComponent = _props.onNewComponent,
+          onOpenComponentOrDirectory = _props.onOpenComponentOrDirectory;
 
 
-      onCreateEditor(window.CodeMirror(document.getElementById('editor'), {
+      var editor = window.CodeMirror(document.getElementById('editor'), {
         lineNumbers: true,
         styleActiveLine: true,
         indentWithTabs: false,
         lineWrapping: true,
+        showInvisibles: true,
         mode: 'jsx',
         tabSize: 2,
-        theme: 'monokai'
-      }));
+        theme: 'monokai',
+        showTrailingSpace: true,
+        matchTags: true,
+        matchBrackets: true,
+        autoCloseBrackets: true
+      });
+
+      editor.setOption('extraKeys', {
+        'Cmd-S': function CmdS() {
+          return onSaveComponent();
+        },
+        'Cmd-O': function CmdO() {
+          return onOpenComponentOrDirectory();
+        },
+        'Cmd-N': function CmdN() {
+          return onNewComponent();
+        }
+      });
+
+      onCreateEditor(editor);
     }
   }, {
     key: 'render',
     value: function render() {
-      var _props = this.props,
-          activeComponentFilepath = _props.activeComponentFilepath,
-          isDirty = _props.isDirty;
+      var _props2 = this.props,
+          activeComponentFilepath = _props2.activeComponentFilepath,
+          isDirty = _props2.isDirty;
 
 
-      var componentBasename = _path2.default.basename(activeComponentFilepath);
+      var componentBasename = activeComponentFilepath ? '- ' + _path2.default.basename(activeComponentFilepath) : '';
       var paneHeaderClasses = (0, _classnames2.default)('pane-header', {
         // 'bgg': !isDirty,
         // 'bgr': isDirty
@@ -94,7 +117,7 @@ var EditorPane = function (_React$Component) {
             'div',
             { className: paneHeaderClasses },
             'Editor ',
-            activeComponentFilepath && '- ' + componentBasename
+            componentBasename
           ),
           _react2.default.createElement('div', { className: 'pane-row', id: 'editor', style: { position: 'absolute', top: '32px', left: 0, bottom: 0, right: 0 } })
         )

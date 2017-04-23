@@ -8,4 +8,5 @@ builds
 node_modules
 releases
 s3.key
-/temp-component.js
+storage/app/**/*.js
+storage/components/**/*.js

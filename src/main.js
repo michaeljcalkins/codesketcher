@@ -1,12 +1,13 @@
 'use strict'
 
+const path = require('path')
+const electron = require('electron')
+
 // Report crashes to our server.
-require('crash-reporter').start({
+electron.crashReporter.start({
   companyName: 'ReactEcho',
   submitURL: 'http://reactecho.com'
 })
-
-const electron = require('electron')
 
 // Module to control application life.
 const app = electron.app
@@ -29,7 +30,7 @@ function createWindow () {
   })
 
   // and load the index.html of the app.
-  mainWindow.loadURL('file://' + __dirname + '/browser/index.html')
+  mainWindow.loadURL(path.join('file://', __dirname, '/browser/index.html'))
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools()

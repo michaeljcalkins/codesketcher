@@ -1,0 +1,128 @@
+.bgw { background-color: white; }
+.bgr { background-color: #DB514A; }
+.bgg { background-color: #54BB53; }
+
+.bra0 { border-radius: 0 }
+.db { display: block }
+
+.uppercase { text-transform: uppercase }
+
+.tcw, .tcw-hover:hover { color: #eee; }
+.tcb, .tcb-hover:hover { color: #333; }
+
+.tcw.table-hover > tbody > tr:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.tcb.table-hover > tbody > tr:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.table-text-right {
+  th, td {
+    text-align: right;
+  }
+  .text-left {
+    text-align: left;
+  }
+}
+
+.align-middle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pointer { cursor: pointer }
+
+.no-border { border: 0 }
+
+.fwbold { font-weight: bold }
+.fwnormal { font-weight: normal }
+.fwlight { font-weight: light }
+
+.ff-bangers { font-family: Bangers, Arial; }
+
+.text-stroke {
+  text-shadow: -1px -1px 0 #504F4D,
+    1px -1px 0 #504F4D,
+    -1px 1px 0 #504F4D,
+    1px 1px 0 #504F4D;
+}
+
+.one-fifth { width: 20% }
+.one-fourth { width: 25% }
+.three-fourths { width: 75% }
+.full-width { width: 100%; }
+.one-half { width: 50%; }
+.two-thirds { width: 66.66%; }
+.one-third { width: 33.33%; }
+
+.align-middle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bt0 { border-top: none }
+.br1 { border-right: 1px solid #B8B8B8; }
+
+.h100 { height: 100% }
+.h75 { height: 75% }
+.h70 { height: 70% }
+.h50 { height: 50% }
+.h30 { height: 30% }
+.h25 { height: 25% }
+
+.w50 { width: 50% }
+.w40 { width: 40% }
+.w45 { width: 45% }
+.w10 { width: 10% }
+
+.db { display: block }
+.pos-rel { position: relative }
+
+.h100 { height: 100%; }
+
+.mauto {
+  margin-left: auto;
+  margin-right: auto
+}
+
+$i: 20;
+@while $i > -1 {
+  .mt#{$i} { margin-top: 5px * $i; }
+  .mr#{$i} { margin-right: 5px * $i; }
+  .mb#{$i} { margin-bottom: 5px * $i; }
+  .ml#{$i} { margin-left: 5px * $i; }
+  $i: $i - 1;
+}
+
+$i: 12;
+@while $i > -1 {
+  .pt#{$i} { padding-top: 5px * $i; }
+  .pr#{$i} { padding-right: 5px * $i; }
+  .pb#{$i} { padding-bottom: 5px * $i; }
+  .pl#{$i} { padding-left: 5px * $i; }
+  .pv#{$i} { padding-top: 5px * $i; padding-bottom: 5px * $i; }
+  .ph#{$i} { padding-left: 5px * $i; padding-right: 5px * $i; }
+  $i: $i - 1;
+}
+
+$i: 60;
+@while $i > -1 {
+  .ft#{$i} { font-size: 1px * $i; }
+  $i: $i - 1;
+}
+
+$i: 40;
+@while $i > -1 {
+  .lh#{$i} { line-height: 2px * $i; }
+  $i: $i - 1;
+}
+
+$i: 5;
+@while $i > -1 {
+  .ls#{$i} { letter-spacing: 1px * $i; }
+  $i: $i - 1;
+}

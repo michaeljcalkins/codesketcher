@@ -6,12 +6,14 @@
   "scripts": {
     "test": "NODE_ENV=test mocha --require babel-core/register src/browser/js/**/*.test.js",
     "test-watch": "nodemon -q -x 'npm test'",
+    "dev": "npm run watch && npm run start",
     "watch": "nodemon --ignore 'src/**.js' --watch 'resources/**/*.*' -q -x 'babel resources/js --out-dir src/browser/js --presets=latest,react --plugins=transform-object-rest-spread,transform-class-properties,transform-es2015-classes,transform-runtime --ignore test.js && gulp'",
     "start": "electron ."
   },
   "standard": {
     "parser": "babel-eslint",
     "globals": [
+      "Mousetrap",
       "module",
       "describe",
       "it"
@@ -61,11 +63,13 @@
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-latest": "^6.24.0",
     "babelify": "^7.3.0",
-    "browserify": "^14.1.0",
     "browserify-string": "^1.1.1",
     "change-case": "^2.3.1",
     "classnames": "^2.2.5",
     "del": "^2.2.0",
+    "electron-context-menu": "^0.9.0",
+    "electron-dl": "^1.8.0",
+    "electron-is-dev": "^0.1.2",
     "electron-json-storage": "^3.0.4",
     "electron-settings": "^3.0.14",
     "fstream": "^1.0.8",

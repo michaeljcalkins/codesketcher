@@ -11,7 +11,8 @@ export default class Header extends React.Component {
     const {
       onOpenComponentOrDirectory,
       onNewComponent,
-      onSaveComponent
+      onSaveComponent,
+      onAddTemplate
     } = this.props
 
     return (
@@ -45,8 +46,8 @@ export default class Header extends React.Component {
                   Templates <span className='caret' />
                 </a>
                 <ul className='dropdown-menu'>
-                  <li><a>Class Component</a></li>
-                  <li><a>Function Component</a></li>
+                  <li onClick={() => onAddTemplate(0)}><a>Function Component</a></li>
+                  <li onClick={() => onAddTemplate(1)}><a>Class Component</a></li>
                 </ul>
               </li>
             </ul>

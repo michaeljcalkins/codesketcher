@@ -33,11 +33,20 @@ export default class App extends React.Component {
       cachedDirectoryImports = {}
     }
 
+    let propertySeeds = null
+    try {
+      propertySeeds = window.localStorage.getItem('propertySeeds')
+        ? JSON.parse(window.localStorage.getItem('propertySeeds'))
+        : []
+    } catch (e) {
+      propertySeeds = []
+    }
+
     this.state = {
       basePathForImages: window.localStorage.getItem('basePathForImages'),
       activeComponentFilepath: null,
       activeDirectory: window.localStorage.getItem('activeDirectory'),
-      cachedDirectoryImports: cachedDirectoryImports,
+      cachedDirectoryImports,
       componentFilepaths: [],
       componentString: null,
       filesInActiveDirectory: [],
@@ -46,7 +55,7 @@ export default class App extends React.Component {
       componentInstance: null,
       editor: null,
       includedCss: window.localStorage.getItem('includedCss'),
-      propertySeeds: [],
+      propertySeeds,
       renderComponentString: null,
       watcher: null
     }
@@ -98,7 +107,10 @@ export default class App extends React.Component {
   }
 
   handleSaveComponent () {
-    const { activeComponentFilepath, editor } = this.state
+    const {
+      activeComponentFilepath,
+      editor
+    } = this.state
 
     const componentString = editor.getValue()
 
@@ -200,7 +212,16 @@ export default class App extends React.Component {
       activeComponentFilepath: filepath
     })
 
-    var importStrings = getImportStrings(contents)
+    this.debouncedRenderComponent()
+  }
+
+  handleFindAndAddImports (contents) {
+    const {
+      activeDirectory,
+      cachedDirectoryImports
+    } = this.state
+
+    let importStrings = getImportStrings(contents)
 
     importStrings.forEach(importString => {
       if (_.has(cachedDirectoryImports, `[${activeDirectory}][${importString}]`)) return
@@ -237,8 +258,22 @@ export default class App extends React.Component {
         _.get(selectedFilepath, '[0]')
       )
     })
+  }
 
-    this.debouncedRenderComponent()
+  handleReplaceRelativeImports (contents) {
+    const {
+      activeDirectory,
+      cachedDirectoryImports
+    } = this.state
+
+    Object
+      .keys(_.get(cachedDirectoryImports, `[${activeDirectory}]`, {}))
+      .forEach(function (key) {
+        var newImportString = replaceFromWithPath(key, cachedDirectoryImports[activeDirectory][key])
+        contents = contents.replace(key, newImportString)
+      })
+
+    return contents
   }
 
   renderComponent () {
@@ -255,15 +290,13 @@ export default class App extends React.Component {
 
     if (!renderComponentString) return console.error(renderComponentString)
 
-    this.setState({ componentString: renderComponentString })
+    this.setState({
+      componentString: renderComponentString
+    })
 
     try {
-      Object
-        .keys(_.get(cachedDirectoryImports, `[${activeDirectory}]`, {}))
-        .forEach(function (key) {
-          var newImportString = replaceFromWithPath(key, cachedDirectoryImports[activeDirectory][key])
-          renderComponentString = renderComponentString.replace(key, newImportString)
-        })
+      this.handleFindAndAddImports(renderComponentString)
+      renderComponentString = this.handleReplaceRelativeImports(renderComponentString)
 
       // Find all imports
       const importStrings = getImportStrings(renderComponentString)
@@ -272,8 +305,6 @@ export default class App extends React.Component {
       importStrings.forEach(importString => {
         // if not node_modules transpile them and cache them
         if (importString.match('node_modules')) return
-
-        const cachedFilepath = importString.replace(/\//g, '-')
 
         let importFragments = importString.split(' from ')
         let fromFragment = importFragments[1].replace(/'/g, '').trim()
@@ -293,7 +324,7 @@ export default class App extends React.Component {
 
         fs.writeFileSync('storage/components/' + newFromFragment, babelResult.code)
 
-        const normalizedNewFromFragment = path.normalize(__dirname + '/../../../storage/components/' + newFromFragment)
+        const normalizedNewFromFragment = path.join(__dirname, '/../../../storage/components/', newFromFragment)
         delete require.cache[require.resolve(normalizedNewFromFragment)]
         renderComponentString = renderComponentString.replace(fromFragment, normalizedNewFromFragment)
       })
@@ -326,10 +357,12 @@ export default class App extends React.Component {
 
       // Get seed data for properties if there is any
       var componentPropValues = {}
-      propertySeeds.forEach(function (propertySeed) {
-        if (!propertySeed.value || propertySeed.value.length === 0) return
-        componentPropValues[propertySeed.key] = eval('(' + propertySeed.value + ')') // eslint-disable-line
-      })
+      if (propertySeeds) {
+        propertySeeds.forEach(function (propertySeed) {
+          if (!propertySeed.value || propertySeed.value.length === 0) return
+          componentPropValues[propertySeed.key] = eval('(' + propertySeed.value + ')') // eslint-disable-line
+        })
+      }
 
       this.setState({
         componentInstance: ReactDOM.render(
@@ -426,9 +459,54 @@ export default class App extends React.Component {
       id: Date.now()
     }, ...propertySeeds]
 
+    window.localStorage.setItem('propertySeeds', JSON.stringify(newPropertySeeds))
+
     this.setState({
       propertySeeds: newPropertySeeds
     }, () => this.debouncedRenderComponent())
+  }
+
+  handleAddTemplate (id) {
+    const {
+      editor
+    } = this.state
+
+    let contents = editor.getValue()
+
+    switch (id) {
+      case 0:
+        contents = contents + `import React from 'react'
+
+export default function () {
+  return (
+
+  )
+}
+`
+        break
+
+      case 1:
+        contents = contents + `import React, { Component } from 'react'
+import autobind from 'react-autobind'
+
+export default class  extends Component {
+  constructor (props) {
+    super(props)
+    autobind(this)
+  }
+
+  render () {
+    return (
+
+    )
+  }
+}
+`
+        break
+
+    }
+
+    editor.setValue(contents)
   }
 
   handleSetPropertySeed (e, key, propName) {
@@ -436,6 +514,8 @@ export default class App extends React.Component {
 
     let newPropertySeeds = [ ...propertySeeds ]
     _.set(newPropertySeeds, `[${key}][${propName}]`, e.target.value)
+
+    window.localStorage.setItem('propertySeeds', JSON.stringify(newPropertySeeds))
 
     this.setState({
       propertySeeds: newPropertySeeds
@@ -466,6 +546,7 @@ export default class App extends React.Component {
           onOpenComponentOrDirectory={this.handleOpenComponentOrDirectory}
           onSaveComponent={this.handleSaveComponent}
           onNewComponent={this.handleNewComponent}
+          onAddTemplate={this.handleAddTemplate}
         />
         <div className='pane pane-components'>
           <ComponentsPane
@@ -482,6 +563,9 @@ export default class App extends React.Component {
           isDirty={isDirty}
           onCreateEditor={this.handleCreateEditor}
           activeComponentFilepath={activeComponentFilepath}
+          onSaveComponent={this.handleSaveComponent}
+          onNewComponent={this.handleNewComponent}
+          onOpenComponentOrDirectory={this.handleOpenComponentOrDirectory}
         />
         <div className='pane pane-preview'>
           <PreviewPane
