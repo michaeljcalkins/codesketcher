@@ -1,6 +1,4 @@
-.bgw { background-color: white; }
-.bgr { background-color: #DB514A; }
-.bgg { background-color: #54BB53; }
+.bglb { background-color: #2C3544; }
 
 .bra0 { border-radius: 0 }
 .db { display: block }
@@ -9,6 +7,7 @@
 
 .tcw, .tcw-hover:hover { color: #eee; }
 .tcb, .tcb-hover:hover { color: #333; }
+.tcg { color: #99A6B8 }
 
 .tcw.table-hover > tbody > tr:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -65,7 +64,10 @@
 }
 
 .bt0 { border-top: none }
-.br1 { border-right: 1px solid #B8B8B8; }
+.br1 { border-right: 1px solid #181E26; }
+.bb1 { border-bottom: 1px solid #181E26; }
+.bt1 { border-top: 1px solid #181E26; }
+.bl1 { border-left: 1px solid #181E26; }
 
 .h100 { height: 100% }
 .h75 { height: 75% }

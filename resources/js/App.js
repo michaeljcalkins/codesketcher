@@ -13,11 +13,9 @@ var babel = require('babel-core')
 var dialog = require('electron').remote.dialog
 var request = require('request')
 
-import Header from './Header'
 import ComponentsPane from './ComponentsPane'
-import EnvironmentSettingsPane from './EnvironmentSettingsPane'
-import EditorPane from './EditorPane'
 import PreviewPane from './PreviewPane'
+import SettingsModal from './SettingsModal'
 import getSharedStartingString from './lib/getSharedStartingString'
 import getImportStrings from './lib/getImportStrings'
 
@@ -43,18 +41,17 @@ export default class App extends React.Component {
     }
 
     this.state = {
-      basePathForImages: window.localStorage.getItem('basePathForImages'),
-      activeComponentFilepath: null,
+      activeComponentContents: null,
+      activeComponentFilepath: window.localStorage.getItem('activeComponentFilepath'),
+      activeComponentFilepathContents: [],
       activeDirectory: window.localStorage.getItem('activeDirectory'),
+      basePathForImages: window.localStorage.getItem('basePathForImages'),
       cachedDirectoryImports,
       componentFilepaths: [],
-      componentString: null,
-      filesInActiveDirectory: [],
-      isDirty: false,
-      activeComponentFilepathContents: [],
       componentInstance: null,
-      editor: null,
+      filesInActiveDirectory: [],
       includedCss: window.localStorage.getItem('includedCss'),
+      isRendering: false,
       propertySeeds,
       renderComponentString: null,
       watcher: null
@@ -64,7 +61,10 @@ export default class App extends React.Component {
   }
 
   componentWillMount () {
-    const { activeDirectory } = this.state
+    const {
+      activeDirectory,
+      activeComponentFilepath
+    } = this.state
 
     try {
       if (fs.lstatSync(activeDirectory).isDirectory()) this.handleOpenDirectory(activeDirectory)
@@ -81,6 +81,10 @@ export default class App extends React.Component {
     Mousetrap.bind('command+n', () => {
       this.handleNewComponent()
     })
+
+    if (activeComponentFilepath) {
+      this.debouncedRenderComponent()
+    }
   }
 
   componentDidMount () {
@@ -88,51 +92,11 @@ export default class App extends React.Component {
     this.debouncedRenderComponent()
   }
 
-  handleCreateEditor (editor) {
-    this.setState({ editor })
-    editor.on('change', (e) => {
-      this.debouncedRenderComponent()
-    })
-  }
-
-  handleNewComponent () {
-    const { editor } = this.state
-
-    editor.setValue('')
-
-    this.setState({
-      activeComponentFilepath: null,
-      componentString: null
-    })
-  }
-
-  handleSaveComponent () {
-    const {
-      activeComponentFilepath,
-      editor
-    } = this.state
-
-    const componentString = editor.getValue()
-
-    if (!activeComponentFilepath) {
-      var newFilepath = dialog.showSaveDialog()
-
-      if (!newFilepath) return
-      this.setState({
-        activeComponentFilepath: newFilepath
-      })
-
-      fs.writeFileSync(newFilepath, componentString)
-      this.handleOpenComponent(newFilepath)
-      return
-    }
-
-    fs.writeFile(activeComponentFilepath, componentString)
-  }
-
   handleOpenDirectory (newActiveDirectory) {
     this.handleSetActiveDirectory(newActiveDirectory)
     recursive(newActiveDirectory, (err, files) => {
+      if (err) return console.error(err)
+
       // Files is an array of filename
       var stringSegmentToBeRemoved = getSharedStartingString(files)
       let newComponentFilepaths = []
@@ -158,7 +122,7 @@ export default class App extends React.Component {
 
       this.setState({
         watcher: chokidar.watch(newActiveDirectory, {
-          ignored: /(^|[\/\\])\../,
+          ignored: /(^|[/\\])\../,
           persistent: true
         })
           .on('add', path => {
@@ -168,6 +132,9 @@ export default class App extends React.Component {
               })
               this.handleOpenDirectory(newActiveDirectory)
             }
+          })
+          .on('change', path => {
+            this.debouncedRenderComponent()
           })
           .on('unlink', path => {
             if (this.state.filesInActiveDirectory.indexOf(path) > -1) {
@@ -198,65 +165,80 @@ export default class App extends React.Component {
   }
 
   handleOpenComponent (filepath) {
-    const {
-      activeDirectory,
-      editor,
-      cachedDirectoryImports
-    } = this.state
-
     var contents = fs.readFileSync(filepath, {encoding: 'utf-8'})
 
-    editor.setValue(contents)
+    window.localStorage.setItem('activeComponentFilepath', filepath)
 
     this.setState({
-      activeComponentFilepath: filepath
+      activeComponentFilepath: filepath,
+      activeComponentContents: contents
     })
 
     this.debouncedRenderComponent()
   }
 
-  handleFindAndAddImports (contents) {
+  handleFindAndAddImports (filepath, contents) {
     const {
       activeDirectory,
       cachedDirectoryImports
     } = this.state
 
+    if (!contents) {
+      contents = fs.readFileSync(filepath)
+    }
+
     let importStrings = getImportStrings(contents)
 
     importStrings.forEach(importString => {
+      const componentDirname = path.dirname(filepath)
       if (_.has(cachedDirectoryImports, `[${activeDirectory}][${importString}]`)) return
 
-      console.log(importString)
+      console.log('Attempting to import:', importString)
 
       let usedPotentialLocation = false
 
       const importFragments = importString.split(' from ')
       const fromFragment = _.get(importFragments, '[1]').replace(/'/g, '').trim()
-      const potentialImportLocation = path.join(activeDirectory, fromFragment + '.js')
 
+      // Location of imported file relative to the location of the active component's location.
+      const potentialImportLocation = path.join(componentDirname, fromFragment + '.js')
+
+      let importLocation = null
+
+      // Transpile the file if found relatively to the active component
       try {
-        if (fs.lstatSync(potentialImportLocation).isFile()) {
-          this.handleAddCachedDirectoryImports(
-            activeDirectory,
-            importString,
-            potentialImportLocation
-          )
+        if (
+          fs.lstatSync(potentialImportLocation).isFile() ||
+          fs.lstatSync(potentialImportLocation).isDirectory()
+        ) {
+          importLocation = potentialImportLocation
           usedPotentialLocation = true
         }
       } catch (e) {}
 
-      if (usedPotentialLocation) return
+      // Ask the user for the location of the file/dir and transpile that
+      if (!usedPotentialLocation) {
+        const selectedFilepath = dialog.showOpenDialog({
+          properties: ['openFile', 'openDirectory']
+        })
+        if (!_.has(selectedFilepath, '[0]')) return
+        importLocation = _.get(selectedFilepath, '[0]')
+      }
 
-      const selectedFilepath = dialog.showOpenDialog({
-        properties: ['openFile', 'openDirectory']
-      })
-      if (!selectedFilepath) return
+      if (!importLocation) return
 
-      this.handleAddCachedDirectoryImports(
+      const cachedFilePath = this.handleAddCachedDirectoryImports(
         activeDirectory,
         importString,
-        _.get(selectedFilepath, '[0]')
+        importLocation
       )
+
+      try {
+        // require(cachedFilePath)
+      } catch (e) {
+        // this.handleFindAndAddImports(importLocation)
+        console.error('Attempted require failed', cachedFilePath, e)
+      }
     })
   }
 
@@ -278,24 +260,21 @@ export default class App extends React.Component {
 
   renderComponent () {
     const {
-      editor,
       basePathForImages,
-      activeDirectory,
+      activeComponentFilepath,
       propertySeeds,
-      cachedDirectoryImports,
       componentInstance
     } = this.state
 
-    let renderComponentString = editor.getValue()
+    if (!activeComponentFilepath) return
+
+    let renderComponentString = fs.readFileSync(activeComponentFilepath, {encoding: 'utf-8'})
 
     if (!renderComponentString) return console.error(renderComponentString)
 
-    this.setState({
-      componentString: renderComponentString
-    })
-
+    this.setState({ isRendering: true })
     try {
-      this.handleFindAndAddImports(renderComponentString)
+      this.handleFindAndAddImports(activeComponentFilepath, renderComponentString)
       renderComponentString = this.handleReplaceRelativeImports(renderComponentString)
 
       // Find all imports
@@ -329,7 +308,7 @@ export default class App extends React.Component {
         renderComponentString = renderComponentString.replace(fromFragment, normalizedNewFromFragment)
       })
 
-      console.log(renderComponentString)
+      // console.log(renderComponentString)
 
       let babelResult = babel.transform(renderComponentString, {
         presets: ['latest', 'react'],
@@ -371,18 +350,30 @@ export default class App extends React.Component {
         )
       })
 
-      $('#component-preview').find('img').each(function () {
-        var imgSrc = $(this).attr('src')
-        var newImgSrc = path.join(basePathForImages, imgSrc)
-        $(this).attr('src', newImgSrc)
-      })
+      if (basePathForImages) {
+        $('#component-preview').find('img').each(function () {
+          var imgSrc = $(this).attr('src')
+          if (!imgSrc) return
+          var newImgSrc = path.join(basePathForImages, imgSrc)
+          $(this).attr('src', newImgSrc)
+        })
+      }
+
+      this.setState({ isRendering: false })
     } catch (e) {
+      this.setState({ isRendering: false })
       console.error(e)
     }
   }
 
   handleAddCachedDirectoryImports (activeDirectory, importString, newFilepath) {
-    const { cachedDirectoryImports } = this.state
+    const {
+      cachedDirectoryImports
+    } = this.state
+
+    if (!newFilepath) {
+      return console.error('newFilepath is required when caching directory imports.')
+    }
 
     let newCachedDirectoryImports = { ...cachedDirectoryImports }
     newCachedDirectoryImports[activeDirectory] = newCachedDirectoryImports[activeDirectory] || {}
@@ -393,6 +384,8 @@ export default class App extends React.Component {
     })
 
     window.localStorage.setItem('cachedDirectoryImports', JSON.stringify(newCachedDirectoryImports))
+
+    return newFilepath
   }
 
   handleSetActiveDirectory (newActiveDirectory) {
@@ -423,32 +416,40 @@ export default class App extends React.Component {
   }
 
   handleIncludedCssChange () {
-    const { includedCss, basePathForImages } = this.state
+    const {
+      includedCss,
+      basePathForImages
+    } = this.state
+
+    if (!includedCss) return
 
     request.get(includedCss, (error, response, body) => {
-      if (!error && response.statusCode == 200) {
-        let encapsulatedCss = `#component-preview{${body}}`
-
-        Sass.compile(encapsulatedCss, (result) => {
-          var css = result.text
-          if (basePathForImages) {
-            var matches = css.match(/(\/.*?\.\w{3})/img)
-            matches.forEach(function (match) {
-              try {
-                css = css.replace(
-                  new RegExp(match, 'g'),
-                  path.join(basePathForImages, match)
-                )
-              } catch (e) {
-                console.error('Could not match', match)
-              }
-            })
-          }
-
-          $('#component-styles').html(css)
-          this.debouncedRenderComponent()
-        })
+      if (error || response.statusCode !== 200) {
+        console.error(error)
+        return
       }
+
+      let encapsulatedCss = `#component-preview{${body}}`
+
+      Sass.compile(encapsulatedCss, (result) => {
+        var css = result.text
+        if (basePathForImages) {
+          var matches = css.match(/(\/.*?\.\w{3})/img)
+          matches.forEach(function (match) {
+            try {
+              css = css.replace(
+                new RegExp(match, 'g'),
+                path.join(basePathForImages, match)
+              )
+            } catch (e) {
+              console.error('Could not match', match)
+            }
+          })
+        }
+
+        $('#component-styles').html(css)
+        this.debouncedRenderComponent()
+      })
     })
   }
 
@@ -464,49 +465,6 @@ export default class App extends React.Component {
     this.setState({
       propertySeeds: newPropertySeeds
     }, () => this.debouncedRenderComponent())
-  }
-
-  handleAddTemplate (id) {
-    const {
-      editor
-    } = this.state
-
-    let contents = editor.getValue()
-
-    switch (id) {
-      case 0:
-        contents = contents + `import React from 'react'
-
-export default function () {
-  return (
-
-  )
-}
-`
-        break
-
-      case 1:
-        contents = contents + `import React, { Component } from 'react'
-import autobind from 'react-autobind'
-
-export default class  extends Component {
-  constructor (props) {
-    super(props)
-    autobind(this)
-  }
-
-  render () {
-    return (
-
-    )
-  }
-}
-`
-        break
-
-    }
-
-    editor.setValue(contents)
   }
 
   handleSetPropertySeed (e, key, propName) {
@@ -534,46 +492,39 @@ export default class  extends Component {
 
   render () {
     const {
-      componentFilepaths,
       activeComponentFilepath,
-      propertySeeds,
-      isDirty
+      componentFilepaths,
+      isRendering,
+      propertySeeds
     } = this.state
 
     return (
       <div>
-        <Header
-          onOpenComponentOrDirectory={this.handleOpenComponentOrDirectory}
-          onSaveComponent={this.handleSaveComponent}
-          onNewComponent={this.handleNewComponent}
-          onAddTemplate={this.handleAddTemplate}
-        />
         <div className='pane pane-components'>
           <ComponentsPane
+            activeComponentFilepath={activeComponentFilepath}
             onOpenComponent={this.handleOpenComponent}
             onOpenComponentOrDirectory={this.handleOpenComponentOrDirectory}
             componentFilepaths={componentFilepaths}
           />
-          <EnvironmentSettingsPane
-            onSetBasePathForImages={this.handleSetBasePathForImages}
-            onSetIncludedCss={this.handleSetIncludedCss}
-          />
         </div>
-        <EditorPane
-          isDirty={isDirty}
-          onCreateEditor={this.handleCreateEditor}
-          activeComponentFilepath={activeComponentFilepath}
-          onSaveComponent={this.handleSaveComponent}
-          onNewComponent={this.handleNewComponent}
-          onOpenComponentOrDirectory={this.handleOpenComponentOrDirectory}
-        />
         <div className='pane pane-preview'>
           <PreviewPane
             onAddPropertySeed={this.handleAddPropertySeed}
             onRemovePropertySeed={this.handleRemovePropertySeed}
             onSetPropertySeed={this.handleSetPropertySeed}
+            activeComponentFilepath={activeComponentFilepath}
             propertySeeds={propertySeeds}
+            isRendering={isRendering}
           />
+        </div>
+        <div className='modal fade in' id='settings-modal'>
+          <div className='modal-dialog'>
+            <SettingsModal
+              onSetBasePathForImages={this.handleSetBasePathForImages}
+              onSetIncludedCss={this.handleSetIncludedCss}
+            />
+          </div>
         </div>
       </div>
     )

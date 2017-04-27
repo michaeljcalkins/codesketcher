@@ -8,7 +8,7 @@ exports.default = function (_ref) {
   var artistName = _ref.artistName,
       songName = _ref.songName,
       albumImageUrl = _ref.albumImageUrl,
-      wavelengthUrl = _ref.wavelengthUrl,
+      waveformUrl = _ref.waveformUrl,
       secondsRemaining = _ref.secondsRemaining;
 
   var styles = {
@@ -36,7 +36,7 @@ exports.default = function (_ref) {
       secondsRemaining: secondsRemaining
     }),
     _react2.default.createElement(_UsersMichaelcalkinsCodeReactechoTestsWavelength2.default, {
-      wavelengthUrl: wavelengthUrl
+      waveformUrl: waveformUrl
     }),
     _react2.default.createElement(_UsersMichaelcalkinsCodeReactechoTestsSoundVolume2.default, null),
     _react2.default.createElement(_UsersMichaelcalkinsCodeReactechoTestsSongInfo2.default, {

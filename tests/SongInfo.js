@@ -29,9 +29,9 @@ export default function ({
       color: '#999'
     }
   }
-  
+
   return (
-		<div style={styles.container}>
+    <div style={styles.container}>
       <img style={styles.image} src={albumImageUrl} />
       <div style={styles.infoContainer}>
         <div style={styles.songName}>{songName}</div>

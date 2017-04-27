@@ -32,6 +32,10 @@ var _reactAutobind = require('react-autobind');
 
 var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var PreviewPane = function (_React$Component) {
@@ -60,10 +64,10 @@ var PreviewPane = function (_React$Component) {
       return propertySeeds.map(function (propertySeed, key) {
         return _react2.default.createElement(
           'tr',
-          { className: 'pane-row bt0', key: 'property-seed-' + propertySeed.id },
+          { key: 'property-seed-' + propertySeed.id },
           _react2.default.createElement(
             'td',
-            { className: 'form-column w45' },
+            { className: 'form-column w45 bl1' },
             _react2.default.createElement('input', {
               type: 'text',
               placeholder: 'Key',
@@ -106,8 +110,13 @@ var PreviewPane = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var onAddPropertySeed = this.props.onAddPropertySeed;
+      var _props2 = this.props,
+          onAddPropertySeed = _props2.onAddPropertySeed,
+          activeComponentFilepath = _props2.activeComponentFilepath,
+          isRendering = _props2.isRendering;
 
+
+      var componentBasename = activeComponentFilepath ? ' - ' + _path2.default.basename(activeComponentFilepath) : '';
 
       return _react2.default.createElement(
         'div',
@@ -118,16 +127,41 @@ var PreviewPane = function (_React$Component) {
           _react2.default.createElement(
             'div',
             { className: 'pane-header' },
-            'Component Preview'
+            'Component Preview',
+            componentBasename,
+            isRendering && _react2.default.createElement('i', { className: 'fa fa-refresh fa-spin ml1' }),
+            _react2.default.createElement(
+              'button',
+              {
+                className: 'btn btn-default btn-xs pull-right',
+                'data-toggle': 'modal',
+                'data-target': '#settings-modal'
+              },
+              _react2.default.createElement('i', { className: 'fa fa-cog mr1' }),
+              'Settings'
+            )
           ),
           _react2.default.createElement(
             'div',
             { className: 'pane-body' },
             _react2.default.createElement(
               'div',
-              { style: { position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 } },
+              {
+                className: 'bl1 bb1 bt1',
+                style: {
+                  overflow: 'auto',
+                  position: 'absolute',
+                  top: '37px',
+                  left: 0,
+                  bottom: 0,
+                  right: 0
+                }
+              },
               _react2.default.createElement('style', { id: 'component-styles' }),
-              _react2.default.createElement('div', { className: 'align-middle', id: 'component-preview' })
+              _react2.default.createElement('div', {
+                className: 'align-middle',
+                id: 'component-preview'
+              })
             )
           )
         ),
@@ -137,26 +171,48 @@ var PreviewPane = function (_React$Component) {
           _react2.default.createElement(
             'div',
             { className: 'pane-header' },
-            'Prop Editor',
+            'Property Editor',
             _react2.default.createElement(
               'button',
               {
                 onClick: onAddPropertySeed,
                 className: 'btn btn-default btn-xs pull-right mr1'
               },
-              '+'
+              'Detect and Replace Properties'
+            ),
+            _react2.default.createElement(
+              'button',
+              {
+                onClick: onAddPropertySeed,
+                className: 'btn btn-default btn-xs pull-right mr1'
+              },
+              _react2.default.createElement('i', { className: 'fa fa-plus' }),
+              ' Property'
             )
           ),
           _react2.default.createElement(
             'div',
             { className: 'pane-body' },
             _react2.default.createElement(
-              'table',
-              { className: 'table' },
+              'div',
+              { className: 'pane-row',
+                style: {
+                  overflowY: 'scroll',
+                  position: 'absolute',
+                  top: 37,
+                  left: 0,
+                  bottom: 0,
+                  right: 0
+                }
+              },
               _react2.default.createElement(
-                'tbody',
-                null,
-                this.renderPropertyDataFields()
+                'table',
+                { className: 'table mb0' },
+                _react2.default.createElement(
+                  'tbody',
+                  null,
+                  this.renderPropertyDataFields()
+                )
               )
             )
           )

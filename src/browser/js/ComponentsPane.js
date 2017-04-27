@@ -32,6 +32,10 @@ var _reactAutobind = require('react-autobind');
 
 var _reactAutobind2 = _interopRequireDefault(_reactAutobind);
 
+var _classnames = require('classnames');
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var ComponentsPane = function (_React$Component) {
@@ -61,6 +65,7 @@ var ComponentsPane = function (_React$Component) {
     key: 'renderComponentsList',
     value: function renderComponentsList() {
       var _props = this.props,
+          activeComponentFilepath = _props.activeComponentFilepath,
           componentFilepaths = _props.componentFilepaths,
           onOpenComponent = _props.onOpenComponent;
       var searchTerm = this.state.searchTerm;
@@ -70,10 +75,14 @@ var ComponentsPane = function (_React$Component) {
         if (!searchTerm) return true;
         return component.uniqueFilepath.toLowerCase().indexOf(searchTerm) > -1;
       }).map(function (component) {
+        var componentClassnames = (0, _classnames2.default)('mb1 ph1 pv1 ft13 pointer tcg', {
+          'bglb': activeComponentFilepath === component.filepath
+        });
+
         return _react2.default.createElement(
           'p',
           {
-            className: 'mb1 ft12 pointer',
+            className: componentClassnames,
             key: component.uniqueFilepath,
             onClick: function onClick() {
               return onOpenComponent(component.filepath);
@@ -87,7 +96,7 @@ var ComponentsPane = function (_React$Component) {
           _react2.default.createElement('br', null),
           _react2.default.createElement(
             'span',
-            { className: 'ft11' },
+            { className: 'ft12' },
             component.uniqueFilepath
           )
         );
@@ -101,45 +110,60 @@ var ComponentsPane = function (_React$Component) {
 
       return _react2.default.createElement(
         'div',
-        { className: 'pane-group pange-group-components' },
+        { className: 'pane-group pange-group-components h100' },
         _react2.default.createElement(
           'div',
           { className: 'pane-header' },
-          'Components',
           _react2.default.createElement(
-            'button',
-            {
-              className: 'btn btn-default btn-xs pull-right mr1',
-              onClick: onOpenComponentOrDirectory
-            },
-            _react2.default.createElement('i', { className: 'fa fa-folder' })
+            'span',
+            { className: 'ml14' },
+            'React Echo'
           )
         ),
         _react2.default.createElement(
           'div',
-          { className: 'pane-body' },
+          { className: 'pane-body br1' },
           _react2.default.createElement(
             'div',
-            { className: 'pane-row' },
+            { className: 'pane-row mb1' },
             _react2.default.createElement(
               'div',
-              { className: 'form-column full-width' },
+              { className: 'form-column three-fourths' },
               _react2.default.createElement('input', {
                 type: 'text',
                 ref: 'searchTerm',
-                placeholder: 'Filter Components',
+                placeholder: 'Search Components',
                 onChange: this.handleSearchTermInput
               })
+            ),
+            _react2.default.createElement(
+              'div',
+              { className: 'form-column one-fourth' },
+              _react2.default.createElement(
+                'button',
+                {
+                  className: 'btn btn-default btn-block',
+                  onClick: onOpenComponentOrDirectory
+                },
+                _react2.default.createElement('i', { className: 'fa fa-folder' })
+              )
             )
           ),
           _react2.default.createElement(
             'div',
-            { className: 'pane-row' },
-            _react2.default.createElement(
-              'div',
-              { className: 'form-column full-width component-filepaths-container' },
-              this.renderComponentsList()
-            )
+            {
+              className: 'pane-row',
+              style: {
+                top: 74,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                position: 'absolute',
+                overflowY: 'auto',
+                overflowX: 'hidden'
+              }
+            },
+            this.renderComponentsList()
           )
         )
       );

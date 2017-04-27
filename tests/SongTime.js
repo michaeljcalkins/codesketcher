@@ -11,9 +11,12 @@ export default function ({
     float: 'left'
   }
 
+  const minutes = Math.floor(secondsRemaining / 60)
+  const seconds = secondsRemaining - minutes * 60
+
   return (
-		<div style={styles}>
-      {secondsRemaining}
+    <div style={styles}>
+      {minutes}:{seconds}
     </div>
   )
 }

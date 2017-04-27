@@ -1,5 +1,6 @@
 import React from 'react'
 import autobind from 'react-autobind'
+import classnames from 'classnames'
 
 export default class ComponentsPane extends React.Component {
   constructor (props) {
@@ -18,8 +19,15 @@ export default class ComponentsPane extends React.Component {
   }
 
   renderComponentsList () {
-    const { componentFilepaths, onOpenComponent } = this.props
-    const { searchTerm } = this.state
+    const {
+      activeComponentFilepath,
+      componentFilepaths,
+      onOpenComponent
+    } = this.props
+
+    const {
+      searchTerm
+    } = this.state
 
     return componentFilepaths
       .filter(component => {
@@ -27,49 +35,66 @@ export default class ComponentsPane extends React.Component {
         return component.uniqueFilepath.toLowerCase().indexOf(searchTerm) > -1
       })
       .map(component => {
+        const componentClassnames = classnames('mb1 ph1 pv1 ft13 pointer tcg', {
+          'bglb': activeComponentFilepath === component.filepath
+        })
+
         return (
           <p
-            className='mb1 ft12 pointer'
+            className={componentClassnames}
             key={component.uniqueFilepath}
             onClick={() => onOpenComponent(component.filepath)}
           >
             <strong>{component.filename}</strong>
             <br />
-            <span className='ft11'>{component.uniqueFilepath}</span>
+            <span className='ft12'>{component.uniqueFilepath}</span>
           </p>
         )
       })
   }
 
   render () {
-    const { onOpenComponentOrDirectory } = this.props
+    const {
+      onOpenComponentOrDirectory
+    } = this.props
 
     return (
-      <div className='pane-group pange-group-components'>
+      <div className='pane-group pange-group-components h100'>
         <div className='pane-header'>
-          Components
-          <button
-            className='btn btn-default btn-xs pull-right mr1'
-            onClick={onOpenComponentOrDirectory}
-          >
-            <i className='fa fa-folder' />
-          </button>
+          <span className='ml14'>React Echo</span>
         </div>
-        <div className='pane-body'>
-          <div className='pane-row'>
-            <div className='form-column full-width'>
+        <div className='pane-body br1'>
+          <div className='pane-row mb1'>
+            <div className='form-column three-fourths'>
               <input
                 type='text'
                 ref='searchTerm'
-                placeholder='Filter Components'
+                placeholder='Search Components'
                 onChange={this.handleSearchTermInput}
               />
             </div>
-          </div>
-          <div className='pane-row'>
-            <div className='form-column full-width component-filepaths-container'>
-              {this.renderComponentsList()}
+            <div className='form-column one-fourth'>
+              <button
+                className='btn btn-default btn-block'
+                onClick={onOpenComponentOrDirectory}
+              >
+                <i className='fa fa-folder' />
+              </button>
             </div>
+          </div>
+          <div
+            className='pane-row'
+            style={{
+              top: 74,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              position: 'absolute',
+              overflowY: 'auto',
+              overflowX: 'hidden'
+            }}
+          >
+            {this.renderComponentsList()}
           </div>
         </div>
       </div>

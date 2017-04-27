@@ -12,7 +12,7 @@ export default function ({
 	artistName,
   songName,
   albumImageUrl,
-  wavelengthUrl,
+  waveformUrl,
   secondsRemaining
 }) {
   const styles = {
@@ -30,16 +30,16 @@ export default function ({
     boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)'
   }
 
-  return (      
-  	<div style={styles}>
+  return (
+    <div style={styles}>
       <PreviousButton />
-      <PlayButton /> 
+      <PlayButton />
       <NextButton />
-      <SongTime 
+      <SongTime
         secondsRemaining={secondsRemaining}
       />
-      <Wavelength 
-        wavelengthUrl={wavelengthUrl} 
+      <Wavelength
+        waveformUrl={waveformUrl}
       />
       <SoundVolume />
       <SongInfo

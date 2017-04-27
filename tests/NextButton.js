@@ -8,10 +8,10 @@ export default function () {
     height: '47px',
     float: 'left'
   }
-    
+
   return (
-		<div style={styles}>
-      <i className="fa fa-forward"></i>
+    <div style={styles}>
+      <i className='fa fa-forward' />
     </div>
   )
 }

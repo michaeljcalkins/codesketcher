@@ -6,6 +6,7 @@ const componentString = `
 import React, { Component, PropTypes } from 'react'
 import autobind from 'react-autobind'
 import { has, get } from 'lodash'
+import * as licenseWizard from './licenseWizard'
 
 export default class SongRow extends Component {
   constructor (props) {
@@ -58,5 +59,6 @@ describe('getImportStrings', function () {
     assert.equal(importFragments[0], 'import React, { Component, PropTypes } from \'react\'')
     assert.equal(importFragments[1], 'import autobind from \'react-autobind\'')
     assert.equal(importFragments[2], 'import { has, get } from \'lodash\'')
+    assert.equal(importFragments[3], 'import * as licenseWizard from \'./licenseWizard\'')
   })
 })
