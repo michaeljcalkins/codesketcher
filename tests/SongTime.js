@@ -1,5 +1,7 @@
 import React from 'react'
 
+import getTimeStringFromSeconds from './lib/getTimeStringFromSeconds'
+
 export default function ({
   secondsRemaining
 }) {
@@ -11,12 +13,11 @@ export default function ({
     float: 'left'
   }
 
-  const minutes = Math.floor(secondsRemaining / 60)
-  const seconds = secondsRemaining - minutes * 60
+  const time = getTimeStringFromSeconds(secondsRemaining)
 
   return (
     <div style={styles}>
-      {minutes}:{seconds}
+      {time}
     </div>
   )
 }

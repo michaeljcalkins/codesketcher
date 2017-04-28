@@ -177,6 +177,11 @@ export default class App extends React.Component {
     this.debouncedRenderComponent()
   }
 
+  getCachedFilepath (originalFilepath) {
+    let fromFragment = originalFilepath.replace(/'/g, '').trim()
+    return fromFragment.replace(/\//g, '-')
+  }
+
   handleFindAndAddImports (filepath, contents) {
     const {
       activeDirectory,
@@ -195,29 +200,28 @@ export default class App extends React.Component {
 
       console.log('Attempting to import:', importString)
 
-      let usedPotentialLocation = false
+      let isUsingRelativeLocation = false
+      let importLocation = null
 
       const importFragments = importString.split(' from ')
       const fromFragment = _.get(importFragments, '[1]').replace(/'/g, '').trim()
 
       // Location of imported file relative to the location of the active component's location.
-      const potentialImportLocation = path.join(componentDirname, fromFragment + '.js')
-
-      let importLocation = null
+      const relativeImportLocation = path.join(componentDirname, fromFragment + '.js')
 
       // Transpile the file if found relatively to the active component
       try {
         if (
-          fs.lstatSync(potentialImportLocation).isFile() ||
-          fs.lstatSync(potentialImportLocation).isDirectory()
+          fs.lstatSync(relativeImportLocation).isFile() ||
+          fs.lstatSync(relativeImportLocation).isDirectory()
         ) {
-          importLocation = potentialImportLocation
-          usedPotentialLocation = true
+          importLocation = relativeImportLocation
+          isUsingRelativeLocation = true
         }
       } catch (e) {}
 
       // Ask the user for the location of the file/dir and transpile that
-      if (!usedPotentialLocation) {
+      if (!isUsingRelativeLocation) {
         const selectedFilepath = dialog.showOpenDialog({
           properties: ['openFile', 'openDirectory']
         })
@@ -227,19 +231,47 @@ export default class App extends React.Component {
 
       if (!importLocation) return
 
-      const cachedFilePath = this.handleAddCachedDirectoryImports(
+      this.handleAddCachedDirectoryImports(
         activeDirectory,
         importString,
         importLocation
       )
 
+      const transpiledFilepath = path.join(
+        __dirname,
+        '../../storage/components',
+        this.getCachedFilepath(importLocation)
+      )
+
       try {
-        // require(cachedFilePath)
+        require(transpiledFilepath)
       } catch (e) {
         // this.handleFindAndAddImports(importLocation)
-        console.error('Attempted require failed', cachedFilePath, e)
+        console.error('Attempted require failed', transpiledFilepath, e)
       }
     })
+  }
+
+  handleAddCachedDirectoryImports (activeDirectory, importString, newFilepath) {
+    const {
+      cachedDirectoryImports
+    } = this.state
+
+    if (!newFilepath) {
+      return console.error('newFilepath is required when caching directory imports.')
+    }
+
+    let newCachedDirectoryImports = { ...cachedDirectoryImports }
+    newCachedDirectoryImports[activeDirectory] = newCachedDirectoryImports[activeDirectory] || {}
+    newCachedDirectoryImports[activeDirectory][importString] = newFilepath
+
+    this.setState({
+      cachedDirectoryImports: newCachedDirectoryImports
+    })
+
+    window.localStorage.setItem('cachedDirectoryImports', JSON.stringify(newCachedDirectoryImports))
+
+    return newFilepath
   }
 
   handleReplaceRelativeImports (contents) {
@@ -303,7 +335,7 @@ export default class App extends React.Component {
 
         fs.writeFileSync('storage/components/' + newFromFragment, babelResult.code)
 
-        const normalizedNewFromFragment = path.join(__dirname, '/../../../storage/components/', newFromFragment)
+        const normalizedNewFromFragment = path.join(__dirname, '/../../storage/components/', newFromFragment)
         delete require.cache[require.resolve(normalizedNewFromFragment)]
         renderComponentString = renderComponentString.replace(fromFragment, normalizedNewFromFragment)
       })
@@ -323,7 +355,7 @@ export default class App extends React.Component {
       fs.writeFileSync('storage/app/temp-component.js', babelResult.code)
 
       // Clear the node require cache and reload the file
-      const tempComponentFilepath = '../../../storage/app/temp-component.js'
+      const tempComponentFilepath = '../../storage/app/temp-component.js'
       delete require.cache[require.resolve(tempComponentFilepath)]
       var transpiledReactComponent = require(tempComponentFilepath).default
 
@@ -366,28 +398,6 @@ export default class App extends React.Component {
     }
   }
 
-  handleAddCachedDirectoryImports (activeDirectory, importString, newFilepath) {
-    const {
-      cachedDirectoryImports
-    } = this.state
-
-    if (!newFilepath) {
-      return console.error('newFilepath is required when caching directory imports.')
-    }
-
-    let newCachedDirectoryImports = { ...cachedDirectoryImports }
-    newCachedDirectoryImports[activeDirectory] = newCachedDirectoryImports[activeDirectory] || {}
-    newCachedDirectoryImports[activeDirectory][importString] = newFilepath
-
-    this.setState({
-      cachedDirectoryImports: newCachedDirectoryImports
-    })
-
-    window.localStorage.setItem('cachedDirectoryImports', JSON.stringify(newCachedDirectoryImports))
-
-    return newFilepath
-  }
-
   handleSetActiveDirectory (newActiveDirectory) {
     window.localStorage.setItem('activeDirectory', newActiveDirectory)
     this.setState({ activeDirectory: newActiveDirectory })
@@ -421,7 +431,10 @@ export default class App extends React.Component {
       basePathForImages
     } = this.state
 
-    if (!includedCss) return
+    if (!includedCss) {
+      this.debouncedRenderComponent()
+      return
+    }
 
     request.get(includedCss, (error, response, body) => {
       if (error || response.statusCode !== 200) {
