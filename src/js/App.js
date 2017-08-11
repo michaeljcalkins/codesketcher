@@ -8,10 +8,6 @@ var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
 
 var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
-var _keys = require('babel-runtime/core-js/object/keys');
-
-var _keys2 = _interopRequireDefault(_keys);
-
 var _stringify = require('babel-runtime/core-js/json/stringify');
 
 var _stringify2 = _interopRequireDefault(_stringify);
@@ -64,6 +60,10 @@ var _PreviewPane = require('./PreviewPane');
 
 var _PreviewPane2 = _interopRequireDefault(_PreviewPane);
 
+var _ImportsPane = require('./ImportsPane');
+
+var _ImportsPane2 = _interopRequireDefault(_ImportsPane);
+
 var _SettingsModal = require('./SettingsModal');
 
 var _SettingsModal2 = _interopRequireDefault(_SettingsModal);
@@ -98,34 +98,25 @@ var App = function (_React$Component) {
 
     (0, _reactAutobind2.default)(_this);
 
-    var cachedDirectoryImports = null;
+    var cachedState = null;
     try {
-      cachedDirectoryImports = JSON.parse(window.localStorage.getItem('cachedDirectoryImports'));
+      cachedState = window.localStorage.getItem('state') ? JSON.parse(window.localStorage.getItem('state')) : {};
     } catch (e) {
-      cachedDirectoryImports = {};
+      cachedState = null;
     }
 
-    var propertySeeds = null;
-    try {
-      propertySeeds = window.localStorage.getItem('propertySeeds') ? JSON.parse(window.localStorage.getItem('propertySeeds')) : [];
-    } catch (e) {
-      propertySeeds = [];
-    }
+    console.log(cachedState);
 
-    _this.state = {
-      activeComponentContents: null,
-      activeComponentFilepath: window.localStorage.getItem('activeComponentFilepath'),
-      activeComponentFilepathContents: [],
-      activeDirectory: window.localStorage.getItem('activeDirectory'),
-      basePathForImages: window.localStorage.getItem('basePathForImages'),
+    _this.state = cachedState ? cachedState : {
+      activeComponentFilepath: null,
+      basePathForImages: null,
       cachedDirectoryImports: cachedDirectoryImports,
       componentFilepaths: [],
       componentInstance: null,
-      filesInActiveDirectory: [],
-      includedCss: window.localStorage.getItem('includedCss'),
+      imports: [],
+      includedCss: null,
       isRendering: false,
       propertySeeds: propertySeeds,
-      renderComponentString: null,
       watcher: null
     };
 
@@ -147,16 +138,8 @@ var App = function (_React$Component) {
         if (fs.lstatSync(activeDirectory).isDirectory()) this.handleOpenDirectory(activeDirectory);
       } catch (e) {}
 
-      Mousetrap.bind('command+s', function () {
-        _this2.handleSaveComponent();
-      });
-
       Mousetrap.bind('command+o', function () {
-        _this2.handleOpenComponentOrDirectory();
-      });
-
-      Mousetrap.bind('command+n', function () {
-        _this2.handleNewComponent();
+        _this2.handleOpenComponentOpenDialog();
       });
 
       if (activeComponentFilepath) {
@@ -170,9 +153,19 @@ var App = function (_React$Component) {
       this.debouncedRenderComponent();
     }
   }, {
+    key: 'handleSetState',
+    value: function handleSetState(newState) {
+      var _this3 = this;
+
+      this.setState((0, _extends3.default)({}, newState), function () {
+        localStorage.setItem('state', (0, _stringify2.default)(_this3.state));
+        _this3.debouncedRenderComponent();
+      });
+    }
+  }, {
     key: 'handleOpenDirectory',
     value: function handleOpenDirectory(newActiveDirectory) {
-      var _this3 = this;
+      var _this4 = this;
 
       this.handleSetActiveDirectory(newActiveDirectory);
       recursive(newActiveDirectory, function (err, files) {
@@ -197,216 +190,147 @@ var App = function (_React$Component) {
           });
         });
 
-        if (_this3.state.watcher) {
-          _this3.state.watcher.close();
+        if (_this4.state.watcher) {
+          _this4.state.watcher.close();
         }
 
-        _this3.setState({
+        _this4.setState({
           watcher: _chokidar2.default.watch(newActiveDirectory, {
             ignored: /(^|[/\\])\../,
             persistent: true
           }).on('add', function (path) {
-            if (_this3.state.filesInActiveDirectory.indexOf(path) === -1) {
-              _this3.setState({
+            if (_this4.state.filesInActiveDirectory.indexOf(path) === -1) {
+              _this4.setState({
                 filesInActiveDirectory: filesInActiveDirectory
               });
-              _this3.handleOpenDirectory(newActiveDirectory);
+              _this4.handleOpenDirectory(newActiveDirectory);
             }
           }).on('change', function (path) {
-            _this3.debouncedRenderComponent();
+            _this4.debouncedRenderComponent();
           }).on('unlink', function (path) {
-            if (_this3.state.filesInActiveDirectory.indexOf(path) > -1) {
-              _this3.setState({
+            if (_this4.state.filesInActiveDirectory.indexOf(path) > -1) {
+              _this4.setState({
                 filesInActiveDirectory: filesInActiveDirectory
               });
-              _this3.handleOpenDirectory(newActiveDirectory);
+              _this4.handleOpenDirectory(newActiveDirectory);
             }
           })
         });
 
-        _this3.handleSetComponentFilepaths(newComponentFilepaths);
+        _this4.handleSetComponentFilepaths(newComponentFilepaths);
       });
     }
   }, {
-    key: 'handleOpenComponentOrDirectory',
-    value: function handleOpenComponentOrDirectory() {
+    key: 'handleOpenComponentOpenDialog',
+    value: function handleOpenComponentOpenDialog() {
       var openedFilepath = dialog.showOpenDialog({
-        properties: ['openFile', 'openDirectory']
+        properties: ['openFile']
       });
       if (!openedFilepath) return;
 
-      if (!openedFilepath[0].match(/(\.js)/)) {
-        this.handleOpenDirectory(openedFilepath[0]);
-        return;
-      }
-
-      this.handleOpenComponent(openedFilepath[0]);
-    }
-  }, {
-    key: 'handleOpenComponent',
-    value: function handleOpenComponent(filepath) {
-      var contents = fs.readFileSync(filepath, { encoding: 'utf-8' });
-
-      window.localStorage.setItem('activeComponentFilepath', filepath);
-
-      this.setState({
-        activeComponentFilepath: filepath,
-        activeComponentContents: contents
+      this.handleSetState({
+        activeComponentFilepath: openedFilepath[0]
       });
-
-      this.debouncedRenderComponent();
-    }
-  }, {
-    key: 'getCachedFilepath',
-    value: function getCachedFilepath(originalFilepath) {
-      var fromFragment = originalFilepath.replace(/'/g, '').trim();
-      return fromFragment.replace(/\//g, '-');
-    }
-  }, {
-    key: 'handleFindAndAddImports',
-    value: function handleFindAndAddImports(filepath, contents) {
-      var _this4 = this;
-
-      var _state2 = this.state,
-          activeDirectory = _state2.activeDirectory,
-          cachedDirectoryImports = _state2.cachedDirectoryImports;
-
-
-      if (!contents) {
-        contents = fs.readFileSync(filepath);
-      }
-
-      var importStrings = (0, _getImportStrings2.default)(contents);
-
-      importStrings.forEach(function (importString) {
-        var componentDirname = path.dirname(filepath);
-        if (_.has(cachedDirectoryImports, '[' + activeDirectory + '][' + importString + ']')) return;
-
-        console.log('Attempting to import:', importString);
-
-        var isUsingRelativeLocation = false;
-        var importLocation = null;
-
-        var importFragments = importString.split(' from ');
-        var fromFragment = _.get(importFragments, '[1]').replace(/'/g, '').trim();
-
-        // Location of imported file relative to the location of the active component's location.
-        var relativeImportLocation = path.join(componentDirname, fromFragment + '.js');
-
-        // Transpile the file if found relatively to the active component
-        try {
-          if (fs.lstatSync(relativeImportLocation).isFile() || fs.lstatSync(relativeImportLocation).isDirectory()) {
-            importLocation = relativeImportLocation;
-            isUsingRelativeLocation = true;
-          }
-        } catch (e) {}
-
-        // Ask the user for the location of the file/dir and transpile that
-        if (!isUsingRelativeLocation) {
-          var selectedFilepath = dialog.showOpenDialog({
-            properties: ['openFile', 'openDirectory']
-          });
-          if (!_.has(selectedFilepath, '[0]')) return;
-          importLocation = _.get(selectedFilepath, '[0]');
-        }
-
-        if (!importLocation) return;
-
-        _this4.handleAddCachedDirectoryImports(activeDirectory, importString, importLocation);
-
-        var transpiledFilepath = path.join(__dirname, '../../storage/components', _this4.getCachedFilepath(importLocation));
-
-        try {
-          require(transpiledFilepath);
-        } catch (e) {
-          // this.handleFindAndAddImports(importLocation)
-          console.error('Attempted require failed', transpiledFilepath, e);
-        }
-      });
-    }
-  }, {
-    key: 'handleAddCachedDirectoryImports',
-    value: function handleAddCachedDirectoryImports(activeDirectory, importString, newFilepath) {
-      var cachedDirectoryImports = this.state.cachedDirectoryImports;
-
-
-      if (!newFilepath) {
-        return console.error('newFilepath is required when caching directory imports.');
-      }
-
-      var newCachedDirectoryImports = (0, _extends3.default)({}, cachedDirectoryImports);
-      newCachedDirectoryImports[activeDirectory] = newCachedDirectoryImports[activeDirectory] || {};
-      newCachedDirectoryImports[activeDirectory][importString] = newFilepath;
-
-      this.setState({
-        cachedDirectoryImports: newCachedDirectoryImports
-      });
-
-      window.localStorage.setItem('cachedDirectoryImports', (0, _stringify2.default)(newCachedDirectoryImports));
-
-      return newFilepath;
-    }
-  }, {
-    key: 'handleReplaceRelativeImports',
-    value: function handleReplaceRelativeImports(contents) {
-      var _state3 = this.state,
-          activeDirectory = _state3.activeDirectory,
-          cachedDirectoryImports = _state3.cachedDirectoryImports;
-
-
-      (0, _keys2.default)(_.get(cachedDirectoryImports, '[' + activeDirectory + ']', {})).forEach(function (key) {
-        var newImportString = replaceFromWithPath(key, cachedDirectoryImports[activeDirectory][key]);
-        contents = contents.replace(key, newImportString);
-      });
-
-      return contents;
     }
   }, {
     key: 'renderComponent',
     value: function renderComponent() {
-      var _state4 = this.state,
-          basePathForImages = _state4.basePathForImages,
-          activeComponentFilepath = _state4.activeComponentFilepath,
-          propertySeeds = _state4.propertySeeds,
-          componentInstance = _state4.componentInstance;
+      var _this5 = this;
+
+      var _state2 = this.state,
+          basePathForImages = _state2.basePathForImages,
+          activeComponentFilepath = _state2.activeComponentFilepath,
+          propertySeeds = _state2.propertySeeds,
+          componentInstance = _state2.componentInstance;
 
 
       if (!activeComponentFilepath) return;
 
-      var renderComponentString = fs.readFileSync(activeComponentFilepath, { encoding: 'utf-8' });
-
-      if (!renderComponentString) return console.error(renderComponentString);
-
       this.setState({ isRendering: true });
-      try {
-        this.handleFindAndAddImports(activeComponentFilepath, renderComponentString);
-        renderComponentString = this.handleReplaceRelativeImports(renderComponentString);
 
-        // Find all imports
-        var importStrings = (0, _getImportStrings2.default)(renderComponentString);
+      var webpack = require('webpack');
+
+      var compiler = webpack({
+        // Configuration Object
+        entry: activeComponentFilepath,
+        output: {
+          filename: 'bundle.js',
+          path: path.resolve(__dirname, 'cache')
+        },
+        module: {
+          rules: [{
+            test: /\.js$/,
+            exclude: /(node_modules|bower_components)/,
+            use: {
+              loader: 'babel-loader',
+              options: {
+                presets: ['latest', 'react', 'env'],
+                plugins: [require('babel-plugin-transform-object-rest-spread')]
+              }
+            }
+          }]
+        }
+      }, function (err, stats) {
+        if (err) {
+          console.error(err.stack || err);
+          if (err.details) {
+            console.error(err.details);
+          }
+          return;
+        }
+
+        var info = stats.toJson();
+
+        if (stats.hasErrors()) {
+          console.error(info.errors);
+        }
+
+        if (stats.hasWarnings()) {
+          console.warn(info.warnings);
+        }
+
+        // Log result...
+      });
+
+      compiler.run(function (err, stats) {
+        console.log(stats);
+        _this5.setState({ isRendering: false });
+      });
+
+      return;
+
+      try {
+        console.log(importStrings);
 
         // Loop through them
-        importStrings.forEach(function (importString) {
-          // if not node_modules transpile them and cache them
-          if (importString.match('node_modules')) return;
+        // importStrings.forEach(importString => {
+        //   // if not node_modules transpile them and cache them
+        //   if (importString.match('node_modules')) return
 
-          var importFragments = importString.split(' from ');
-          var fromFragment = importFragments[1].replace(/'/g, '').trim();
-          var newFromFragment = fromFragment.replace(/\//g, '-');
-          var importedComponentString = fs.readFileSync(fromFragment);
+        //   let importFragments = importString.split(' from ')
+        //   let fromFragment = importFragments[1].replace(/'/g, '').trim()
+        //   let newFromFragment = fromFragment.replace(/\//g, '-')
+        //   let importedComponentString = fs.readFileSync(fromFragment)
 
-          // Replace import in renderComponentString with path to cached file
-          var babelResult = babel.transform(importedComponentString, {
-            presets: ['latest', 'react'],
-            plugins: ['transform-class-properties', 'transform-es2015-classes', 'transform-runtime', 'transform-object-rest-spread']
-          });
+        //   // Replace import in renderComponentString with path to cached file
+        //   let babelResult = babel.transform(importedComponentString, {
+        //     presets: ['latest', 'react'],
+        //     plugins: [
+        //       'transform-class-properties',
+        //       'transform-es2015-classes',
+        //       'transform-runtime',
+        //       'transform-object-rest-spread'
+        //     ]
+        //   })
 
-          fs.writeFileSync('storage/components/' + newFromFragment, babelResult.code);
+        //   fs.writeFileSync('storage/components/' + newFromFragment, babelResult.code)
 
-          var normalizedNewFromFragment = path.join(__dirname, '/../../storage/components/', newFromFragment);
-          delete require.cache[require.resolve(normalizedNewFromFragment)];
-          renderComponentString = renderComponentString.replace(fromFragment, normalizedNewFromFragment);
-        });
+        //   const normalizedNewFromFragment = path.join(__dirname, '/../../storage/components/', newFromFragment)
+        //   delete require.cache[require.resolve(normalizedNewFromFragment)]
+        //   renderComponentString = renderComponentString.replace(fromFragment, normalizedNewFromFragment)
+        // })
+
+        return;
 
         // console.log(renderComponentString)
 
@@ -458,48 +382,37 @@ var App = function (_React$Component) {
       }
     }
   }, {
-    key: 'handleSetActiveDirectory',
-    value: function handleSetActiveDirectory(newActiveDirectory) {
-      window.localStorage.setItem('activeDirectory', newActiveDirectory);
-      this.setState({ activeDirectory: newActiveDirectory });
-    }
-  }, {
-    key: 'handleSetComponentFilepaths',
-    value: function handleSetComponentFilepaths(componentFilepaths) {
-      this.setState({ componentFilepaths: componentFilepaths });
-    }
-  }, {
     key: 'handleSetBasePathForImages',
     value: function handleSetBasePathForImages(e) {
-      var _this5 = this;
+      var _this6 = this;
 
       this.setState({
         basePathForImages: e.currentTarget.value
       }, function () {
-        window.localStorage.setItem('basePathForImages', _this5.state.basePathForImages);
-        _this5.handleIncludedCssChange();
+        window.localStorage.setItem('basePathForImages', _this6.state.basePathForImages);
+        _this6.handleIncludedCssChange();
       });
     }
   }, {
     key: 'handleSetIncludedCss',
     value: function handleSetIncludedCss(e) {
-      var _this6 = this;
+      var _this7 = this;
 
       this.setState({
         includedCss: e.currentTarget.value
       }, function () {
-        window.localStorage.setItem('includedCss', _this6.state.includedCss);
-        _this6.handleIncludedCssChange();
+        window.localStorage.setItem('includedCss', _this7.state.includedCss);
+        _this7.handleIncludedCssChange();
       });
     }
   }, {
     key: 'handleIncludedCssChange',
     value: function handleIncludedCssChange() {
-      var _this7 = this;
+      var _this8 = this;
 
-      var _state5 = this.state,
-          includedCss = _state5.includedCss,
-          basePathForImages = _state5.basePathForImages;
+      var _state3 = this.state,
+          includedCss = _state3.includedCss,
+          basePathForImages = _state3.basePathForImages;
 
 
       if (!includedCss) {
@@ -518,7 +431,7 @@ var App = function (_React$Component) {
         Sass.compile(encapsulatedCss, function (result) {
           var css = result.text;
           if (basePathForImages) {
-            var matches = css.match(/(\/.*?\.\w{3})/img);
+            var matches = css.match(/(\/.*?\.\w{3})/gim);
             matches.forEach(function (match) {
               try {
                 css = css.replace(new RegExp(match, 'g'), path.join(basePathForImages, match));
@@ -529,54 +442,34 @@ var App = function (_React$Component) {
           }
 
           $('#component-styles').html(css);
-          _this7.debouncedRenderComponent();
+          _this8.debouncedRenderComponent();
         });
       });
     }
   }, {
     key: 'handleAddPropertySeed',
     value: function handleAddPropertySeed() {
-      var _this8 = this;
-
-      var propertySeeds = this.state.propertySeeds;
-
-
       var newPropertySeeds = [{
         id: Date.now()
-      }].concat((0, _toConsumableArray3.default)(propertySeeds));
+      }].concat((0, _toConsumableArray3.default)(_.get(this.state, 'propertySeeds', [])));
 
-      window.localStorage.setItem('propertySeeds', (0, _stringify2.default)(newPropertySeeds));
-
-      this.setState({
+      this.handleSetState({
         propertySeeds: newPropertySeeds
-      }, function () {
-        return _this8.debouncedRenderComponent();
       });
     }
   }, {
     key: 'handleSetPropertySeed',
     value: function handleSetPropertySeed(e, key, propName) {
-      var _this9 = this;
-
-      var propertySeeds = this.state.propertySeeds;
-
-
-      var newPropertySeeds = [].concat((0, _toConsumableArray3.default)(propertySeeds));
+      var newPropertySeeds = [].concat((0, _toConsumableArray3.default)(_.get(this.state, 'propertySeeds', [])));
       _.set(newPropertySeeds, '[' + key + '][' + propName + ']', e.target.value);
 
-      window.localStorage.setItem('propertySeeds', (0, _stringify2.default)(newPropertySeeds));
-
-      this.setState({
+      this.handleSetState({
         propertySeeds: newPropertySeeds
-      }, function () {
-        return _this9.debouncedRenderComponent();
       });
     }
   }, {
     key: 'handleRemovePropertySeed',
     value: function handleRemovePropertySeed(key) {
-      var _this10 = this;
-
       var propertySeeds = this.state.propertySeeds;
 
 
@@ -584,20 +477,19 @@ var App = function (_React$Component) {
         return key !== index;
       });
 
-      this.setState({
+      this.handleSetState({
         propertySeeds: newPropertySeeds
-      }, function () {
-        return _this10.debouncedRenderComponent();
       });
     }
   }, {
     key: 'render',
     value: function render() {
-      var _state6 = this.state,
-          activeComponentFilepath = _state6.activeComponentFilepath,
-          componentFilepaths = _state6.componentFilepaths,
-          isRendering = _state6.isRendering,
-          propertySeeds = _state6.propertySeeds;
+      var _state4 = this.state,
+          imports = _state4.imports,
+          activeComponentFilepath = _state4.activeComponentFilepath,
+          componentFilepaths = _state4.componentFilepaths,
+          isRendering = _state4.isRendering,
+          propertySeeds = _state4.propertySeeds;
 
 
       return _react2.default.createElement(
@@ -606,36 +498,23 @@ var App = function (_React$Component) {
         _react2.default.createElement(
           'div',
           { className: 'pane pane-components' },
-          _react2.default.createElement(_ComponentsPane2.default, {
-            activeComponentFilepath: activeComponentFilepath,
-            onOpenComponent: this.handleOpenComponent,
-            onOpenComponentOrDirectory: this.handleOpenComponentOrDirectory,
-            componentFilepaths: componentFilepaths
+          _react2.default.createElement(_ImportsPane2.default, {
+            handleSetState: this.handleSetState,
+            imports: imports,
+            onAddPropertySeed: this.handleAddPropertySeed,
+            onRemovePropertySeed: this.handleRemovePropertySeed,
+            onSetPropertySeed: this.handleSetPropertySeed,
+            propertySeeds: propertySeeds,
+            onSetBasePathForImages: this.handleSetBasePathForImages,
+            onSetIncludedCss: this.handleSetIncludedCss,
+            handleOpenComponentOpenDialog: this.handleOpenComponentOpenDialog,
+            handleOpenComponent: this.handleOpenComponent
           })
         ),
         _react2.default.createElement(
           'div',
           { className: 'pane pane-preview' },
-          _react2.default.createElement(_PreviewPane2.default, {
-            onAddPropertySeed: this.handleAddPropertySeed,
-            onRemovePropertySeed: this.handleRemovePropertySeed,
-            onSetPropertySeed: this.handleSetPropertySeed,
-            activeComponentFilepath: activeComponentFilepath,
-            propertySeeds: propertySeeds,
-            isRendering: isRendering
-          })
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'modal fade in', id: 'settings-modal' },
-          _react2.default.createElement(
-            'div',
-            { className: 'modal-dialog' },
-            _react2.default.createElement(_SettingsModal2.default, {
-              onSetBasePathForImages: this.handleSetBasePathForImages,
-              onSetIncludedCss: this.handleSetIncludedCss
-            })
-          )
+          _react2.default.createElement(_PreviewPane2.default, { activeComponentFilepath: activeComponentFilepath, isRendering: isRendering })
         )
       );
     }
@@ -644,3 +523,6 @@ var App = function (_React$Component) {
 }(_react2.default.Component);
 
 exports.default = App;
+
+
+_reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById('app'));

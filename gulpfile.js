@@ -9,14 +9,14 @@ var gulp = require('gulp'),
   notify = require('gulp-notify'),
   cache = require('gulp-cache')
 
-gulp.task('styles', function () {
+gulp.task('styles', function() {
   return sass('resources/sass/app.scss', { style: 'expanded' })
-    .pipe(gulp.dest('src/browser/css'))
+    .pipe(gulp.dest('src/css'))
     .pipe(notify({ message: 'Styles task complete' }))
 })
 
-gulp.task('watch', ['styles'], function (cb) {
-  watch('resources/sass/**/*.scss', function () {
+gulp.task('watch', ['styles'], function(cb) {
+  watch('resources/sass/**/*.scss', function() {
     gulp.run('styles')
   })
 })

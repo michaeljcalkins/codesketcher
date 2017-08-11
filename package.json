@@ -9,19 +9,12 @@
     "dev": "nodemon --ignore 'src/**.js' --watch 'resources/**/*.*' -q -x 'babel resources/js --out-dir src/js --presets=latest,react --plugins=transform-object-rest-spread,transform-class-properties,transform-es2015-classes,transform-runtime --ignore test.js && gulp'",
     "start": "electron ."
   },
-  "standard": {
-    "parser": "babel-eslint",
-    "globals": [
-      "$",
-      "Mousetrap",
-      "module",
-      "describe",
-      "it"
-    ]
-  },
   "devDependencies": {
     "babel-cli": "^6.23.0",
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.23.0",
     "chai": "^1.9.1",
     "chokidar": "^1.6.1",
@@ -74,6 +67,7 @@
     "electron-settings": "^3.0.14",
     "fstream": "^1.0.8",
     "highlight.js": "^9.1.0",
+    "html-loader": "^0.5.1",
     "image-size": "^0.4.0",
     "jquery": "^2.2.0",
     "lodash": "^4.0.0",
@@ -96,7 +90,7 @@
     "targz": "^1.0.1",
     "unzip": "^0.1.11",
     "vinyl-source-stream": "^1.1.0",
-    "webpack": "^2.2.1",
+    "webpack": "^3.5.3",
     "wrench": "^1.5.8"
   }
 }

@@ -51,69 +51,11 @@ var PreviewPane = function (_React$Component) {
   }
 
   (0, _createClass3.default)(PreviewPane, [{
-    key: 'renderPropertyDataFields',
-    value: function renderPropertyDataFields() {
-      var _props = this.props,
-          propertySeeds = _props.propertySeeds,
-          onRemovePropertySeed = _props.onRemovePropertySeed,
-          onSetPropertySeed = _props.onSetPropertySeed;
-
-
-      if (!propertySeeds) return [];
-
-      return propertySeeds.map(function (propertySeed, key) {
-        return _react2.default.createElement(
-          'tr',
-          { key: 'property-seed-' + propertySeed.id },
-          _react2.default.createElement(
-            'td',
-            { className: 'form-column w45 bl1' },
-            _react2.default.createElement('input', {
-              type: 'text',
-              placeholder: 'Key',
-              defaultValue: propertySeed.key,
-              onChange: function onChange(e) {
-                return onSetPropertySeed(e, key, 'key');
-              }
-            })
-          ),
-          _react2.default.createElement(
-            'td',
-            { className: 'form-column w45' },
-            _react2.default.createElement('input', {
-              type: 'text',
-              placeholder: 'Value',
-              defaultValue: propertySeed.value,
-              onChange: function onChange(e) {
-                return onSetPropertySeed(e, key, 'value');
-              }
-            })
-          ),
-          _react2.default.createElement(
-            'td',
-            { className: 'form-column w10' },
-            _react2.default.createElement(
-              'button',
-              {
-                className: 'btn btn-default btn-xs pull-right',
-                onClick: function onClick() {
-                  return onRemovePropertySeed(key);
-                },
-                style: { marginTop: '2px' }
-              },
-              _react2.default.createElement('i', { className: 'fa fa-remove' })
-            )
-          )
-        );
-      });
-    }
-  }, {
     key: 'render',
     value: function render() {
-      var _props2 = this.props,
-          onAddPropertySeed = _props2.onAddPropertySeed,
-          activeComponentFilepath = _props2.activeComponentFilepath,
-          isRendering = _props2.isRendering;
+      var _props = this.props,
+          activeComponentFilepath = _props.activeComponentFilepath,
+          isRendering = _props.isRendering;
 
 
       var componentBasename = activeComponentFilepath ? ' - ' + _path2.default.basename(activeComponentFilepath) : '';
@@ -126,20 +68,10 @@ var PreviewPane = function (_React$Component) {
           { className: 'pane-group pane-group-preview' },
           _react2.default.createElement(
             'div',
-            { className: 'pane-header' },
+            { className: 'pane-header draggable-region' },
             'Component Preview',
             componentBasename,
-            isRendering && _react2.default.createElement('i', { className: 'fa fa-refresh fa-spin ml1' }),
-            _react2.default.createElement(
-              'button',
-              {
-                className: 'btn btn-default btn-xs pull-right',
-                'data-toggle': 'modal',
-                'data-target': '#settings-modal'
-              },
-              _react2.default.createElement('i', { className: 'fa fa-cog mr1' }),
-              'Settings'
-            )
+            isRendering && _react2.default.createElement('i', { className: 'fa fa-refresh fa-spin ml1' })
           ),
           _react2.default.createElement(
             'div',
@@ -158,62 +90,7 @@ var PreviewPane = function (_React$Component) {
                 }
               },
               _react2.default.createElement('style', { id: 'component-styles' }),
-              _react2.default.createElement('div', {
-                className: 'align-middle',
-                id: 'component-preview'
-              })
-            )
-          )
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'pane-group pane-group-prop-editor' },
-          _react2.default.createElement(
-            'div',
-            { className: 'pane-header' },
-            'Property Editor',
-            _react2.default.createElement(
-              'button',
-              {
-                onClick: onAddPropertySeed,
-                className: 'btn btn-default btn-xs pull-right mr1'
-              },
-              'Detect and Replace Properties'
-            ),
-            _react2.default.createElement(
-              'button',
-              {
-                onClick: onAddPropertySeed,
-                className: 'btn btn-default btn-xs pull-right mr1'
-              },
-              _react2.default.createElement('i', { className: 'fa fa-plus' }),
-              ' Property'
-            )
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'pane-body' },
-            _react2.default.createElement(
-              'div',
-              { className: 'pane-row',
-                style: {
-                  overflowY: 'scroll',
-                  position: 'absolute',
-                  top: 37,
-                  left: 0,
-                  bottom: 0,
-                  right: 0
-                }
-              },
-              _react2.default.createElement(
-                'table',
-                { className: 'table mb0' },
-                _react2.default.createElement(
-                  'tbody',
-                  null,
-                  this.renderPropertyDataFields()
-                )
-              )
+              _react2.default.createElement('div', { className: 'align-middle', id: 'component-preview' })
             )
           )
         )

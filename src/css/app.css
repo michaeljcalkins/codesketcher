@@ -1,43 +1,47 @@
-html, body {
-  background: #222A34;
+html,
+body {
+  background: #222a34;
   font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
-  color: #99A6B8;
+  color: #99a6b8;
   text-rendering: optimizelegibility;
+}
+
+.draggable-region {
+  -webkit-app-region: no-drag;
 }
 
 /**
  * Bootstrap Overrides
  */
 .btn-default {
-  background: #2C3644;
+  background: #2c3644;
   border-radius: 2px;
   border: 0;
-  color: #99A6B8;
+  color: #99a6b8;
   padding: 5px 8px;
 }
 
 .table > tbody > tr > td {
-  border-top-color: #181E26;
+  border-top-color: #181e26;
+  vertical-align: middle !important;
 }
 
 .modal-content {
-  background: #222A34;
+  background: #222a34;
 }
 
 /**
  * Pane
  */
-.pane .pane-group {
+.pane-group {
   background: transparent;
   border-radius: 0;
   border: 0;
   box-shadow: none;
-  left: 0;
   overflow: hidden;
-  position: absolute;
-  right: 0;
 }
-.pane .pane-group:first-child .pane-header {
+
+.pane-group:first-child .pane-header {
   border-top: 0;
 }
 
@@ -64,12 +68,12 @@ html, body {
 }
 
 .pane-header {
-  background: #222A34;
-  color: #99A6B8;
+  background: #222a34;
+  color: #99a6b8;
   clear: both;
   font-size: 12px;
   font-weight: bold;
-  padding: 10px 5px;
+  padding: 10px 15px;
   line-height: 18px;
   height: 37px;
   width: 100%;
@@ -95,25 +99,27 @@ html, body {
 .form-column {
   float: left;
   font-size: 12px;
-  padding-right: 5px;
-  padding-left: 5px;
+  padding-right: 15px;
+  padding-left: 15px;
   width: 33%;
 }
 
 .form-label {
-  line-height: 23px;
+  line-height: 30px;
   font-size: 11px;
+  margin: 0;
 }
 
 .form-column input,
 .form-column textarea {
   border: 0;
   border-radius: 2px;
-  color: #2C3644;
+  color: #2c3644;
   font-size: 12px;
   font-weight: 400;
   line-height: 24px;
   padding: 3px 5px;
+  height: 30px;
   width: 100%;
 }
 
@@ -151,7 +157,7 @@ html, body {
  * Components Pane
  */
 .pane-components {
-  background: #222A34;
+  background: #222a34;
   bottom: 0;
   left: 0;
   position: absolute;
@@ -163,7 +169,7 @@ html, body {
  * Preview Pane
  */
 .pane-preview {
-  background-color: #2C3643;
+  background-color: #2c3643;
   bottom: 0;
   display: block;
   position: absolute;
@@ -176,7 +182,7 @@ html, body {
 }
 
 #component-preview {
-  background: #2C3643;
+  background: #2c3643;
   bottom: 0;
   left: 0;
   position: absolute;
@@ -208,7 +214,7 @@ html, body {
 }
 
 .bglb {
-  background-color: #2C3544;
+  background-color: #2c3544;
 }
 
 .bra0 {
@@ -223,16 +229,18 @@ html, body {
   text-transform: uppercase;
 }
 
-.tcw, .tcw-hover:hover {
+.tcw,
+.tcw-hover:hover {
   color: #eee;
 }
 
-.tcb, .tcb-hover:hover {
+.tcb,
+.tcb-hover:hover {
   color: #333;
 }
 
 .tcg {
-  color: #99A6B8;
+  color: #99a6b8;
 }
 
 .tcw.table-hover > tbody > tr:hover {
@@ -243,7 +251,8 @@ html, body {
   background: rgba(0, 0, 0, 0.1);
 }
 
-.table-text-right th, .table-text-right td {
+.table-text-right th,
+.table-text-right td {
   text-align: right;
 }
 .table-text-right .text-left {
@@ -281,7 +290,7 @@ html, body {
 }
 
 .text-stroke {
-  text-shadow: -1px -1px 0 #504F4D, 1px -1px 0 #504F4D, -1px 1px 0 #504F4D, 1px 1px 0 #504F4D;
+  text-shadow: -1px -1px 0 #504f4d, 1px -1px 0 #504f4d, -1px 1px 0 #504f4d, 1px 1px 0 #504f4d;
 }
 
 .one-fifth {
@@ -323,19 +332,19 @@ html, body {
 }
 
 .br1 {
-  border-right: 1px solid #181E26;
+  border-right: 1px solid #181e26;
 }
 
 .bb1 {
-  border-bottom: 1px solid #181E26;
+  border-bottom: 1px solid #181e26;
 }
 
 .bt1 {
-  border-top: 1px solid #181E26;
+  border-top: 1px solid #181e26;
 }
 
 .bl1 {
-  border-left: 1px solid #181E26;
+  border-left: 1px solid #181e26;
 }
 
 .h100 {
