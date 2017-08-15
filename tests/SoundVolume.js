@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function () {
+export default function() {
   const styles = {
     fontSize: '20px',
     textAlign: 'center',
@@ -10,10 +10,10 @@ export default function () {
     height: '47px',
     float: 'left'
   }
-    
+
   return (
-		<div style={styles}>
-      <i className="fa fa-volume-up"></i>
+    <div style={styles}>
+      <i className="fa fa-volume-up" />
     </div>
   )
 }

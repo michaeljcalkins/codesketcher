@@ -1,10 +1,6 @@
 import React from 'react'
 
-export default function ({
-  artistName,
-  songName,
-  albumImageUrl
-}) {
+export default function({ artistName, songName, albumImageUrl }) {
   const styles = {
     container: {
       float: 'left',
@@ -34,8 +30,12 @@ export default function ({
     <div style={styles.container}>
       <img style={styles.image} src={albumImageUrl} />
       <div style={styles.infoContainer}>
-        <div style={styles.songName}>{songName}</div>
-        <div style={styles.artistName}>{artistName}</div>
+        <div style={styles.songName}>
+          {songName}
+        </div>
+        <div style={styles.artistName}>
+          {artistName}
+        </div>
       </div>
     </div>
   )

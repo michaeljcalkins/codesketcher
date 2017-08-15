@@ -10,7 +10,7 @@ import SoundVolume from './SoundVolume'
 import SongInfo from './SongInfo'
 
 export default class SongRow extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
     autobind(this)
 
@@ -19,24 +19,16 @@ export default class SongRow extends React.Component {
     }
   }
 
-  handleTogglePlay () {
+  handleTogglePlay() {
     this.setState({
       isPlaying: !this.state.isPlaying
     })
   }
 
-  render () {
-    const {
-      artistName,
-      songName,
-      albumImageUrl,
-      waveformUrl,
-      secondsRemaining
-    } = this.props
+  render() {
+    const { artistName, songName, albumImageUrl, waveformUrl, secondsRemaining } = this.props
 
-    const {
-      isPlaying
-    } = this.state
+    const { isPlaying } = this.state
 
     const styles = {
       background: '#fff',
@@ -56,23 +48,12 @@ export default class SongRow extends React.Component {
     return (
       <div style={styles}>
         <PreviousButton />
-        <PlayButton
-          onTogglePlay={this.handleTogglePlay}
-          isPlaying={isPlaying}
-        />
+        <PlayButton onTogglePlay={this.handleTogglePlay} isPlaying={isPlaying} />
         <NextButton />
-        <SongTime
-          secondsRemaining={secondsRemaining}
-        />
-        <Wavelength
-          waveformUrl={waveformUrl}
-        />
+        <SongTime secondsRemaining={secondsRemaining} />
+        <Wavelength waveformUrl={waveformUrl} />
         <SoundVolume />
-        <SongInfo
-          artistName={artistName}
-          songName={songName}
-          albumImageUrl={albumImageUrl}
-        />
+        <SongInfo artistName={artistName} songName={songName} albumImageUrl={albumImageUrl} />
       </div>
     )
   }

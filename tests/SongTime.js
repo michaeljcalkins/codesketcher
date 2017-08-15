@@ -2,9 +2,7 @@ import React from 'react'
 
 import getTimeStringFromSeconds from './lib/getTimeStringFromSeconds'
 
-export default function ({
-  secondsRemaining
-}) {
+export default function({ secondsRemaining }) {
   const styles = {
     lineHeight: '47px',
     textAlign: 'center',

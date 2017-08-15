@@ -1,8 +1,6 @@
 import React from 'react'
 
-export default function ({
-  waveformUrl
-}) {
+export default function({ waveformUrl }) {
   const styles = {
     width: '40%',
     height: '47px',

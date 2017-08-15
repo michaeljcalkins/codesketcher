@@ -1,45 +1,51 @@
 import React from 'react'
 import autobind from 'react-autobind'
-import path from 'path'
 
-export default class PreviewPane extends React.Component {
-  constructor(props) {
-    super(props)
-    autobind(this)
-  }
-
-  render() {
-    const { activeComponentFilepath, isRendering } = this.props
-
-    const componentBasename = activeComponentFilepath ? ' - ' + path.basename(activeComponentFilepath) : ''
-
-    return (
-      <div>
-        <div className="pane-group pane-group-preview">
-          <div className="pane-header draggable-region">
-            Component Preview
-            {componentBasename}
-            {isRendering && <i className="fa fa-refresh fa-spin ml1" />}
-          </div>
-
-          <div className="pane-body">
+export default function PreviewPane({}) {
+  return (
+    <div
+      className="pane"
+      style={{
+        backgroundColor: '#2c3643',
+        bottom: 0,
+        display: 'block',
+        position: 'absolute',
+        left: 0,
+        marginLeft: '275px',
+        right: 0,
+        top: '37px',
+        width: 'auto',
+        zIndex: 2
+      }}
+    >
+      <div className="pane-group">
+        <div className="pane-body">
+          <div
+            style={{
+              overflow: 'auto',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              bottom: 0,
+              right: 0
+            }}
+          >
+            <style id="component-styles" />
             <div
-              className="bl1 bb1 bt1"
+              className="align-middle"
+              id="component-preview"
               style={{
-                overflow: 'auto',
-                position: 'absolute',
-                top: '37px',
-                left: 0,
+                background: '#2c3643',
                 bottom: 0,
-                right: 0
+                left: 0,
+                position: 'absolute',
+                right: 0,
+                top: '37px'
               }}
-            >
-              <style id="component-styles" />
-              <div className="align-middle" id="component-preview" />
-            </div>
+            />
           </div>
         </div>
       </div>
-    )
-  }
+    </div>
+  )
 }

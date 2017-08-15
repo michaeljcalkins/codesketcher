@@ -1,97 +1,92 @@
 import React from 'react'
 
-export default function ImportsPane({
-  handleSetState,
-  imports,
+export default function SidebarPane({
+  basePathForImages,
+  includedCssUrl,
+  debouncedRenderComponent,
   onAddPropertySeed,
+  onIncludedCssUrlChange,
+  onOpenComponentOpenDialog,
   onRemovePropertySeed,
   onSetPropertySeed,
-  propertySeeds,
-  onSetBasePathForImages,
-  onSetIncludedCss,
-  handleOpenComponentOpenDialog,
-  handleOpenComponent
+  onSetState,
+  propertySeeds
 }) {
-  function onSetImportPath(e) {}
+  function handleSetIncludedCssUrl(e) {
+    onSetState(
+      {
+        includedCssUrl: e.currentTarget.value
+      },
+      () => {
+        onIncludedCssUrlChange()
+      }
+    )
+  }
 
-  function renderImportRows() {
-    return imports.map(importString => {
-      return (
-        <div className="pane-row mb1" key={'import-' + importString.packageName}>
-          <div className="form-column one-half">
-            <label className="form-label">
-              {importString.packageName}
-            </label>
-          </div>
-          <div className="form-column one-half">
-            <input type="text" placeholder="Value" defaultValue={importString.path} onChange={onSetImportPath} />
-          </div>
-        </div>
-      )
+  function handleSetBasePathForImages(e) {
+    onSetState({
+      basePathForImages: e.currentTarget.value
     })
   }
+
+  function handleAddDependency() {}
 
   function renderPropertyDataFields() {
     if (!propertySeeds) return []
 
     return propertySeeds.map((propertySeed, key) => {
       return (
-        <tr key={'property-seed-' + propertySeed.id}>
-          <td className="form-column w45 bl1">
+        <div className="form-row" key={'property-seed-' + propertySeed.id}>
+          <div className="form-column full-width">
             <input
               type="text"
+              className="mb1"
               placeholder="Key"
               defaultValue={propertySeed.key}
               onChange={e => onSetPropertySeed(e, key, 'key')}
             />
-          </td>
-          <td className="form-column w45">
-            <input
-              type="text"
+            <textarea
+              style={{ height: '60px' }}
               placeholder="Value"
               defaultValue={propertySeed.value}
               onChange={e => onSetPropertySeed(e, key, 'value')}
             />
-          </td>
-          <td className="form-column w10">
             <button
-              className="btn btn-default btn-xs pull-right"
+              className="btn btn-default btn-block btn-xs pull-right mb2"
               onClick={() => onRemovePropertySeed(key)}
-              style={{ marginTop: '2px' }}
             >
               <i className="fa fa-remove" />
             </button>
-          </td>
-        </tr>
+          </div>
+        </div>
       )
     })
   }
 
-  function onAddDependency() {}
-
-  function handleSubmitOpenComponent(e) {
-    console.log(e)
-    handleOpenComponent()
-  }
-
-  const defaultBasePathForImages = window.localStorage.getItem('basePathForImages')
-  const defaultIncludedCss = window.localStorage.getItem('includedCss')
-
   return (
-    <div style={{ marginTop: 37 }}>
-      <div className="pane-group bb1 bt1 pb1">
+    <div
+      className="pane "
+      style={{
+        background: '#222a34',
+        bottom: 0,
+        left: 0,
+        position: 'absolute',
+        top: 37,
+        width: '275px'
+      }}
+    >
+      <div className="pane-group bb1 pb1">
         <div className="pane-header">Entry File</div>
         <div className="pane-body">
           <div className="pane-row mb1">
             <div className="form-column full-width">
-              <button className="btn btn-default btn-block" onClick={handleOpenComponentOpenDialog}>
+              <button className="btn btn-default btn-block" onClick={onOpenComponentOpenDialog}>
                 <i className="fa fa-folder" /> Open File
               </button>
             </div>
           </div>
         </div>
       </div>
-
       <div className="pane-group bb1 pb1">
         <div className="pane-header">
           Property Editor
@@ -100,29 +95,21 @@ export default function ImportsPane({
           </button>
         </div>
         <div className="pane-body">
-          <div className="pane-row">
-            <table className="table mb0">
-              <tbody>
-                {renderPropertyDataFields()}
-              </tbody>
-            </table>
-          </div>
+          {renderPropertyDataFields()}
         </div>
       </div>
-
       <div className="pane-group bb1 pb1">
         <div className="pane-header">NPM Packages</div>
         <div className="pane-body">
           <div className="pane-row mb1">
             <div className="form-column full-width">
-              <form onSubmit={onAddDependency}>
+              <form onSubmit={handleAddDependency}>
                 <input className="form-control" placeholder="Write package name and press enter..." type="text" />
               </form>
             </div>
           </div>
         </div>
       </div>
-
       <div className="pane-group bb1 pb1">
         <div className="pane-header">Included CSS File</div>
         <div className="pane-body">
@@ -130,8 +117,8 @@ export default function ImportsPane({
             <div className="form-column full-width">
               <input
                 className="form-control"
-                defaultValue={defaultIncludedCss}
-                onChange={onSetIncludedCss}
+                defaultValue={includedCssUrl}
+                onChange={handleSetIncludedCssUrl}
                 placeholder="http://localhost:3000/css/app.css"
                 type="text"
               />
@@ -139,8 +126,21 @@ export default function ImportsPane({
           </div>
         </div>
       </div>
-      <div className="form-row">
-        <label />
+      <div className="pane-group bb1 pb1">
+        <div className="pane-header">Base Path For Images</div>
+        <div className="pane-body">
+          <div className="pane-row mb1">
+            <div className="form-column full-width">
+              <input
+                className="form-control"
+                defaultValue={basePathForImages}
+                onChange={handleSetBasePathForImages}
+                placeholder="http://localhost:3000/images"
+                type="text"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

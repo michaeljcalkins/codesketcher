@@ -1,9 +1,6 @@
 import React from 'react'
 
-export default function ({
-  isPlaying,
-  onTogglePlay
-}) {
+export default function({ isPlaying, onTogglePlay }) {
   const styles = {
     fontSize: '25px',
     lineHeight: '47px',
@@ -16,14 +13,14 @@ export default function ({
   if (isPlaying) {
     return (
       <div style={styles} onClick={onTogglePlay}>
-        <i className='fa fa-pause' />
+        <i className="fa fa-pause" />
       </div>
     )
   }
 
   return (
     <div style={styles} onClick={onTogglePlay}>
-      <i className='fa fa-play' />
+      <i className="fa fa-play" />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-export default function (secondsRemaining) {
+export default function(secondsRemaining) {
   const minutes = Math.floor(secondsRemaining / 60)
   const seconds = secondsRemaining - minutes * 60
 

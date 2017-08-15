@@ -10,9 +10,7 @@ var gulp = require('gulp'),
   cache = require('gulp-cache')
 
 gulp.task('styles', function() {
-  return sass('resources/sass/app.scss', { style: 'expanded' })
-    .pipe(gulp.dest('src/css'))
-    .pipe(notify({ message: 'Styles task complete' }))
+  return sass('resources/sass/app.scss', { style: 'expanded' }).pipe(gulp.dest('src/css'))
 })
 
 gulp.task('watch', ['styles'], function(cb) {

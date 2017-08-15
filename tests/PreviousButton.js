@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function () {
+export default function() {
   const styles = {
     lineHeight: '47px',
     textAlign: 'center',
@@ -11,7 +11,7 @@ export default function () {
 
   return (
     <div style={styles}>
-      <i className='fa fa-backward' />
+      <i className="fa fa-backward" />
     </div>
   )
 }
